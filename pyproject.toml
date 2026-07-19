@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "data_certify"
+version = "0.1.0"
+description = "DATA-CERTIFY: A Dataset Trustworthiness Audit Framework for Disaster Seismic Data. Theoretical-framework companion implementation."
+authors = [
+    {name = "Nattakitti Piyavechvirat"}
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "All Rights Reserved"}
+dependencies = [
+    "numpy>=1.21.0",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.optional-dependencies]
+# scipy is needed only by tests/test_scientific_validity.py's independent
+# cross-checks against scipy.stats (the core package itself stays numpy-only);
+# without it those 66 tests are skipped, not failed.
+test    = ["pytest>=7.0", "scipy>=1.7"]
+prepare = ["pandas>=1.3"]
+all     = ["pytest>=7.0", "pandas>=1.3", "scipy>=1.7"]
+
+[project.scripts]
+data-certify-audit = "run_audit:main"
+data-certify-prepare = "prepare_dataset:main"
+
+[tool.setuptools]
+py-modules = ["run_audit", "prepare_dataset"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["data_certify*"]
+
+[tool.setuptools.package-data]
+data_certify = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths    = ["tests"]
+addopts      = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+    "ignore::RuntimeWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"

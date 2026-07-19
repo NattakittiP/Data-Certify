@@ -467,8 +467,8 @@ def correlation_dimension(
         Estimated Dc (slope of log C(r) vs log r over the scaling region),
         or NaN if too few points.
 
-    Scientific-validity note (found during the review pass that added
-    tests/test_scientific_validity.py): an earlier version of this function
+    Scientific-validity note (found during an internal review pass):
+    an earlier version of this function
     used r_min/r_max = the 5th/95th percentile of the pairwise-distance
     distribution. For points scattered over a bounded 2-D domain, pairwise
     distances concentrate around the domain's own characteristic scale (the

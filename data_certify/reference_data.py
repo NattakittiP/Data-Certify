@@ -839,9 +839,8 @@ class USGSComCatReference(ExternalCatalogReference):
         matching entries designed to appear in (or be scraped alongside)
         the external catalog itself -- that is a fundamentally different,
         much harder threat model (compromising or spoofing USGS ComCat
-        itself) that no dataset-side audit can address. See
-        tests/test_adversarial.py for this explicitly-disclosed residual
-        gap.
+        itself) that no dataset-side audit can address. This is an
+        explicitly-disclosed residual gap, not a hidden one.
     """
 
     def __init__(self, timeout_sec: float = 10.0,

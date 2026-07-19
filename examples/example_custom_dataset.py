@@ -61,7 +61,7 @@ def section(text: str) -> None:
 def _blank_dataset(name: str, n: int, **overrides) -> CertifyDataset:
     """Build a CertifyDataset with sensible defaults for every field, so
     callers only need to specify the fields relevant to the scenario being
-    demonstrated. Mirrors the pattern used throughout tests/conftest.py."""
+    demonstrated."""
     base_time = np.datetime64("2020-01-01T00:00:00", "ns")
     hour = np.timedelta64(1, "h")
     defaults = dict(

@@ -457,9 +457,21 @@ def _score_a6_external(dataset: CertifyDataset,
         mag >= (match_result.mc_ref + match_result.mc_ref_se)
     )
     n_stratum = int(np.sum(stratum_mask))
+    # REPRODUCIBILITY METADATA (review point 3.7): attached to every A6
+    # SubTestResult that actually reached a live/local reference query
+    # (i.e. every branch below this point), so a reader can tell exactly
+    # which source was queried, when, with what tolerances, and how many
+    # reference events were available -- see MatchResult's docstring in
+    # reference_data.py for the full rationale.
+    reference_metadata = {
+        "source_name": match_result.source_name,
+        "query_timestamp_utc": match_result.query_timestamp_utc,
+        "query_params": match_result.query_params,
+    }
     if n_stratum == 0:
         return {"sub_result": SubTestResult(
             name="A6", score=float("nan"), applicable=False,
+            detail=dict(reference_metadata),
             note=f"No records at/above reference-complete stratum "
                  f"(Mc_ref={match_result.mc_ref:.2f} + SE {match_result.mc_ref_se:.2f}). "
                  f"A(D) falls back to intrinsic-only A1-A5 for the whole dataset."),
@@ -548,7 +560,8 @@ def _score_a6_external(dataset: CertifyDataset,
                     "contradicted_p_value": contradicted_p_value,
                     "mc_ref": match_result.mc_ref, "mc_ref_se": match_result.mc_ref_se,
                     "mc_ref_is_default": match_result.mc_ref_is_default,
-                    "theta_auth": THETA_AUTH},
+                    "theta_auth": THETA_AUTH,
+                    **reference_metadata},
             note=f"{n_stratum} reference-complete-stratum records, but none reached "
                  f"'Externally corroborated' or a confirmed 'Externally contradicted' "
                  f"verdict ({n_unverifiable} 'Externally unverifiable', "
@@ -575,7 +588,8 @@ def _score_a6_external(dataset: CertifyDataset,
                 "contradicted_p_value": contradicted_p_value,
                 "mc_ref": match_result.mc_ref, "mc_ref_se": match_result.mc_ref_se,
                 "mc_ref_is_default": match_result.mc_ref_is_default,
-                "theta_auth": THETA_AUTH},
+                "theta_auth": THETA_AUTH,
+                **reference_metadata},
         note=f"{n_corroborated}/{n_effective} 'Externally corroborated' of the records "
              f"A6 actually forms a verdict on ({n_stratum} reference-complete-stratum "
              f"total; {n_unverifiable} 'Externally unverifiable' excluded and scored via "

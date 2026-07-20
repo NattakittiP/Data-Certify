@@ -226,9 +226,10 @@ import urllib.parse
 import urllib.request
 import warnings
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 
@@ -259,6 +260,21 @@ class MatchResult:
     # more than one independent source per record.
     n_sources_queried: Optional[np.ndarray] = None   # int array: independently-feasible sources whose OWN completeness stratum covers this record
     n_sources_matched: Optional[np.ndarray] = None   # int array: of those, how many found a matching event
+
+    # REPRODUCIBILITY / AUDIT-TRAIL METADATA (2026-07-20, review point 3.7):
+    # an A6 verdict is only as trustworthy as the query that produced it --
+    # without knowing WHEN a live source was queried, WHAT tolerance/query
+    # parameters were used, and HOW MANY reference events were actually
+    # available to match against, two audits of the same dataset run months
+    # apart against a live, constantly-updated external catalog can silently
+    # diverge with no way to tell why from the result alone. These fields
+    # are populated by every concrete ExternalCatalogReference.match()
+    # implementation (None only for the abstract default) and flow straight
+    # through into A6's SubTestResult.detail, and therefore into the JSON
+    # audit output, without requiring any caller-side changes.
+    source_name: str = "unknown"                      # e.g. "USGS ComCat", "EMSC SeismicPortal", "local CSV (path)"
+    query_timestamp_utc: Optional[str] = None          # ISO-8601 UTC timestamp of when match() was executed
+    query_params: Dict[str, Any] = field(default_factory=dict)  # e.g. {"time_tol_sec":..., "n_reference_events":...}
 
 
 class ExternalCatalogReference(abc.ABC):
@@ -306,6 +322,9 @@ class NullExternalCatalog(ExternalCatalogReference):
         return MatchResult(
             matched=np.zeros(n, dtype=bool),
             mc_ref=float("nan"), mc_ref_se=float("nan"), mc_ref_is_default=True,
+            source_name="none (offline / no reference configured)",
+            query_timestamp_utc=datetime.now(timezone.utc).isoformat(),
+            query_params={"n_reference_events": 0},
         )
 
 
@@ -375,6 +394,7 @@ def _match_against_reference_arrays(
     time_tol_sec: float,
     dist_tol_km: float,
     mag_tol: float,
+    source_name: str = "unknown",
 ) -> MatchResult:
     """
     Shared A6 matching core: once ANY reference source (a second local CSV,
@@ -408,12 +428,26 @@ def _match_against_reference_arrays(
     side's own local day-offset.
     """
     mc_ref, mc_ref_se, mc_ref_is_default = _estimate_mc_ref(ref_mag)
+    query_timestamp_utc = datetime.now(timezone.utc).isoformat()
+    query_params = {
+        "time_tol_sec": time_tol_sec, "dist_tol_km": dist_tol_km, "mag_tol": mag_tol,
+        # "Coverage" stat (review point 3.7): how many reference events this
+        # query actually had available to match against -- lets a reader
+        # distinguish "0% matched because nothing corroborates this dataset"
+        # from "0% matched because the reference query itself returned no
+        # events at all" (e.g. an outage, an empty region, a too-narrow
+        # query window), which look identical in matched_fraction alone.
+        "n_reference_events": int(len(ref_time)),
+    }
 
     n = dataset.n
     matched = np.zeros(n, dtype=bool)
     if len(ref_time) == 0:
         return MatchResult(matched=matched, mc_ref=mc_ref, mc_ref_se=mc_ref_se,
-                            mc_ref_is_default=mc_ref_is_default)
+                            mc_ref_is_default=mc_ref_is_default,
+                            source_name=source_name,
+                            query_timestamp_utc=query_timestamp_utc,
+                            query_params=query_params)
 
     for i in range(n):
         query_time = dataset.origin_time[i]
@@ -433,7 +467,10 @@ def _match_against_reference_arrays(
                 break
 
     return MatchResult(matched=matched, mc_ref=mc_ref, mc_ref_se=mc_ref_se,
-                        mc_ref_is_default=mc_ref_is_default)
+                        mc_ref_is_default=mc_ref_is_default,
+                        source_name=source_name,
+                        query_timestamp_utc=query_timestamp_utc,
+                        query_params=query_params)
 
 
 class LocalCSVCatalogReference(ExternalCatalogReference):
@@ -468,6 +505,7 @@ class LocalCSVCatalogReference(ExternalCatalogReference):
         return _match_against_reference_arrays(
             dataset, ref.origin_time, ref.latitude, ref.longitude, ref.magnitude,
             time_tol_sec, dist_tol_km, mag_tol,
+            source_name=f"local CSV ({self._path})",
         )
 
 
@@ -1057,6 +1095,7 @@ class USGSComCatReference(ExternalCatalogReference):
         return _match_against_reference_arrays(
             dataset, ref_time, ref_lat, ref_lon, ref_mag,
             time_tol_sec, dist_tol_km, mag_tol,
+            source_name="USGS ComCat",
         )
 
 
@@ -1497,6 +1536,7 @@ class EMSCReference(ExternalCatalogReference):
         return _match_against_reference_arrays(
             dataset, ref_time, ref_lat, ref_lon, ref_mag,
             time_tol_sec, dist_tol_km, mag_tol,
+            source_name="EMSC SeismicPortal",
         )
 
 
@@ -1997,6 +2037,7 @@ class ISCReference(ExternalCatalogReference):
         return _match_against_reference_arrays(
             dataset, ref_time, ref_lat, ref_lon, ref_mag,
             time_tol_sec, dist_tol_km, mag_tol,
+            source_name="ISC",
         )
 
 
@@ -2110,10 +2151,27 @@ class MultiSourceExternalCatalogReference(ExternalCatalogReference):
         else:
             mc_ref, mc_ref_se, mc_ref_is_default = float("nan"), float("nan"), True
 
+        combined_source_name = (
+            f"multi-source (min_corroborating_sources={self._min_corroborating} of "
+            f"[{', '.join(r.source_name for r in per_source)}])"
+        )
         return MatchResult(matched=matched, mc_ref=mc_ref, mc_ref_se=mc_ref_se,
                             mc_ref_is_default=mc_ref_is_default,
                             n_sources_queried=n_sources_queried,
-                            n_sources_matched=n_sources_matched)
+                            n_sources_matched=n_sources_matched,
+                            source_name=combined_source_name,
+                            query_timestamp_utc=datetime.now(timezone.utc).isoformat(),
+                            query_params={
+                                "time_tol_sec": time_tol_sec, "dist_tol_km": dist_tol_km,
+                                "mag_tol": mag_tol,
+                                "min_corroborating_sources": self._min_corroborating,
+                                "per_source": [
+                                    {"source_name": r.source_name,
+                                     "query_timestamp_utc": r.query_timestamp_utc,
+                                     "query_params": r.query_params}
+                                    for r in per_source
+                                ],
+                            })
 
 
 class WeightedMultiSourceExternalCatalogReference(ExternalCatalogReference):
@@ -2265,10 +2323,28 @@ class WeightedMultiSourceExternalCatalogReference(ExternalCatalogReference):
             n_sources_queried += covered.astype(int)
             n_sources_matched += (covered & r.matched.astype(bool)).astype(int)
 
+        combined_source_name = (
+            f"weighted multi-source (default_mc_ref_weight_discount="
+            f"{self._default_discount} over [{', '.join(r.source_name for r in contributing)}])"
+        )
         return MatchResult(matched=weighted_vote, mc_ref=mc_ref,
                             mc_ref_se=mc_ref_se, mc_ref_is_default=mc_ref_is_default,
                             n_sources_queried=n_sources_queried,
-                            n_sources_matched=n_sources_matched)
+                            n_sources_matched=n_sources_matched,
+                            source_name=combined_source_name,
+                            query_timestamp_utc=datetime.now(timezone.utc).isoformat(),
+                            query_params={
+                                "time_tol_sec": time_tol_sec, "dist_tol_km": dist_tol_km,
+                                "mag_tol": mag_tol,
+                                "default_mc_ref_weight_discount": self._default_discount,
+                                "per_source_weights": [float(w) for w in weights],
+                                "per_source": [
+                                    {"source_name": r.source_name,
+                                     "query_timestamp_utc": r.query_timestamp_utc,
+                                     "query_params": r.query_params}
+                                    for r in contributing
+                                ],
+                            })
 
 
 # =============================================================================

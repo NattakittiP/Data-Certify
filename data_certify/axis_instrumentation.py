@@ -12,7 +12,7 @@ DATA-CERTIFY_06_Gap_Remediation_and_Robustness_Addendum.md Section 3.3.
     I2  Large-event clipping / saturation
     I3  Revision-flag (preliminary/final) consistency
     I4  Cross-catalog duplicate-ID detection (EM-fitted Fellegi-Sunter)
-    I5  Schema drift (sliding-window two-sample Kolmogorov-Smirnov)
+    I5  Temporal distribution drift (early-vs-late two-sample Kolmogorov-Smirnov)
 """
 
 from __future__ import annotations
@@ -258,16 +258,30 @@ def _score_i4_cross_catalog_dedup(
     )
 
 
-def _score_i5_schema_drift(
+def _score_i5_temporal_distribution_drift(
     dataset: CertifyDataset,
     field: str = "magnitude",
     n_windows: int = 2,
 ) -> SubTestResult:
     """
-    I5: Schema-drift detection via sliding-window two-sample KS test on a
-    field's distribution across the time axis (main framework Section 3.4).
-    Score_I5 = 1 - D, the KS statistic itself, already bounded in [0,1]
-    (Gap-Remediation Addendum Section 3.3).
+    I5: Temporal distribution drift -- an early-vs-late two-sample
+    Kolmogorov-Smirnov test on a single numeric field's distribution
+    (main framework Section 3.4). Score_I5 = 1 - D, the KS statistic
+    itself, already bounded in [0,1] (Gap-Remediation Addendum Section
+    3.3).
+
+    NAMING NOTE (2026-07-20): this test was previously named/labeled
+    "schema drift" in code, comments, and output. That name is
+    misleading -- "schema drift" ordinarily refers to STRUCTURAL changes
+    to a dataset (columns added/removed/renamed, dtype changes, unit
+    changes, new categorical values appearing). What this function
+    actually detects is DISTRIBUTIONAL drift: whether a single already-
+    present numeric field's values (by default, `magnitude`) are drawn
+    from a different distribution in the later half of the catalog's
+    time range than the earlier half (e.g. a step-change in reported
+    magnitudes suggesting an instrumentation or processing change). It
+    does not inspect the dataset's schema/structure at all. Renamed here
+    for accuracy; the underlying KS-test computation is unchanged.
     """
     values = getattr(dataset, field)
     valid = np.isfinite(values) & ~np.isnat(dataset.origin_time)
@@ -302,7 +316,7 @@ def score_instrumentation(dataset: CertifyDataset) -> AxisResult:
     i2 = _score_i2_clipping(dataset)
     i3 = _score_i3_revision_flag(dataset)
     i4 = _score_i4_cross_catalog_dedup(dataset)
-    i5 = _score_i5_schema_drift(dataset)
+    i5 = _score_i5_temporal_distribution_drift(dataset)
 
     subs = {"I1": i1, "I2": i2, "I3": i3, "I4": i4, "I5": i5}
     applicable = {k: v for k, v in subs.items() if v.applicable and not math.isnan(v.score)}

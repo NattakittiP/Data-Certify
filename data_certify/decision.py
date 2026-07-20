@@ -28,7 +28,10 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
-from ._constants import AXIS_WEIGHTS, THETA_ADMIT, THETA_REJECT
+from ._constants import (
+    AXIS_WEIGHTS, THETA_ADMIT, THETA_REJECT,
+    WITHIN_A, WITHIN_C, WITHIN_I, WITHIN_P,
+)
 from .axis_authenticity import score_authenticity
 from .axis_completeness import score_completeness
 from .axis_instrumentation import score_instrumentation
@@ -37,6 +40,110 @@ from .hard_override import HardOverrideResult, check_hard_override
 from .reference_data import ExternalCatalogReference, FaultDatabaseReference
 from .results import AxisResult
 from .schema import CertifyDataset
+
+# Per-axis within-axis weight tables, keyed the same way as AXIS_WEIGHTS, used
+# by `_assign_effective_weights` below to compute each sub-test's NOMINAL
+# effective_weight = AXIS_WEIGHTS[axis] * WITHIN_<axis>[sub_test_name].
+# Sub-tests not present in the relevant WITHIN_* table (P1-P3, the Stage-1
+# hard-gate tests) are Stage-1, non-compensable checks -- they are
+# deliberately left with effective_weight=None rather than 0.0, since 0.0
+# would misleadingly suggest "counts for nothing" rather than "operates
+# outside the weighted sum entirely, as an unconditional veto" (review
+# point 3.4, "effective weight concentration").
+_WITHIN_BY_AXIS: Dict[str, Dict[str, float]] = {
+    "A": WITHIN_A, "P": WITHIN_P, "C": WITHIN_C, "I": WITHIN_I,
+}
+
+
+def _assign_effective_weights(axis_results: Dict[str, AxisResult]) -> None:
+    """
+    Mutates each SubTestResult in `axis_results` in place, setting its
+    `effective_weight` field to the NOMINAL (as-calibrated) contribution
+    that sub-test makes to T(D): AXIS_WEIGHTS[axis] * WITHIN_<axis>[name].
+
+    This directly surfaces the "effective weight concentration" point
+    raised in the 2026-07 external review (Section 3.4): the framework's
+    24 sub-tests are NOT equally weighted -- e.g. A1+A3+A4 alone account
+    for ~68% of T(D)'s nominal weight, and +P5 for ~81%. Previously this
+    was only discoverable by manually multiplying AXIS_WEIGHTS by the
+    relevant WITHIN_* table; it is now reported directly on every audit
+    result (CLI --verbose output and JSON export alike) so a reader does
+    not have to reconstruct it from source.
+
+    Deliberately does NOT change T(D), the axis scores, or any
+    renormalisation behaviour -- this is purely additive, diagnostic
+    metadata attached to already-computed SubTestResult objects.
+    """
+    for axis_name, axis_result in axis_results.items():
+        within = _WITHIN_BY_AXIS.get(axis_name, {})
+        axis_weight = AXIS_WEIGHTS.get(axis_name)
+        if axis_weight is None:
+            continue
+        for sub_name, sub in axis_result.sub_results.items():
+            within_weight = within.get(sub_name)
+            if within_weight is None:
+                sub.effective_weight = None  # hard gate (P1-P3) or unknown
+            else:
+                sub.effective_weight = axis_weight * within_weight
+
+
+def _compute_evidence_coverage(
+    axis_results: Dict[str, AxisResult],
+) -> "tuple[Optional[float], List[Tuple[str, float]]]":
+    """
+    Diagnostic "evidence coverage" metric (review point 3.5, "renormalisation
+    treats absence of evidence as evidence not needed"): what FRACTION of
+    T(D)'s total NOMINAL (as-calibrated) weight was actually backed by an
+    applicable, computable sub-test in THIS specific audit -- as opposed to
+    a missing field or an inapplicable test whose weight was silently
+    folded into the other tests via renormalisation.
+
+    Built directly on top of `effective_weight` (3.4): every sub-test with
+    a defined effective_weight (i.e. every non-hard-gate sub-test across
+    all 4 axes) contributes its nominal weight to the denominator; only
+    APPLICABLE sub-tests with a computable (non-NaN) score contribute to
+    the numerator. By construction (AXIS_WEIGHTS and each WITHIN_* table
+    are each individually normalised to sum to 1.0), the denominator is
+    very close to 1.0 for a full, unmodified calibration -- computed here
+    directly rather than hard-coded, so this stays correct even if the
+    calibrated weights are ever revised.
+
+    This is DIAGNOSTIC ONLY where per-axis "N/4 axes applicable" and
+    "N/5 tests applicable" caveats already existed -- those counts treat
+    every axis/sub-test as equally important, which is exactly what 3.4
+    showed is not true (e.g. losing A3 alone drops ~29% of nominal weight,
+    while losing A5 drops ~0.3%). Coverage answers "how much of T(D)'s
+    DESIGNED weight is this specific number actually resting on", a
+    strictly more informative version of the same question.
+
+    Returns:
+        (coverage, missing) where `coverage` is in [0, 1] (None if the
+        nominal weight total is zero/undefined, e.g. no axes computed at
+        all), and `missing` is a list of (sub_test_name, nominal_weight)
+        pairs for every non-hard-gate sub-test that did NOT contribute to
+        the numerator, sorted by nominal_weight descending -- i.e. exactly
+        which missing evidence is costing the most designed weight, for
+        use in a human-readable caveat.
+    """
+    total_weight = 0.0
+    covered_weight = 0.0
+    missing: List[Tuple[str, float]] = []
+    for axis_result in axis_results.values():
+        for sub_name, sub in axis_result.sub_results.items():
+            if sub.effective_weight is None:
+                continue  # hard gate (P1-P3) or A6 -- outside the compensatory sum entirely
+            total_weight += sub.effective_weight
+            is_covered = sub.applicable and not (
+                isinstance(sub.score, float) and math.isnan(sub.score)
+            )
+            if is_covered:
+                covered_weight += sub.effective_weight
+            else:
+                missing.append((sub_name, sub.effective_weight))
+    if total_weight <= 0.0:
+        return None, missing
+    missing.sort(key=lambda pair: pair[1], reverse=True)
+    return covered_weight / total_weight, missing
 
 
 class CertifyDecision(str, Enum):
@@ -66,6 +173,10 @@ class CertifyResult:
     caveats: List[str] = field(default_factory=list)
     dataset_name: str = ""
     n_records: int = 0
+    # Diagnostic evidence-coverage metric (review point 3.5) -- see
+    # `_compute_evidence_coverage`'s docstring. None when no axis produced
+    # any non-hard-gate sub-test at all (e.g. the n==0 degenerate case).
+    evidence_coverage: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -73,6 +184,7 @@ class CertifyResult:
             "n_records": self.n_records,
             "decision": self.decision.value,
             "trust_score": self.trust_score,
+            "evidence_coverage": self.evidence_coverage,
             "hard_override": self.hard_override.to_dict(),
             "axis_results": {k: v.to_dict() for k, v in self.axis_results.items()},
             "weights_used": self.weights_used,
@@ -96,6 +208,9 @@ class CertifyResult:
             lines.append(f"  Trust score T(D) = {ts:.4f}" if ts is not None and not math.isnan(ts)
                          else "  Trust score T(D) = N/A (insufficient applicable tests)")
             lines.append(f"  theta_admit={self.theta_admit}  theta_reject={self.theta_reject}")
+        if self.evidence_coverage is not None:
+            lines.append(f"  Evidence coverage = {self.evidence_coverage:.1%} of T(D)'s nominal "
+                         f"calibrated weight was backed by applicable evidence in this audit.")
         lines.append("")
         lines.append("  Per-axis scores:")
         for axis_name in ("A", "P", "C", "I"):
@@ -201,6 +316,26 @@ class DataCertifyAuditor:
         reference:     Optional ExternalCatalogReference for A6.
         fault_db:      Optional FaultDatabaseReference for P8.
         reference_dc:  Optional reference correlation dimension for A4.
+        min_evidence_coverage: Additive safety gate (review point 3.5,
+                       "renormalisation treats absence of evidence as
+                       evidence not needed"): if T(D) would otherwise ADMIT
+                       but less than this fraction of T(D)'s NOMINAL
+                       calibrated weight (see `effective_weight`,
+                       `_compute_evidence_coverage`) was actually backed
+                       by applicable evidence in this specific audit, the
+                       decision is capped down to CONDITIONAL rather than
+                       ADMIT -- an ADMIT resting mostly on renormalised-
+                       away missing evidence is not the same claim as an
+                       ADMIT resting on a full battery of applicable
+                       tests, even when both produce the same T(D) number.
+                       Never upgrades a decision (CONDITIONAL/REJECT are
+                       unaffected either way) and never overrides a Stage-1
+                       hard override. Default 0.5 is a disclosed, pragmatic
+                       choice -- like theta_admit/theta_reject's own
+                       pre-calibration provisional values -- NOT itself
+                       empirically calibrated against the 968-dataset
+                       corpus; set to 0.0 to disable this gate entirely
+                       and reproduce the pre-3.5 behaviour exactly.
     """
 
     def __init__(
@@ -210,17 +345,24 @@ class DataCertifyAuditor:
         reference: Optional[ExternalCatalogReference] = None,
         fault_db: Optional[FaultDatabaseReference] = None,
         reference_dc: Optional[float] = None,
+        min_evidence_coverage: float = 0.5,
     ) -> None:
         if theta_reject > theta_admit:
             raise ValueError(
                 f"DataCertifyAuditor: theta_reject={theta_reject} must be <= "
                 f"theta_admit={theta_admit}."
             )
+        if not (0.0 <= min_evidence_coverage <= 1.0):
+            raise ValueError(
+                f"DataCertifyAuditor: min_evidence_coverage={min_evidence_coverage} "
+                f"must be in [0, 1]."
+            )
         self.theta_admit = theta_admit
         self.theta_reject = theta_reject
         self.reference = reference
         self.fault_db = fault_db
         self.reference_dc = reference_dc
+        self.min_evidence_coverage = min_evidence_coverage
 
     def audit(self, dataset: CertifyDataset) -> CertifyResult:
         """Run the full two-stage DATA-CERTIFY audit protocol on `dataset`."""
@@ -255,6 +397,8 @@ class DataCertifyAuditor:
         i_result = score_instrumentation(dataset)
 
         axis_results = {"A": a_result, "P": p_result, "C": c_result, "I": i_result}
+        _assign_effective_weights(axis_results)
+        evidence_coverage, missing_evidence = _compute_evidence_coverage(axis_results)
 
         a6_sub = a_result.sub_results.get("A6")
         a6_matched_fraction = None
@@ -294,6 +438,7 @@ class DataCertifyAuditor:
                 caveats=caveats,
                 dataset_name=dataset.name,
                 n_records=dataset.n,
+                evidence_coverage=evidence_coverage,
             )
 
         # -- Stage 2: compensatory composite score ------------------------
@@ -327,6 +472,32 @@ class DataCertifyAuditor:
         else:
             decision = CertifyDecision.REJECT
 
+        # -- Additive evidence-coverage safety gate (review point 3.5) ----
+        # Only ever CAPS an ADMIT down to CONDITIONAL -- never touches an
+        # already-CONDITIONAL or REJECT decision, and never runs at all if
+        # Stage 1 already fired (handled by the early return above). See
+        # `_compute_evidence_coverage`'s docstring and this class's
+        # `min_evidence_coverage` docstring for the full rationale: T(D)
+        # can clear theta_admit while resting mostly on renormalised-away
+        # missing evidence rather than actual applicable tests, and that is
+        # not the same strength of claim as an ADMIT backed by a full
+        # battery -- this makes that distinction visible in the decision
+        # itself, not just in a buried caveat.
+        if (decision == CertifyDecision.ADMIT
+                and evidence_coverage is not None
+                and evidence_coverage < self.min_evidence_coverage):
+            top_missing = ", ".join(
+                f"{name} ({weight:.1%} nominal weight)" for name, weight in missing_evidence[:3]
+            )
+            caveats.append(
+                f"Evidence-coverage safety gate: T(D)={trust_score:.4f} cleared "
+                f"theta_admit={self.theta_admit}, but only {evidence_coverage:.1%} of T(D)'s "
+                f"nominal calibrated weight was backed by applicable evidence in this audit "
+                f"(min_evidence_coverage={self.min_evidence_coverage:.1%}) -- capped down to "
+                f"CONDITIONAL rather than ADMIT. Largest missing contributions: {top_missing}."
+            )
+            decision = CertifyDecision.CONDITIONAL
+
         return CertifyResult(
             decision=decision,
             trust_score=trust_score,
@@ -338,6 +509,7 @@ class DataCertifyAuditor:
             caveats=caveats,
             dataset_name=dataset.name,
             n_records=dataset.n,
+            evidence_coverage=evidence_coverage,
         )
 
     def estimate_uncertainty(

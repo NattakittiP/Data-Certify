@@ -32,6 +32,19 @@ class SubTestResult:
     applicable: bool = True
     detail: Dict[str, Any] = field(default_factory=dict)
     note: str = ""
+    # NOMINAL effective weight of this sub-test in the overall T(D) composite,
+    # i.e. axis_weight * within_axis_weight as calibrated (main framework
+    # Section 5, WITHIN_* tables in _constants.py) -- set by
+    # `decision.py::_assign_effective_weights` once the parent AxisResult's
+    # axis is known, NOT by the individual score_* functions themselves.
+    # None for P1-P3 (Stage-1 hard-gate sub-tests, which are not part of the
+    # weighted compensatory sum at all -- see axis_plausibility.py's module
+    # docstring). This is the NOMINAL calibrated weight, unaffected by
+    # per-audit renormalisation when a test is inapplicable (see 3.4/3.5
+    # review discussion) -- it answers "how much does this sub-test matter
+    # by design", not "how much did it end up mattering in this specific
+    # audit run once inapplicable tests were renormalised away".
+    effective_weight: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -40,6 +53,7 @@ class SubTestResult:
             "applicable": self.applicable,
             "detail": _json_safe(self.detail),
             "note": self.note,
+            "effective_weight": self.effective_weight,
         }
 
 
@@ -73,7 +87,11 @@ class AxisResult:
         for name, sub in sorted(self.sub_results.items()):
             mark = "-" if not sub.applicable else ("*" if math.isnan(sub.score) else " ")
             score_str = "n/a" if not sub.applicable or math.isnan(sub.score) else f"{sub.score:.3f}"
-            lines.append(f"    [{mark}] {name:<4} score={score_str:<6} {sub.note}")
+            if sub.effective_weight is None:
+                weight_str = "hard gate"
+            else:
+                weight_str = f"eff.w={sub.effective_weight * 100:5.2f}%"
+            lines.append(f"    [{mark}] {name:<4} score={score_str:<6} {weight_str:<15} {sub.note}")
         return "\n".join(lines)
 
 

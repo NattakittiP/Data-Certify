@@ -138,6 +138,10 @@ def print_audit_summary(result) -> None:
     print(f"\n  {BOLD}Dataset{NC}")
     print(f"    Records      : {result.n_records}")
     print(f"    Thresholds   : theta_admit={result.theta_admit}  theta_reject={result.theta_reject}")
+    if result.evidence_coverage is not None:
+        print(f"    Evidence coverage : {result.evidence_coverage:.1%} of T(D)'s nominal "
+              f"calibrated weight backed by applicable evidence (see --verbose for per-sub-test "
+              f"effective_weight detail).")
 
     print(f"\n  {BOLD}Decision{NC}")
     if result.decision == CertifyDecision.ADMIT:
@@ -314,6 +318,7 @@ def audit_dataset(
     fault_db_source: Optional[str] = None,
     gem_fault_db_path: Optional[str] = None,
     timeout_sec: Optional[float] = None,
+    min_evidence_coverage: float = 0.5,
 ) -> Dict[str, Any]:
     dataset_name = dataset_path.name
     banner(f"Dataset: {dataset_name}")
@@ -341,6 +346,7 @@ def audit_dataset(
     auditor = DataCertifyAuditor(
         theta_admit=theta_admit, theta_reject=theta_reject,
         reference=reference, fault_db=fault_db,
+        min_evidence_coverage=min_evidence_coverage,
     )
     result = auditor.audit(dataset)
 
@@ -392,6 +398,12 @@ def main() -> None:
                         help=f"ADMIT threshold (default: {THETA_ADMIT}, empirically calibrated).")
     parser.add_argument("--theta-reject", type=float, default=THETA_REJECT,
                         help=f"REJECT threshold (default: {THETA_REJECT}, empirically calibrated).")
+    parser.add_argument("--min-evidence-coverage", type=float, default=0.5,
+                        help="Evidence-coverage safety gate (default: 0.5): if an ADMIT decision "
+                             "rests on less than this fraction of T(D)'s nominal calibrated weight "
+                             "actually being backed by applicable evidence, cap the decision down "
+                             "to CONDITIONAL. A pragmatic, disclosed default -- NOT itself "
+                             "empirically calibrated. Set to 0.0 to disable this gate.")
     parser.add_argument("--reference-csv", type=str, default=None,
                         help="Canonical-schema CSV to use as the A6 external reference catalog "
                              "(takes priority over the live-API default and --offline).")
@@ -517,6 +529,7 @@ def main() -> None:
                 fault_db_source=args.fault_db_source,
                 gem_fault_db_path=args.gem_fault_db_path,
                 timeout_sec=args.timeout,
+                min_evidence_coverage=args.min_evidence_coverage,
             )
             results.append(r)
         except Exception as exc:

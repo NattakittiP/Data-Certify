@@ -642,7 +642,7 @@ WITHIN_I_AHP_PRIOR = {
     "I2": 0.295,  # Large-event clipping / saturation
     "I3": 0.083,  # Revision-flag (preliminary/final) consistency
     "I4": 0.156,  # Cross-catalog duplicate-ID detection
-    "I5": 0.311,  # Schema drift
+    "I5": 0.311,  # Temporal distribution drift (early-vs-late KS test)
 }
 # AHP x EWM blend: I4 (cross-catalog duplicate-ID detection) FINALLY
 # cleared MIN_EWM_N=20 this pass -- n_obs rose from 4/89 to 124/968 because

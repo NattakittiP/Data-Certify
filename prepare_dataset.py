@@ -3,10 +3,10 @@
 prepare_dataset.py -- Raw earthquake CSV -> canonical DATA-CERTIFY schema.
 
 Real-world earthquake catalogs arrive in wildly inconsistent shapes (this is
-itself exactly the kind of heterogeneity DATA-CERTIFY's I5 schema-drift and
-P6/unit-consistency tests exist to catch downstream). This script is the
-one place pandas is used in the whole project -- the core `data_certify`
-package is numpy-only.
+itself exactly the kind of heterogeneity DATA-CERTIFY's I5 temporal-
+distribution-drift and P6/unit-consistency tests exist to catch downstream).
+This script is the one place pandas is used in the whole project -- the
+core `data_certify` package is numpy-only.
 
 Usage:
     python prepare_dataset.py --input raw.csv --dataset my_data

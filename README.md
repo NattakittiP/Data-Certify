@@ -78,6 +78,18 @@ canonical values in use). Treat them as a documented, preliminary calibration
 tied to the corpus used to derive them — not a fixed, universally converged
 answer.
 
+**Sub-test weight is not evenly distributed.** "24 sub-tests" should not be
+read as "24 roughly-equal votes" — within each axis, a small number of
+sub-tests carry most of that axis's own weight (e.g. within A(D), A1+A3+A4
+alone account for most of the axis's internal weighting; see `WITHIN_A` /
+`WITHIN_P` / `WITHIN_C` / `WITHIN_I` in `_constants.py`). Every
+`SubTestResult` now reports an `effective_weight` field —
+`axis_weight * within_axis_weight`, the sub-test's actual nominal share of
+`T(D)` — visible in `--verbose` CLI output and in the JSON export, so this
+concentration is directly inspectable rather than something you'd have to
+reconstruct by hand. `effective_weight` is `null`/`None` for P1–P3 (Stage-1
+hard gates, which sit outside the weighted sum entirely, not "zero-weight").
+
 ### Two-stage decision architecture
 
 **Stage 1 — Non-compensable hard-override veto.** A small number of checks
@@ -105,6 +117,35 @@ T(D) = w_A * A(D) + w_P * P(D) + w_C * C(D) + w_I * I(D)
 | **CONDITIONAL** | `theta_reject <= T(D) < theta_admit` — routed to mandatory review |
 | **REJECT** | `T(D) < theta_reject`, or a Stage-1 hard override fired |
 
+### Evidence-coverage safety gate (additive, does not change `T(D)` itself)
+
+Any sub-test or whole axis that is inapplicable (missing required fields, too
+few records, etc.) has its weight **renormalised** across the remaining
+applicable tests/axes — by design, so a dataset isn't penalized purely for
+lacking an optional field. The flip side: it is possible for `T(D)` to clear
+`theta_admit` while resting on only a small fraction of the framework's
+*actual* battery of tests — a very small or minimally-populated catalog can
+end up passing several tests vacuously (e.g. "0 duplicates" is trivially true
+at n=3) while the sub-tests that would meaningfully stress-test it (Benford,
+Gutenberg-Richter, aftershock decay, ...) are silently inapplicable rather
+than counted against it.
+
+To make this visible rather than silent, every audit result reports an
+**evidence-coverage** diagnostic: the fraction of `T(D)`'s *nominal*
+calibrated weight (see `effective_weight` above) that was actually backed by
+an applicable, computable sub-test in that specific audit — as opposed to
+weight quietly redistributed away from missing evidence. If an audit would
+otherwise **ADMIT** but evidence coverage falls below `--min-evidence-coverage`
+(default `0.5`), the decision is capped down to **CONDITIONAL** instead, with
+a caveat naming the highest-weight missing sub-tests. This gate:
+
+- Only ever caps ADMIT → CONDITIONAL — it never upgrades a decision, and
+  never runs at all if a Stage-1 hard override already fired.
+- Is a disclosed, pragmatic default (like `theta_admit`/`theta_reject`'s own
+  pre-calibration provisional values), **not** itself empirically calibrated
+  against the internal corpus. Set `--min-evidence-coverage 0` to disable it
+  and reproduce the exact prior behavior.
+
 ### A6: three-state external cross-validation
 
 External corroboration against catalogs such as USGS ComCat, EMSC, or ISC is
@@ -119,6 +160,28 @@ classified into three states rather than a binary match/no-match:
   way (e.g., regional catalog coverage gaps); falls back to the intrinsic
   A1–A5 sub-tests rather than penalizing the dataset for a coverage gap that
   isn't its fault.
+
+**Important default-mode caveat:** `--reference-source usgs` (the CLI
+default) can only ever reach *corroborated* or *unverifiable* — a single
+source's non-match is deliberately treated as unverifiable, not
+contradicted, because one disagreeing source isn't strong enough evidence
+to hard-reject on its own. The "externally contradicted" hard-reject path
+only becomes reachable with `--reference-source multi` or `weighted-multi`
+**and** at least two of the configured external sources actually being
+reachable at runtime. Running with the default single-source mode is a
+real, intentional trade-off — it does not provide the same fabrication
+protection as multi-source mode, and should not be assumed to.
+
+**Reproducibility metadata.** Since A6 depends on a live, constantly-updated
+external catalog, the exact same dataset audited months apart can legitimately
+produce a different A6 verdict with no code change at all. To make this
+traceable rather than mysterious, every A6 `SubTestResult.detail` (CLI
+`--verbose` output and JSON export alike) now records `source_name` (which
+catalog/combination was actually queried), `query_timestamp_utc` (when), and
+`query_params` (tolerances used and how many reference events were available
+to match against — a query that returns 0 reference events looks identical
+to "nothing corroborates this dataset" in `matched_fraction` alone, but is a
+very different situation).
 
 ---
 
@@ -191,25 +254,27 @@ python run_audit.py --dataset nz --verbose
 # "externally unverifiable" rather than querying USGS/EMSC/ISC)
 python run_audit.py --dataset chile --offline
 
-# Audit your own prepared CSV, saving full results to JSON
-python run_audit.py --reference-csv path/to/your_dataset.csv --save-json
+# Audit your own dataset (after preparing it — see "Bringing your own
+# dataset" below), saving full results to JSON
+python run_audit.py --dataset my_catalog --save-json
 ```
 
-By default (no `--offline`), `--dataset`/`--reference-csv` runs also attempt
-a live A6 cross-check against USGS ComCat. If there is no network access, or
-the query fails or times out, this is handled gracefully — A(D) automatically
-falls back to intrinsic-only (A1–A5) scoring rather than erroring out.
+By default (no `--offline`), `--dataset` runs also attempt a live A6
+cross-check against USGS ComCat. If there is no network access, or the query
+fails or times out, this is handled gracefully — A(D) automatically falls
+back to intrinsic-only (A1–A5) scoring rather than erroring out.
 
 Key CLI flags (`run_audit.py`):
 
 | Flag | Purpose |
 |---|---|
-| `--dataset NAME` | Audit one of the bundled example datasets |
-| `--reference-csv PATH` | Audit your own prepared CSV |
+| `--dataset NAME` | Audit the dataset at `datasets/NAME/records.csv` — this is how you select **what gets audited**, whether it's a bundled example or your own prepared data |
+| `--reference-csv PATH` | **Not** for selecting what to audit — overrides the *A6 external reference catalog* with a local CSV instead of querying USGS/EMSC/ISC live (use together with `--dataset`) |
 | `--offline` | Skip all external network calls |
 | `--reference-source {usgs,emsc,isc,multi,weighted-multi}` | Which external catalog(s) to cross-validate A6 against |
 | `--fault-db` / `--fault-db-source` / `--gem-fault-db-path` | Enable/point to a fault database for rupture-plausibility checks |
 | `--theta-admit`, `--theta-reject` | Override the calibrated composite-score thresholds |
+| `--min-evidence-coverage` | Evidence-coverage safety gate threshold (default `0.5`) — see "Evidence-coverage safety gate" above; `0` disables it |
 | `--uncertainty` / `--n-boot` / `--subsample-fraction` | Bootstrap the decision to see how stable it is under resampling |
 | `--verbose` | Print full per-axis, per-sub-test detail |
 | `--save-json` | Write the full result object to disk |
@@ -236,10 +301,13 @@ Run `python run_audit.py --help` for the complete, current list.
    non-default column names. Omit `--no-interactive` to be prompted
    interactively for any ambiguous column mappings.
 
-2. **Run the audit:**
+2. **Run the audit** (use `--dataset`, matching the name you gave
+   `prepare_dataset.py` above — **not** `--reference-csv`, which is a
+   different flag that overrides the A6 external reference catalog, not
+   the target dataset):
 
    ```bash
-   python run_audit.py --reference-csv my_catalog_prepared.csv --verbose --save-json
+   python run_audit.py --dataset my_catalog --verbose --save-json
    ```
 
 3. **Read the decision.** The output reports the Stage-1 hard-override

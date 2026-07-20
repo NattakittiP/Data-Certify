@@ -67,6 +67,32 @@ gate below) remains an **open decision, not yet made** — see
 `data_certify/_constants.py`'s calibration-pass commentary for the full,
 unedited history of this finding across successive corpus-expansion passes.
 
+**Re-verified 2026-07-21 against the A3/A4/A5 geographic-scoring fixes
+below** (full 968-dataset corpus + the 30-dataset held-out adversarial set
+re-scored under the fixed code, current weights/thresholds held fixed —
+i.e. this isolates the effect of the code fix from any weight
+recalibration, which has not been done): the pooled false-admit rate is
+**still 19/490 (3.9%)** — unchanged in count, but **not unchanged in
+composition**. 3 previously-false-admitted datasets are now correctly
+routed to CONDITIONAL (the spatial constraint correctly stopped treating
+their spatially-scattered "aftershock" candidates as a genuine decaying
+sequence), while 3 different datasets newly false-admit (the same
+mechanism running the other way — see below). Both sets are small
+(24–29 records) real-catalog derivatives where only A3+A5 are applicable;
+this class of dataset is exactly the "finite-N weakness of individual
+sub-tests" already named above, now empirically confirmed to persist
+(in a different guise) after the fix, not resolved by it. Separately: 32/968
+datasets changed decision overall (all ADMIT⇄CONDITIONAL churn — no dataset
+moved into or out of REJECT), and the 0% false-reject rate on `known_good`
+held. The 30-dataset held-out adversarial set remained **0/30 ADMIT, 30/30
+CONDITIONAL** under the fixed code. Net assessment: the A3/A4/A5 fixes
+changed individual dataset outcomes materially (607/968 had a non-trivial
+`A(D)` change) but did not move the headline false-admit/false-reject rates
+in either direction — consistent with fixing a real geographic bug without
+that bug having been the dominant driver of the pre-existing false-admit
+finding. See `calibration/group_b_reports/three_way_matrix_report.txt` for
+the full breakdown (not published, internal corpus).
+
 ---
 
 ## Architecture
@@ -227,9 +253,20 @@ very different situation).
 Three sub-tests had geographic bugs that are now fixed as the new default
 behavior. These are genuine, deliberate changes to already-calibrated scoring
 functions — real multi-region or dateline-spanning catalogs can score
-differently under A3/A4 than they did before this fix, and re-validating
-against the internal calibration corpus is still an open item (see "Known
-limitations" below).
+differently under A3/A4 than they did before this fix. **Re-validated
+2026-07-21**: the full internal calibration corpus (968 datasets) and
+30-dataset held-out adversarial set were re-scored under the fixed code
+(current weights/thresholds held fixed, i.e. this checks the code fix in
+isolation from any weight recalibration). Result: `A(D)` changed materially
+for 607/968 datasets and 32/968 changed ADMIT⇄CONDITIONAL decision (no
+dataset moved into or out of REJECT), but the headline false-admit rate
+(19/490) and false-reject rate (0/508 on `known_good`) were unchanged in
+aggregate — see "What this system is — and is not" above for the full
+breakdown, including that the false-admit *count* staying flat conceals a
+real 3-in/3-out swap in which specific datasets false-admit. Recalibrating
+`AXIS_WEIGHTS`/`WITHIN_A`/`theta_admit`/`theta_reject` against the
+now-fixed scoring functions has not been done and remains a separate, open
+decision (see "Data & tooling not included in this repository" below).
 
 - **A3 (aftershock-decay conformity) had no spatial constraint at all.**
   Mainshock-aftershock clustering previously used only a time window and a
@@ -427,8 +464,10 @@ required to install or use DATA-CERTIFY:
   known-good, corrupted, and fabricated seismic catalogs beyond the two
   bundled demo catalogs) and the scripts used to build, corrupt, score, and
   calibrate weights/thresholds against it.
-- The automated test suite used during development.
 - Internal theory and validation write-ups.
+
+The automated test suite (`tests/`, 321 tests) IS included, unlike the two
+items above — see "Repository layout" and the GitHub Actions CI workflow.
 
 P8 (plate-boundary proximity) can optionally use the real **GEM Global
 Active Faults Database** (Styron & Pagani 2020, ~13,700 faults,

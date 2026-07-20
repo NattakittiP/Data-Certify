@@ -133,12 +133,54 @@ public commit.
 - The 19-genuine-false-admit finding above predates the evidence-coverage
   gate; whether/how much the gate changes this figure has not yet been
   re-measured against the private corpus.
-- The A3/A4 geographic-scoring fixes above are genuine changes to
-  already-calibrated scoring functions; the internal calibration corpus has
-  not yet been re-run against them, so `AXIS_WEIGHTS`/`WITHIN_A` and
-  `theta_admit`/`theta_reject` reflect calibration done under the old
-  (pre-fix) A3/A4 behavior until that re-run happens.
+- `AXIS_WEIGHTS`/`WITHIN_A`/`theta_admit`/`theta_reject` still reflect
+  calibration done under the old (pre-A3/A4/A5-fix) behavior — the fixes
+  were verified against the corpus (see entry below) but weights/thresholds
+  have not been refit against the corrected scoring functions. Whether
+  that refit would change anything is itself an open question the
+  verification below does not answer.
 - Evidence coverage and the composite score do not yet account for small-N
   statistical power (a high-weight sub-test computed from very few
-  applicable records is treated the same as one computed from thousands) —
-  a possible future addition, not yet implemented.
+  applicable records is treated the same as one computed from thousands).
+  Empirically confirmed as a live issue, not just a theoretical concern, by
+  the A3/A4/A5 re-verification below: 3 of the corpus's tiny (24-29 record)
+  real catalogs saw `A(D)` swing between ~0.01 and ~0.94 purely from
+  whether a single, sparse aftershock-cluster fit happened to land on
+  either side of the degenerate/non-degenerate boundary.
+
+### Verified (2026-07-21) — A3/A4/A5 fixes re-run against the full corpus
+
+The internal 968-dataset calibration corpus and 30-dataset held-out
+adversarial set were re-scored under the A3/A4/A5 fixes above (via
+`calibration/run_scoring.py` + `score_adversarial_holdout.py --fresh` +
+`analysis_three_way_matrix.py`), with `AXIS_WEIGHTS`/`WITHIN_A`/thresholds
+held at their current (pre-fix-calibrated) values — this isolates the
+effect of the code fix itself from any weight recalibration, which has
+*not* been done.
+
+- `A(D)` changed materially (>0.01) for 607/968 datasets; 32/968 changed
+  decision (all ADMIT⇄CONDITIONAL — no dataset moved into or out of
+  REJECT).
+- Pooled false-admit rate on `known_bad` (corrupted_real + fabricated +
+  held_out_adversarial, n=490): **19/490 (3.9%), unchanged from the
+  pre-fix baseline in count** — but not in composition. 3 previously
+  false-admitted `corrupted_real` datasets are now correctly routed to
+  CONDITIONAL (the spatial constraint stopped a spatially-incoherent
+  event cluster from spuriously fitting an Omori-Utsu decay pattern), 3
+  different datasets newly false-admit via the same mechanism running in
+  reverse (a spatially-correct cluster now failing the same fit where an
+  uncorrected, spatially-loose cluster previously happened to pass). The
+  count is coincidentally flat; the underlying behavior is not unchanged.
+- False-reject rate on `known_good` (n=508): unchanged at 0/508.
+- Held-out adversarial set (n=30): 0/30 ADMIT, 30/30 CONDITIONAL under the
+  fixed code (matches the pre-existing prediction in
+  `tests/test_adversarial.py::TestGraduatedFabricationLadder::test_level10_adversarial_evades_intrinsic_only_scoring`
+  that A6, not intrinsic scoring, is the load-bearing defense at this
+  fabrication tier).
+- Net assessment: the fixes are real, verified-correct geographic bugfixes
+  with a material per-dataset effect, but they were not the dominant
+  driver of this project's pre-existing false-admit finding — that finding
+  persists, in a different specific composition, after the fix.
+
+Full breakdown in `calibration/group_b_reports/three_way_matrix_report.txt`
+(internal corpus, not published).

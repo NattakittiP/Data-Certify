@@ -206,6 +206,55 @@ class TestA6EvidenceWeighting:
             assert math.isclose(sub.effective_weight, expected, rel_tol=1e-9)
 
 
+class TestSampleSufficiencyGate:
+    """
+    Regression tests for the 2026-07-21 external-review sample-sufficiency
+    gate (`_compute_sample_sufficiency`, `DataCertifyAuditor.
+    min_sample_sufficiency`) -- distinct from evidence coverage: a sub-test
+    can be "covered" (applicable, non-NaN score) while its own underlying
+    n_used is too thin to trust, which evidence_coverage alone cannot see.
+    """
+
+    def test_constructor_rejects_out_of_range_min_sample_sufficiency(self):
+        with pytest.raises(ValueError):
+            DataCertifyAuditor(min_sample_sufficiency=1.5)
+        with pytest.raises(ValueError):
+            DataCertifyAuditor(min_sample_sufficiency=-0.1)
+
+    def test_default_min_sample_sufficiency_is_half(self):
+        auditor = DataCertifyAuditor()
+        assert auditor.min_sample_sufficiency == 0.5
+
+    def test_healthy_large_dataset_reports_full_sample_sufficiency(self):
+        # A well-powered dataset (n=2000) should have every A1-A5 n_used
+        # comfortably clear MIN_RELIABLE_N, so sample_sufficiency should be
+        # 100% and the gate must not interfere with an otherwise-ADMIT case.
+        ds = make_gr_dataset(n=2000, b_value=1.0, seed=5)
+        auditor = DataCertifyAuditor()
+        result = auditor.audit(ds)
+        assert result.sample_sufficiency is not None
+        assert result.sample_sufficiency > 0.9
+
+    def test_sample_sufficiency_never_upgrades_a_decision(self):
+        # Sanity check on gate direction: forcing min_sample_sufficiency to
+        # 1.0 (strictest possible) must never turn a REJECT/CONDITIONAL
+        # into an ADMIT -- the gate is additive-only, ADMIT-down-only.
+        ds = make_gr_dataset(n=200, seed=9)
+        lenient = DataCertifyAuditor(min_sample_sufficiency=0.0).audit(ds)
+        strict = DataCertifyAuditor(min_sample_sufficiency=1.0).audit(ds)
+        order = {CertifyDecision.REJECT: 0, CertifyDecision.CONDITIONAL: 1, CertifyDecision.ADMIT: 2}
+        assert order[strict.decision] <= order[lenient.decision]
+
+    def test_disabling_gate_reproduces_prior_behaviour(self):
+        # min_sample_sufficiency=0.0 must never cap ADMIT down, regardless
+        # of how thin the underlying samples are (full disable, like
+        # min_evidence_coverage's own 0.0 escape hatch).
+        ds = make_gr_dataset(n=2000, seed=13)
+        auditor = DataCertifyAuditor(min_sample_sufficiency=0.0)
+        result = auditor.audit(ds)
+        assert not any("Sample-sufficiency safety gate" in c for c in result.caveats)
+
+
 class TestResultSerialisation:
     def test_to_dict_roundtrips_key_fields(self):
         ds = make_gr_dataset(n=500, seed=2)
@@ -215,6 +264,7 @@ class TestResultSerialisation:
         assert d["decision"] == result.decision.value
         assert d["dataset"] == ds.name
         assert d["n_records"] == ds.n
+        assert d["sample_sufficiency"] == result.sample_sufficiency
         assert set(d["axis_results"].keys()) == {"A", "P", "C", "I"}
 
     def test_str_does_not_crash_on_hard_reject(self):

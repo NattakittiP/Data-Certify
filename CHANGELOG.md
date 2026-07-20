@@ -2,6 +2,104 @@
 
 All notable changes to DATA-CERTIFY are documented in this file.
 
+## [0.1.1] — 2026-07-21
+
+Second external-review pass (same day as 0.1.0, following up on a review of
+the tagged 0.1.0 release itself). Also corrects a release/tag mismatch: the
+`v0.1.0` git tag pointed at an earlier commit that predated the A3/A4/A5
+geographic-projection and dense-bucket fixes described in 0.1.0's own
+changelog entry below. `v0.1.1` is the first tag guaranteed to point at a
+commit whose actual code matches its changelog entry.
+
+### Fixed
+
+- **Omori-Utsu weighted-least-squares regression minimized the wrong
+  objective.** `fit_omori_utsu` (`data_certify/stats.py`) reduced weighted
+  least squares to OLS by multiplying both the design matrix and target by
+  the raw per-bin count weight `w`, which minimizes `sum(w^2 * r^2)` — not
+  `sum(w * r^2)`, the quantity the function's own reported `sse` claims to
+  be minimizing. The correct reduction multiplies by `sqrt(w)` instead
+  (`sqrt_w = np.sqrt(w)`, applied to both the design matrix and target).
+  Fixed; verified against the existing regression suite
+  (`tests/test_scientific_validity.py::TestOmoriUtsuFit`, 8/8 pass) and via
+  a standalone before/after simulation (true `p`=0.9/1.1/1.4 recovered with
+  comparable, sometimes larger, sometimes smaller error under the fix —
+  e.g. p=1.4: 6.15% error (old, wrong objective) vs. 4.40% (new, correct
+  objective); p=0.9: 2.27% vs. 4.94%). Disclosed honestly: this is a real
+  mathematical-consistency fix, not a demonstrated large accuracy
+  improvement in either direction — the previous inconsistency was modest
+  in practice for the catalogs tested, but the objective function itself
+  was wrong and is now correct.
+
+### Added
+
+- **Sample-sufficiency safety gate** (`CertifyResult.sample_sufficiency`,
+  `DataCertifyAuditor(min_sample_sufficiency=0.5)`, CLI
+  `--min-sample-sufficiency`): a new diagnostic and additive decision rule
+  distinct from evidence coverage above. Evidence coverage answers "did an
+  applicable sub-test run and produce a score at all"; it cannot tell a
+  score built from a single fitted Omori-Utsu cluster apart from one built
+  from a few hundred. Sample sufficiency answers the separate question —
+  of the sub-tests that DID run, how much of their combined nominal weight
+  rests on an underlying sample size (`n_used`, newly reported in each
+  A1–A5 `SubTestResult.detail`) that meets a disclosed, provisional
+  `MIN_RELIABLE_N` floor per sub-test (`data_certify/_constants.py`: A1=30,
+  A2=10, A3=2 independent clusters, A4=50, A5=2). Like
+  `min_evidence_coverage`, this only ever caps an otherwise-ADMIT decision
+  down to CONDITIONAL, never overrides Stage 1, and is a pragmatic,
+  disclosed default — not itself corpus-calibrated. Currently scoped to
+  axis A (A1–A5) only; extending `MIN_RELIABLE_N` to P/C/I sub-tests is
+  disclosed future work, not silently assumed unnecessary. Directly
+  addresses the small-N / false-admit finding from the 2026-07-21 external
+  review (tiny 24–29 record catalogs where only A3+A5 were applicable at
+  all, each backed by a thin sample).
+- **A5 candidate-cap diagnostics**: `_score_a5_duplicates`'s dense-bucket
+  safety valve (`MAX_A5_NEIGHBORHOOD_CANDIDATES`) could silently turn an
+  exact `duplicate_fraction` into a sampled approximation with no record of
+  it happening. Every A5 `SubTestResult.detail` now reports
+  `candidate_cap_triggered`, `n_capped_queries` (how many of the dataset's
+  record-queries hit the cap), `max_candidates_observed` (the largest raw
+  3×3-neighbourhood candidate list seen before subsampling), and
+  `sampling_fraction` (the most aggressive subsampling ratio actually
+  applied) — surfaced in the sub-test's note when triggered, and in JSON
+  export via `detail`.
+- 11 new regression tests covering the WLS fix, the `n_used` field on every
+  A1–A5 `SubTestResult`, the A5 candidate-cap diagnostics, and the
+  sample-sufficiency gate's constructor validation / additive-only /
+  disable-hatch behaviour (`tests/test_axis_authenticity.py::
+  TestSampleSufficiencyDiagnostics`, `tests/test_decision.py::
+  TestSampleSufficiencyGate`) — full suite now 332 tests, all passing
+  locally across the changes in this release.
+
+### Re-verified (2026-07-21) — full 968-dataset corpus + 30-dataset adversarial holdout re-run
+
+Both the main calibration corpus and the adversarial holdout were re-scored
+against this release's code (WLS fix + sample-sufficiency gate + A5
+diagnostics) using the real corpus, run by the maintainer:
+
+- `calibration/run_scoring.py` — all 968 datasets scored successfully under
+  the fixed code.
+- `calibration/score_adversarial_holdout.py --fresh` — all 30 held-out
+  adversarial datasets re-scored: **0/30 ADMIT, 30/30 CONDITIONAL, 0/30 hard
+  override fired**, identical to the pre-0.1.1 result — the fixes in this
+  release do not change this axis of behaviour, as expected (none of them
+  touch A6, the documented load-bearing defense against this adversarial
+  tier).
+- `calibration/refit_full_corpus.py` — **reproduces the exact same
+  degenerate-refit finding already documented above** ("Investigated and
+  rejected" section): refit `theta_admit=1.0`, refit `theta_reject=0.34`,
+  77.58% decision agreement with current production (217/968 disagreeing,
+  same count as previously documented), A3 within-axis weight refitting
+  down from 0.42 to 0.198 and A1 up to 0.52. This is a precise
+  reproduction, not a coincidence — it confirms the WLS fix and the new
+  sample-sufficiency gate do not materially move the corpus's raw
+  per-sub-test scores enough to change this pre-existing conclusion.
+  **`AXIS_WEIGHTS`/`WITHIN_A`/`theta_admit`/`theta_reject` remain
+  unchanged in `data_certify/_constants.py` for this release**, for the
+  same reason documented in "Investigated and rejected" below: the refit's
+  headline 0% false-admit rate is a ceiling artifact (ADMIT becomes
+  practically unreachable), not a genuine improvement.
+
 ## [0.1.0] — 2026-07-21
 
 First tagged release. Summary of everything notable since the initial

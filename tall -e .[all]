@@ -1,0 +1,25 @@
+warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'data_certify/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'data_certify/_constants.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'data_certify/axis_authenticity.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'data_certify/decision.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'data_certify/stats.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'pyproject.toml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'run_audit.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'setup.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_axis_authenticity.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_decision.py', LF will be replaced by CRLF the next time Git touches it
+ CHANGELOG.md                      |  69 [32m++++++++++++++++++[m
+ README.md                         |  55 [32m++++++++++++++[m
+ data_certify/__init__.py          |   2 [32m+[m[31m-[m
+ data_certify/_constants.py        |  66 [32m+++++++++++++++++[m
+ data_certify/axis_authenticity.py |  91 [32m++++++++++++++++++++[m[31m---[m
+ data_certify/decision.py          | 149 [32m+++++++++++++++++++++++++++++++++++++[m[31m-[m
+ data_certify/stats.py             |  39 [32m+++++++++[m[31m-[m
+ pyproject.toml                    |   2 [32m+[m[31m-[m
+ run_audit.py                      |  16 [32m++++[m
+ setup.py                          |   2 [32m+[m[31m-[m
+ tests/test_axis_authenticity.py   |  97 [32m+++++++++++++++++++++++++[m
+ tests/test_decision.py            |  50 [32m+++++++++++++[m
+ 12 files changed, 621 insertions(+), 17 deletions(-)

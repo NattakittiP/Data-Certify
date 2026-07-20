@@ -78,9 +78,15 @@ def _score_a1_benford(dataset: CertifyDataset) -> SubTestResult:
         per_field_chi2[field_name] = chi2
 
     score = float(np.mean(list(per_field_scores.values())))
+    # n_used (2026-07-21, external review, sample-sufficiency gate --
+    # MIN_RELIABLE_N in _constants.py): the smallest per-field valid-value
+    # count actually used, i.e. the weakest link among whichever field(s)
+    # this score rests on -- see decision.py's `_compute_sample_sufficiency`.
+    n_used = min(len(v) for v in candidates.values())
     return SubTestResult(
         name="A1", score=score, applicable=True,
-        detail={"per_field_score": per_field_scores, "per_field_chi2": per_field_chi2},
+        detail={"per_field_score": per_field_scores, "per_field_chi2": per_field_chi2,
+                "n_used": n_used},
         note=f"Benford conformity across {list(candidates.keys())}.",
     )
 
@@ -113,7 +119,11 @@ def _score_a2_gutenberg_richter(dataset: CertifyDataset,
     score = float(np.clip(1.0 - (abs(b_hat - 1.0) - 0.5) / 1.0, 0.0, 1.0))
     return SubTestResult(
         name="A2", score=score, applicable=True,
-        detail={"b_value": b_hat, "shi_bolt_se": se, "mc_used": mc_est, "n": len(complete)},
+        detail={"b_value": b_hat, "shi_bolt_se": se, "mc_used": mc_est, "n": len(complete),
+                # n_used (2026-07-21, external review, sample-sufficiency gate):
+                # alias of "n" above, named consistently with A1/A3/A4/A5 for
+                # decision.py's `_compute_sample_sufficiency` to consume generically.
+                "n_used": len(complete)},
         note=f"b={b_hat:.3f} (+/-{se:.3f}), Mc={mc_est:.2f}, plausible band [0.5, 1.5].",
     )
 
@@ -294,7 +304,13 @@ def _score_a3_omori_utsu(dataset: CertifyDataset) -> SubTestResult:
         name="A3", score=score, applicable=True,
         detail={"n_clusters": len(clusters), "n_clusters_found": n_clusters_found,
                 "n_valid_fits": len(valid_fits),
-                "mean_p": float(np.mean([f["p"] for f in valid_fits])) if valid_fits else None},
+                "mean_p": float(np.mean([f["p"] for f in valid_fits])) if valid_fits else None,
+                # n_used (2026-07-21, external review, sample-sufficiency gate --
+                # MIN_RELIABLE_N["A3"] in _constants.py): the number of INDEPENDENT
+                # candidate mainshock-aftershock clusters identified, NOT the event
+                # count within any single cluster -- a score built from one cluster
+                # cannot be trusted the way an average over dozens can.
+                "n_used": n_clusters_found},
         note=f"{len(valid_fits)}/{len(clusters)} candidate aftershock sequences show "
              f"genuine Omori-Utsu-consistent decay.{cap_note}",
     )
@@ -351,7 +367,12 @@ def _score_a4_fractal_dimension(dataset: CertifyDataset,
                 f"direction is scored (Deep-Dive 03 Section 2.3).")
 
     return SubTestResult(name="A4", score=score, applicable=True,
-                          detail={"correlation_dimension": dc, "reference_dc": reference_dc},
+                          detail={"correlation_dimension": dc, "reference_dc": reference_dc,
+                                   # n_used (2026-07-21, external review, sample-sufficiency
+                                   # gate -- MIN_RELIABLE_N["A4"] in _constants.py): count of
+                                   # valid (lat, lon) pairs actually fed into the
+                                   # correlation-dimension estimate.
+                                   "n_used": int(np.sum(valid))},
                           note=note)
 
 
@@ -493,6 +514,17 @@ def _score_a5_duplicates(dataset: CertifyDataset,
 
     subsample_rng = np.random.RandomState(42)
 
+    # Candidate-cap diagnostics (2026-07-21, external review): the dense-
+    # bucket safety valve below silently subsampled the 3x3-neighbourhood
+    # candidate list whenever it exceeded max_neighborhood_candidates,
+    # with no record of how often this fired or how severe the
+    # subsampling was -- meaning a caller had no way to tell an exact
+    # duplicate_fraction apart from one computed under heavy sampling in
+    # an anomalously dense cluster. Tracked here and surfaced in `detail`
+    # below so this approximation is disclosed, not silent.
+    n_capped_queries = 0
+    max_candidates_observed = 0
+
     # Sliding window over the time-sorted array, cross-referenced against
     # the spatial grid: only records within BOTH time_eps_days AND a
     # neighbouring grid cell are ever compared (see docstring for why
@@ -519,9 +551,13 @@ def _score_a5_duplicates(dataset: CertifyDataset,
             # Dense-bucket safety valve (see PERFORMANCE NOTE above): bound
             # the worst-case O(k^2) blowup for a pathologically dense
             # cluster, exactly like MAX_A3_CLUSTERS/max_points elsewhere.
-            if len(candidates) > max_neighborhood_candidates:
+            raw_candidate_count = len(candidates)
+            if raw_candidate_count > max_candidates_observed:
+                max_candidates_observed = raw_candidate_count
+            if raw_candidate_count > max_neighborhood_candidates:
+                n_capped_queries += 1
                 keep = subsample_rng.choice(
-                    len(candidates), size=max_neighborhood_candidates, replace=False)
+                    raw_candidate_count, size=max_neighborhood_candidates, replace=False)
                 candidates = [candidates[k] for k in keep]
             for j in candidates:
                 dist = stats.haversine_km(lat_sorted[i], lon_sorted[i], lat_sorted[j], lon_sorted[j])
@@ -536,10 +572,45 @@ def _score_a5_duplicates(dataset: CertifyDataset,
 
     dup_fraction = float(np.sum(is_duplicate) / n)
     score = float(1.0 - dup_fraction)
-    return SubTestResult(name="A5", score=score, applicable=True,
-                          detail={"duplicate_fraction": dup_fraction,
-                                  "n_flagged": int(np.sum(is_duplicate))},
-                          note=f"{np.sum(is_duplicate)}/{n} records flagged as (near-)duplicates.")
+    candidate_cap_triggered = n_capped_queries > 0
+    # sampling_fraction: the most aggressive subsampling ratio actually
+    # applied (max_neighborhood_candidates / the largest raw candidate
+    # list observed before subsampling) -- i.e. the worst-case fraction
+    # of a dense bucket that was actually exhaustively checked. 1.0 when
+    # the cap never fired (no approximation was applied at all).
+    sampling_fraction = (
+        float(max_neighborhood_candidates) / max_candidates_observed
+        if candidate_cap_triggered and max_candidates_observed > 0
+        else 1.0
+    )
+    cap_disclosure_note = (
+        f" [approximate: dense-bucket cap triggered on {n_capped_queries} "
+        f"of {n} record queries; largest 3x3-neighbourhood candidate list "
+        f"observed was {max_candidates_observed} (cap={max_neighborhood_candidates}, "
+        f"worst-case sampling_fraction={sampling_fraction:.3f}) -- "
+        f"duplicate_fraction above is a sampled approximation in this regime, "
+        f"see _score_a5_duplicates docstring.]"
+        if candidate_cap_triggered else ""
+    )
+    return SubTestResult(
+        name="A5", score=score, applicable=True,
+        detail={"duplicate_fraction": dup_fraction,
+                "n_flagged": int(np.sum(is_duplicate)),
+                # n_used (2026-07-21, external review, sample-sufficiency gate --
+                # MIN_RELIABLE_N["A5"] in _constants.py): total record count.
+                "n_used": n,
+                # A5 candidate-cap diagnostics (2026-07-21, external review,
+                # Task 33): disclose whenever the dense-bucket safety valve
+                # above caused duplicate_fraction to be an approximation
+                # rather than an exact count, and how severe that
+                # approximation was -- see the tracking added around the
+                # main loop above.
+                "candidate_cap_triggered": candidate_cap_triggered,
+                "n_capped_queries": n_capped_queries,
+                "max_candidates_observed": max_candidates_observed,
+                "sampling_fraction": sampling_fraction},
+        note=f"{np.sum(is_duplicate)}/{n} records flagged as (near-)duplicates."
+             f"{cap_disclosure_note}")
 
 
 def _score_a6_external(dataset: CertifyDataset,

@@ -238,6 +238,61 @@ a caveat naming the highest-weight missing sub-tests. This gate:
   against the internal corpus. Set `--min-evidence-coverage 0` to disable it
   and reproduce the exact prior behavior.
 
+### Sample-sufficiency safety gate (additive, distinct from evidence coverage)
+
+Evidence coverage (above) answers "did an applicable sub-test run and produce
+a score at all". It cannot distinguish a score built from a single fitted
+Omori-Utsu aftershock cluster from one built from a few hundred — both count
+as "covered" identically. A small or minimally-populated catalog can clear
+`theta_admit` while several of the sub-tests actually backing that score ran
+on a sample too thin to trust.
+
+To close this gap, every A1–A5 `SubTestResult.detail` now reports `n_used` —
+the sample size that sub-test's own score actually rests on (e.g. A3:
+number of *independent* candidate mainshock-aftershock clusters identified,
+not the event count within any one cluster; A1: the smallest per-field
+Benford sample; A4: valid `(lat, lon)` pair count; A5: total record count).
+Each sub-test has a disclosed, provisional `MIN_RELIABLE_N` floor
+(`data_certify/_constants.py`: A1=30, A2=10, A3=2, A4=50, A5=2) below which
+its `n_used` is considered too thin. Every audit result reports a
+**sample-sufficiency** diagnostic: of the evidence already counted as
+"covered" by evidence coverage, what fraction of its combined nominal weight
+rests on a sub-test whose `n_used` actually meets its floor. If an audit
+would otherwise **ADMIT** but sample sufficiency falls below
+`--min-sample-sufficiency` (default `0.5`), the decision is capped down to
+**CONDITIONAL**, with a caveat naming the thinnest-sampled contributions.
+This gate:
+
+- Only ever caps ADMIT → CONDITIONAL — same as evidence coverage, it never
+  upgrades a decision, and never runs if a Stage-1 hard override already
+  fired. Applies independently of, and in addition to, the evidence-coverage
+  gate.
+- Is a disclosed, pragmatic default, **not** itself empirically calibrated.
+  Set `--min-sample-sufficiency 0` to disable it.
+- Is currently scoped to axis A (A1–A5) only, since `MIN_RELIABLE_N` has no
+  entries yet for P/C/I sub-tests — a disclosed scope limit, not a claim
+  that every other sub-test's sample size is unconditionally trustworthy.
+
+This directly targets a false-admit risk surfaced by external review: very
+small catalogs (24–29 records) where only A3 and A5 were applicable at all,
+each backed by a thin underlying sample — evidence coverage alone could not
+see this, because both sub-tests *did* run.
+
+### A5 duplicate-detection candidate-cap disclosure
+
+`_score_a5_duplicates`'s dense-bucket safety valve
+(`MAX_A5_NEIGHBORHOOD_CANDIDATES = 500`) bounds the worst-case cost of
+exhaustively checking a pathologically dense cluster of mutual near-matches
+by subsampling that cluster's candidate list once it exceeds the cap — see
+"Fix A5 longitude wraparound + quadratic perf" below for why this exists.
+Previously, whether or how severely this fired on a given audit was
+invisible. Every A5 result's `detail` now reports `candidate_cap_triggered`,
+`n_capped_queries` (how many record-queries hit the cap), and
+`max_candidates_observed`/`sampling_fraction` (how dense the worst offending
+cluster was, and how aggressively it was subsampled) — surfaced in the
+sub-test's note whenever the cap actually fires, so `duplicate_fraction` is
+never silently an approximation without saying so.
+
 ### A6: three-state external cross-validation
 
 External corroboration against catalogs such as USGS ComCat, EMSC, or ISC is

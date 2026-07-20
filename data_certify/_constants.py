@@ -965,3 +965,69 @@ MIN_STRATUM_N: int = 30
 AHP_RANDOM_INDEX = {1: 0.0, 2: 0.0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41}
 
 SEED: int = 42
+
+# =============================================================================
+# MIN_RELIABLE_N: sample-sufficiency / statistical-power floors (2026-07-21,
+# external review, Section 6.4 of DATA-CERTIFY_Criteria_and_Weights_Master_
+# Reference.md)
+# =============================================================================
+# `evidence_coverage` (decision.py, review point 3.5) already distinguishes
+# "this sub-test was applicable and computed a score" from "this sub-test's
+# nominal weight was silently renormalised away because it did not apply" --
+# but it does NOT distinguish "computed from a well-powered sample" from
+# "computed from technically enough data to run at all, but too little to
+# trust the resulting number." A concrete finding motivating this: several
+# of the 968-dataset corpus's disclosed false-admits (see the `theta_admit`
+# row in Criteria & Weights Master Reference Section 4) are small (24-29
+# record) `corrupt_real_*` derivatives where only A3 and A5 are applicable
+# at all -- and A3 in particular can be "applicable" (per its own >=5-events-
+# per-cluster floor in axis_authenticity.py) from a SINGLE fitted aftershock
+# cluster, which is enough to average over but not enough to trust as
+# representative of the catalog's true decay behaviour.
+#
+# These floors are a NEW, DISCLOSED, PROVISIONAL prior -- of identical
+# epistemic status to `theta_admit`/`theta_reject`/`theta_auth`/`epsilon_tol`
+# when they were first introduced: principled starting points (informed by
+# each sub-test's own existing internal floor, e.g. A1/A2's pre-existing
+# `>=30`, C4/A2's shared `MIN_STRATUM_N=30` rule of thumb, and A4's
+# pre-existing `>=50` correlation-dimension floor), NOT yet empirically
+# calibrated against the full corpus. A dedicated calibration pass (does
+# `sample_sufficiency` below THIS floor actually predict a wider score
+# swing / higher false-admit rate on held-out corrupted-real derivatives
+# specifically) is disclosed as open follow-up work, analogous to how
+# `epsilon_tol`/`alpha` were only justified AFTER `calibrate_hard_override_
+# params.py` was run against the full corpus (Section 2.3 of the Gap-
+# Remediation Addendum). Only sub-tests where a `n_used`-equivalent sample
+# size is meaningfully reported in `SubTestResult.detail` are covered here;
+# a sub-test absent from this table is treated as NOT penalised by the
+# sample-sufficiency gate below (conservative in the sense of never
+# introducing a caveat this project cannot yet justify empirically, mirroring
+# how P9 is excluded from EWM weighting entirely rather than assigned an
+# unjustified number -- see Criteria & Weights Master Reference Section 5.8).
+#
+# Units/meaning per sub-test (NOT simply "record count" in every case --
+# each is the specific dimension of statistical replication that sub-test's
+# own estimator actually depends on):
+#   A1: minimum valid-value count across whichever multi-order-of-magnitude
+#       field(s) were actually used (already >=30 by construction; this
+#       floor is a no-op today, retained for forward-compatibility with a
+#       future stricter per-field requirement).
+#   A2: number of events at/above the estimated Mc used for the b-value fit
+#       (already >=10 by construction; see note above).
+#   A3: number of INDEPENDENT candidate mainshock-aftershock clusters
+#       identified (`n_clusters_found` in `_score_a3_omori_utsu`'s detail),
+#       NOT the event count within any one cluster -- a single cluster,
+#       however many events it contains, is one draw from "does this
+#       catalog show genuine Omori-Utsu decay," not a sample the framework
+#       can average confidently over.
+#   A4: number of valid (lat, lon) pairs used for the correlation-dimension
+#       fit (already >=50 by construction; see note above).
+#   A5: total record count `n` (duplicate detection needs very little data
+#       to be informative -- this floor is intentionally low).
+MIN_RELIABLE_N = {
+    "A1": 30,
+    "A2": 10,
+    "A3": 2,   # >=2 independent clusters -- a single cluster cannot be averaged over
+    "A4": 50,
+    "A5": 2,
+}

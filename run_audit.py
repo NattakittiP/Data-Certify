@@ -142,6 +142,10 @@ def print_audit_summary(result) -> None:
         print(f"    Evidence coverage : {result.evidence_coverage:.1%} of T(D)'s nominal "
               f"calibrated weight backed by applicable evidence (see --verbose for per-sub-test "
               f"effective_weight detail).")
+    if result.sample_sufficiency is not None:
+        print(f"    Sample sufficiency: {result.sample_sufficiency:.1%} of covered evidence's "
+              f"nominal weight rests on a sub-test sample size meeting its disclosed "
+              f"MIN_RELIABLE_N floor (see --verbose for per-sub-test n_used detail).")
 
     print(f"\n  {BOLD}Decision{NC}")
     if result.decision == CertifyDecision.ADMIT:
@@ -319,6 +323,7 @@ def audit_dataset(
     gem_fault_db_path: Optional[str] = None,
     timeout_sec: Optional[float] = None,
     min_evidence_coverage: float = 0.5,
+    min_sample_sufficiency: float = 0.5,
 ) -> Dict[str, Any]:
     dataset_name = dataset_path.name
     banner(f"Dataset: {dataset_name}")
@@ -347,6 +352,7 @@ def audit_dataset(
         theta_admit=theta_admit, theta_reject=theta_reject,
         reference=reference, fault_db=fault_db,
         min_evidence_coverage=min_evidence_coverage,
+        min_sample_sufficiency=min_sample_sufficiency,
     )
     result = auditor.audit(dataset)
 
@@ -404,6 +410,15 @@ def main() -> None:
                              "actually being backed by applicable evidence, cap the decision down "
                              "to CONDITIONAL. A pragmatic, disclosed default -- NOT itself "
                              "empirically calibrated. Set to 0.0 to disable this gate.")
+    parser.add_argument("--min-sample-sufficiency", type=float, default=0.5,
+                        help="Sample-sufficiency safety gate (default: 0.5; 2026-07-21 external "
+                             "review): if an ADMIT decision rests on covered sub-tests whose own "
+                             "underlying sample size (n_used, e.g. A3's number of independent "
+                             "aftershock clusters) mostly falls short of that sub-test's disclosed "
+                             "MIN_RELIABLE_N floor, cap the decision down to CONDITIONAL. Distinct "
+                             "from --min-evidence-coverage (which only checks a sub-test ran, not "
+                             "whether it ran on enough data). A pragmatic, disclosed default -- NOT "
+                             "itself empirically calibrated. Set to 0.0 to disable this gate.")
     parser.add_argument("--reference-csv", type=str, default=None,
                         help="Canonical-schema CSV to use as the A6 external reference catalog "
                              "(takes priority over the live-API default and --offline).")
@@ -530,6 +545,7 @@ def main() -> None:
                 gem_fault_db_path=args.gem_fault_db_path,
                 timeout_sec=args.timeout,
                 min_evidence_coverage=args.min_evidence_coverage,
+                min_sample_sufficiency=args.min_sample_sufficiency,
             )
             results.append(r)
         except Exception as exc:

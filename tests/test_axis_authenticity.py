@@ -172,6 +172,103 @@ class TestIntrinsicMode:
         assert result.detail["n_flagged"] > n * 0.5
 
 
+class TestSampleSufficiencyDiagnostics:
+    """
+    Regression tests for the 2026-07-21 external-review sample-sufficiency
+    gate: every A1-A5 SubTestResult.detail must report `n_used` (the sample
+    size that sub-test's own score actually rests on -- see
+    decision.py::_compute_sample_sufficiency), and A5 must additionally
+    report the dense-bucket candidate-cap diagnostics.
+    """
+
+    def test_a1_n_used_is_smallest_candidate_field_count(self):
+        ds = make_gr_dataset(n=300, seed=11)
+        result = score_authenticity(ds)
+        a1 = result.sub_results["A1"]
+        assert a1.applicable
+        assert "n_used" in a1.detail
+        assert isinstance(a1.detail["n_used"], (int, np.integer))
+        assert a1.detail["n_used"] >= 30
+
+    def test_a2_n_used_matches_reported_n(self):
+        ds = make_gr_dataset(n=2000, b_value=1.0, seed=1)
+        result = score_authenticity(ds)
+        a2 = result.sub_results["A2"]
+        assert a2.applicable
+        assert a2.detail["n_used"] == a2.detail["n"]
+        assert a2.detail["n_used"] >= 10
+
+    def test_a3_n_used_is_n_clusters_found_not_event_count(self):
+        # Reuse the spatial-constraint regression fixture above: exactly
+        # one candidate cluster of 5 aftershocks. n_used must be 1 (the
+        # cluster count), NOT 5 (the event count within that one cluster) --
+        # this distinction is the whole point of the sample-sufficiency gate.
+        n = 10
+        base_time = np.datetime64("2021-01-01T00:00:00", "ns")
+        day = np.timedelta64(1, "D")
+        origin_time = np.array([base_time] * n).astype("datetime64[ns]")
+        lat = np.zeros(n)
+        lon = np.zeros(n)
+        mag = np.zeros(n)
+        lat[0], lon[0], mag[0] = 0.0, 0.0, 6.0
+        for i in range(1, 6):
+            origin_time[i] = base_time + int(i) * day
+            lat[i], lon[i], mag[i] = 0.01, 0.01, 4.0
+        for i in range(6, 10):
+            origin_time[i] = base_time + int(i - 5) * day
+            lat[i], lon[i], mag[i] = 50.0, 50.0, 4.0
+        ds = make_dataset(n=n, origin_time=origin_time, latitude=lat, longitude=lon, magnitude=mag)
+        result = _score_a3_omori_utsu(ds)
+        assert result.applicable
+        assert result.detail["n_used"] == 1
+        assert result.detail["n_used"] == result.detail["n_clusters_found"]
+
+    def test_a4_n_used_is_valid_lat_lon_pair_count(self):
+        rng = np.random.RandomState(3)
+        n = 800
+        lat = rng.uniform(-40, 40, n)
+        lon = rng.uniform(-40, 40, n)
+        ds = make_dataset(n=n, latitude=lat, longitude=lon)
+        result = score_authenticity(ds)
+        a4 = result.sub_results["A4"]
+        assert a4.applicable
+        assert a4.detail["n_used"] == n
+        assert a4.detail["n_used"] >= 50
+
+    def test_a5_n_used_is_total_record_count_and_cap_not_triggered(self):
+        n = 100
+        ds = make_dataset(n=n)
+        result = _score_a5_duplicates(ds)
+        assert result.applicable
+        assert result.detail["n_used"] == n
+        assert result.detail["candidate_cap_triggered"] is False
+        assert result.detail["n_capped_queries"] == 0
+        assert result.detail["sampling_fraction"] == 1.0
+
+    def test_a5_cap_diagnostics_fire_on_dense_bucket(self):
+        # Same pathological dense-bucket fixture as
+        # test_a5_dense_bucket_cap_does_not_crash_and_still_flags_duplicates
+        # above, but asserting the NEW diagnostic fields (Task 33, 2026-07-21
+        # external review) rather than just non-crashing behaviour: the cap
+        # must be disclosed as triggered, with a sensible severity readout.
+        n = 800
+        base_time = np.datetime64("2022-06-01T00:00:00", "ns")
+        ds = make_dataset(
+            n=n,
+            origin_time=np.full(n, base_time).astype("datetime64[ns]"),
+            latitude=np.full(n, 10.0),
+            longitude=np.full(n, 20.0),
+            magnitude=np.full(n, 5.0),
+        )
+        result = _score_a5_duplicates(ds, max_neighborhood_candidates=50)
+        assert result.applicable
+        assert result.detail["candidate_cap_triggered"] is True
+        assert result.detail["n_capped_queries"] > 0
+        assert result.detail["max_candidates_observed"] > 50
+        assert 0.0 < result.detail["sampling_fraction"] <= 1.0
+        assert "approximate" in result.note
+
+
 class TestExternalMode:
     def test_a6_matches_against_identical_reference(self, tmp_path):
         ds = make_gr_dataset(n=100, mc=4.6, seed=4)  # above default NEIC-style Mc

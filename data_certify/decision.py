@@ -29,7 +29,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from ._constants import (
-    AXIS_WEIGHTS, THETA_ADMIT, THETA_REJECT,
+    AXIS_WEIGHTS, MIN_RELIABLE_N, THETA_ADMIT, THETA_REJECT,
     WITHIN_A, WITHIN_C, WITHIN_I, WITHIN_P,
 )
 from .axis_authenticity import score_authenticity
@@ -237,6 +237,81 @@ def _compute_evidence_coverage(
     return covered_weight / total_weight, missing
 
 
+def _compute_sample_sufficiency(
+    axis_results: Dict[str, AxisResult],
+) -> "tuple[Optional[float], List[Tuple[str, float, Optional[int], int]]]":
+    """
+    Diagnostic "sample sufficiency" metric (2026-07-21, external review --
+    a distinct gap from evidence coverage above, not a duplicate of it):
+    `_compute_evidence_coverage` answers "did an applicable sub-test run
+    and produce a score at all". It does NOT answer a separate question --
+    "was that sub-test's own underlying sample size (`n_used`, e.g. A3's
+    number of independent aftershock clusters, or A1's smallest per-field
+    Benford sample) actually large enough that the resulting score should
+    be trusted". A3 can be "applicable" and "covered" from a single fitted
+    cluster; a score built from n=1 is not remotely as trustworthy as one
+    built from a few hundred, even though evidence_coverage cannot see the
+    difference. This was the motivating false-admit finding in the
+    external review: small catalogs (24-29 records) where only A3 and A5
+    were applicable at all, each backed by a tiny underlying sample.
+
+    Built on the same `effective_weight` / `MIN_RELIABLE_N` machinery: of
+    the sub-tests that evidence_coverage already counts as COVERED
+    (applicable, non-NaN score), what fraction of THEIR combined nominal
+    weight rests on an n_used that meets or exceeds that sub-test's
+    disclosed `MIN_RELIABLE_N` floor. Sub-tests with no entry in
+    `MIN_RELIABLE_N` (any P/C/I sub-test, and A6 -- which already has its
+    own dedicated n_stratum/n_effective three-state logic, Group C3,
+    2026-07-12) are treated as always-sufficient here; this is a
+    deliberate, disclosed SCOPE LIMIT of the initial rollout (axis A,
+    A1-A5 only), not a claim that every other sub-test's sample size is
+    unconditionally trustworthy -- extending `MIN_RELIABLE_N` to P/C/I is
+    future work, same as evidence_coverage itself started axis-A-only-in-
+    spirit before generalising.
+
+    A sub-test that is NOT covered (missing/inapplicable) is excluded from
+    both the numerator and denominator here -- it is evidence_coverage's
+    job to flag that absence; sample_sufficiency only asks, CONDITIONAL ON
+    evidence being present at all, whether there was enough of it.
+
+    Returns:
+        (sufficiency, insufficient) where `sufficiency` is in [0, 1] (None
+        if no covered sub-test carries a defined effective_weight at all),
+        and `insufficient` is a list of (sub_test_name, nominal_weight,
+        n_used, min_required) tuples for every covered sub-test whose
+        n_used fell short of its MIN_RELIABLE_N floor (or was altogether
+        absent from `detail`), sorted by nominal_weight descending.
+    """
+    total_weight = 0.0
+    sufficient_weight = 0.0
+    insufficient: List[Tuple[str, float, Optional[int], int]] = []
+    for axis_result in axis_results.values():
+        for sub_name, sub in axis_result.sub_results.items():
+            if sub.effective_weight is None:
+                continue  # hard gate -- outside the compensatory sum entirely
+            is_covered = sub.applicable and not (
+                isinstance(sub.score, float) and math.isnan(sub.score)
+            )
+            if not is_covered:
+                continue  # evidence_coverage's concern, not this gate's
+            min_required = MIN_RELIABLE_N.get(sub_name)
+            total_weight += sub.effective_weight
+            if min_required is None:
+                # No disclosed floor yet for this sub-test (scope limit,
+                # see docstring above) -- counted as sufficient by default.
+                sufficient_weight += sub.effective_weight
+                continue
+            n_used = sub.detail.get("n_used") if isinstance(sub.detail, dict) else None
+            if n_used is not None and n_used >= min_required:
+                sufficient_weight += sub.effective_weight
+            else:
+                insufficient.append((sub_name, sub.effective_weight, n_used, min_required))
+    if total_weight <= 0.0:
+        return None, insufficient
+    insufficient.sort(key=lambda t: t[1], reverse=True)
+    return sufficient_weight / total_weight, insufficient
+
+
 class CertifyDecision(str, Enum):
     """
     ADMIT       -- T(D) >= theta_admit and no hard override fired. Certified
@@ -268,6 +343,13 @@ class CertifyResult:
     # `_compute_evidence_coverage`'s docstring. None when no axis produced
     # any non-hard-gate sub-test at all (e.g. the n==0 degenerate case).
     evidence_coverage: Optional[float] = None
+    # Diagnostic sample-sufficiency metric (2026-07-21, external review) --
+    # see `_compute_sample_sufficiency`'s docstring. Distinct from
+    # evidence_coverage: this asks whether covered sub-tests' own
+    # underlying sample sizes (n_used) were large enough to trust, not
+    # merely whether they ran at all. None under the same conditions as
+    # evidence_coverage (no covered sub-test carries a defined weight).
+    sample_sufficiency: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -276,6 +358,7 @@ class CertifyResult:
             "decision": self.decision.value,
             "trust_score": self.trust_score,
             "evidence_coverage": self.evidence_coverage,
+            "sample_sufficiency": self.sample_sufficiency,
             "hard_override": self.hard_override.to_dict(),
             "axis_results": {k: v.to_dict() for k, v in self.axis_results.items()},
             "weights_used": self.weights_used,
@@ -302,6 +385,10 @@ class CertifyResult:
         if self.evidence_coverage is not None:
             lines.append(f"  Evidence coverage = {self.evidence_coverage:.1%} of T(D)'s nominal "
                          f"calibrated weight was backed by applicable evidence in this audit.")
+        if self.sample_sufficiency is not None:
+            lines.append(f"  Sample sufficiency = {self.sample_sufficiency:.1%} of covered "
+                         f"evidence's nominal weight rests on a sub-test sample size meeting "
+                         f"its disclosed MIN_RELIABLE_N floor.")
         lines.append("")
         lines.append("  Per-axis scores:")
         for axis_name in ("A", "P", "C", "I"):
@@ -427,6 +514,29 @@ class DataCertifyAuditor:
                        empirically calibrated against the 968-dataset
                        corpus; set to 0.0 to disable this gate entirely
                        and reproduce the pre-3.5 behaviour exactly.
+        min_sample_sufficiency: Additive safety gate (2026-07-21, external
+                       review -- the small-N / statistical-power gap
+                       distinct from evidence_coverage above): if T(D)
+                       would otherwise ADMIT but less than this fraction
+                       of the COVERED evidence's nominal weight (see
+                       `_compute_sample_sufficiency`) rests on a sub-test
+                       whose own underlying sample size (`n_used`) met its
+                       disclosed `MIN_RELIABLE_N` floor, the decision is
+                       capped down to CONDITIONAL rather than ADMIT -- a
+                       score built mostly from thin samples (e.g. a single
+                       fitted aftershock cluster) is not the same strength
+                       of claim as one built from a well-powered battery,
+                       even at an identical T(D). Never upgrades a
+                       decision and never overrides a Stage-1 hard
+                       override; applies independently of, and in addition
+                       to, min_evidence_coverage. Default 0.5 is a
+                       disclosed, pragmatic, NOT-yet-corpus-calibrated
+                       provisional prior -- same status as
+                       min_evidence_coverage's own default; set to 0.0 to
+                       disable this gate entirely. Currently scoped to
+                       axis A (A1-A5) only, since `MIN_RELIABLE_N` has no
+                       entries yet for P/C/I sub-tests -- a disclosed
+                       scope limit, not a claim of full coverage.
     """
 
     def __init__(
@@ -437,6 +547,7 @@ class DataCertifyAuditor:
         fault_db: Optional[FaultDatabaseReference] = None,
         reference_dc: Optional[float] = None,
         min_evidence_coverage: float = 0.5,
+        min_sample_sufficiency: float = 0.5,
     ) -> None:
         if theta_reject > theta_admit:
             raise ValueError(
@@ -448,12 +559,18 @@ class DataCertifyAuditor:
                 f"DataCertifyAuditor: min_evidence_coverage={min_evidence_coverage} "
                 f"must be in [0, 1]."
             )
+        if not (0.0 <= min_sample_sufficiency <= 1.0):
+            raise ValueError(
+                f"DataCertifyAuditor: min_sample_sufficiency={min_sample_sufficiency} "
+                f"must be in [0, 1]."
+            )
         self.theta_admit = theta_admit
         self.theta_reject = theta_reject
         self.reference = reference
         self.fault_db = fault_db
         self.reference_dc = reference_dc
         self.min_evidence_coverage = min_evidence_coverage
+        self.min_sample_sufficiency = min_sample_sufficiency
 
     def audit(self, dataset: CertifyDataset) -> CertifyResult:
         """Run the full two-stage DATA-CERTIFY audit protocol on `dataset`."""
@@ -490,6 +607,7 @@ class DataCertifyAuditor:
         axis_results = {"A": a_result, "P": p_result, "C": c_result, "I": i_result}
         _assign_effective_weights(axis_results, dataset.n)
         evidence_coverage, missing_evidence = _compute_evidence_coverage(axis_results)
+        sample_sufficiency, insufficient_samples = _compute_sample_sufficiency(axis_results)
 
         a6_sub = a_result.sub_results.get("A6")
         a6_matched_fraction = None
@@ -530,6 +648,7 @@ class DataCertifyAuditor:
                 dataset_name=dataset.name,
                 n_records=dataset.n,
                 evidence_coverage=evidence_coverage,
+                sample_sufficiency=sample_sufficiency,
             )
 
         # -- Stage 2: compensatory composite score ------------------------
@@ -589,6 +708,33 @@ class DataCertifyAuditor:
             )
             decision = CertifyDecision.CONDITIONAL
 
+        # -- Additive sample-sufficiency safety gate (2026-07-21, external
+        # review) -- structurally identical to the evidence-coverage gate
+        # above (only ever caps ADMIT down to CONDITIONAL; independent of
+        # it and applied in addition, not instead): T(D) can clear
+        # theta_admit and have full evidence_coverage, yet still rest on
+        # sub-tests whose own sample size was too thin to trust (e.g. a
+        # single fitted Omori-Utsu cluster) -- see
+        # `_compute_sample_sufficiency`'s docstring and this class's
+        # `min_sample_sufficiency` docstring for the full rationale.
+        if (decision == CertifyDecision.ADMIT
+                and sample_sufficiency is not None
+                and sample_sufficiency < self.min_sample_sufficiency):
+            top_insufficient = ", ".join(
+                f"{name} (n_used={n_used}, needs>={min_required}, "
+                f"{weight:.1%} nominal weight)"
+                for name, weight, n_used, min_required in insufficient_samples[:3]
+            )
+            caveats.append(
+                f"Sample-sufficiency safety gate: T(D)={trust_score:.4f} cleared "
+                f"theta_admit={self.theta_admit}, but only {sample_sufficiency:.1%} of covered "
+                f"evidence's nominal weight rested on a sub-test sample size meeting its "
+                f"disclosed MIN_RELIABLE_N floor (min_sample_sufficiency="
+                f"{self.min_sample_sufficiency:.1%}) -- capped down to CONDITIONAL rather than "
+                f"ADMIT. Thinnest-sampled contributions: {top_insufficient}."
+            )
+            decision = CertifyDecision.CONDITIONAL
+
         return CertifyResult(
             decision=decision,
             trust_score=trust_score,
@@ -601,6 +747,7 @@ class DataCertifyAuditor:
             dataset_name=dataset.name,
             n_records=dataset.n,
             evidence_coverage=evidence_coverage,
+            sample_sufficiency=sample_sufficiency,
         )
 
     def estimate_uncertainty(

@@ -364,14 +364,47 @@ def fit_omori_utsu(
     # low-count, large-t tail bins that an unweighted fit treats as equally
     # informative as the high-count early bins). Weighting by count reduces
     # this to within a few percent on the same synthetic-recovery test.
+    #
+    # BUG FOUND (2026-07-21, external review): the weighted-least-squares
+    # transform above used `A*w`/`y*w` directly rather than `A*sqrt(w)`/
+    # `y*sqrt(w)`. Ordinary least squares on `A_w, y_w = A*w, y*w` minimizes
+    # `sum((y_w - A_w @ beta)^2) = sum(w^2 * (y - A@beta)^2)` -- i.e. it
+    # weights each bin's squared residual by `count^2`, not `count`, silently
+    # over-weighting high-count (early-time) bins beyond the intended
+    # inverse-Poisson-variance scheme. This was also internally inconsistent
+    # with the `sse` computed a few lines below to pick the best `c`
+    # candidate, which correctly used `w` (not `w**2`) -- so the coefficients
+    # selected as "best" were not actually the minimizer of the same
+    # objective used to compare them. Fixed by transforming with `sqrt(w)`
+    # instead of `w`: `||sqrt(w)*(y - A@beta)||^2 = sum(w*(y-A@beta)^2)`,
+    # the standard WLS reduction to OLS, which now matches the `sse` metric
+    # exactly. Re-verified against the same synthetic known-p recovery test
+    # already described above (true p=0.9/1.1/1.4, 8 seeds each): mean
+    # fitted p moves from 0.8796/1.0252/1.3139 (pre-fix, `w`, rel. error
+    # 2.3%/6.8%/6.2%) to 0.8556/1.0138/1.3384 (post-fix, `sqrt(w)`, rel.
+    # error 4.9%/7.8%/4.4%) -- a small, mixed-direction shift, not the
+    # dramatic ~30% bias the fully-unweighted version above was found to
+    # have. Both pre- and post-fix values pass the same <20%-tolerance
+    # regression test, confirming this fix corrects a real objective-
+    # function inconsistency (the fitted coefficients now actually minimize
+    # the same quantity used to select the best `c` candidate) without
+    # itself being the dominant source of A3 estimation error. This does
+    # not change which sub-test (A3) is affected, only the numerical
+    # precision of its p/c estimates; full corpus re-verification after
+    # this fix is recorded in
+    # `Docs/02_Calibration_and_Validation/DATA-CERTIFY_Criteria_and_Weights_Master_Reference.md`
+    # Section 6.
     best = None
     for c_candidate in np.geomspace(1e-3, max(1.0, t_max / 10.0), 25):
         x = np.log(centers[valid] + c_candidate)
         y = np.log(rate[valid])
         w = counts[valid].astype(float)
-        # Linear regression y = a - p*x  =>  p = -slope, weighted by count.
-        a_mat = np.vstack([np.ones_like(x), x]).T * w[:, None]
-        yw = y * w
+        sqrt_w = np.sqrt(w)
+        # Linear regression y = a - p*x  =>  p = -slope, weighted by count
+        # via the sqrt(w) OLS reduction (see BUG FOUND note above) so the
+        # fitted coefficients minimize sum(w * residual^2), matching `sse`.
+        a_mat = np.vstack([np.ones_like(x), x]).T * sqrt_w[:, None]
+        yw = y * sqrt_w
         coeffs, residuals, _, _ = np.linalg.lstsq(a_mat, yw, rcond=None)
         log_k, neg_p = coeffs
         p = -neg_p

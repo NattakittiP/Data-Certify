@@ -36,6 +36,32 @@ checkout (which has everything), false on a clean clone.
   `ATTRIBUTION.md` satisfying the license's attribution requirement, while
   the rest of `Dataset/` (private raw catalog CSVs) remains excluded, same
   pattern already used for `datasets/nz/`+`datasets/chile/`.
+- **`tests/test_hard_override.py::test_isolated_violation_in_large_dataset_
+  does_not_fire` failed on the Python 3.12 CI job only:
+  `OverflowError: Overflow in datetime64 + timedelta64 addition`.** This
+  test builds a 100,000-record dataset via `conftest.py`'s `make_dataset`,
+  whose default `origin_time` spacing is one day per record starting
+  2020-01-01 -- at n=100,000 that spans ~274 years, landing around the
+  year 2294, past `datetime64[ns]`'s representable ceiling (the
+  well-known ~292-year-from-epoch limit, i.e. roughly year 1678-2262).
+  Confirmed by direct reproduction that this was ALREADY a latent bug on
+  every numpy version, including the one this sandbox uses (numpy 2.2.6):
+  `(base_time + np.arange(100_000) * np.timedelta64(1, "D"))` silently
+  **wraps around to a garbage date** (`1709-03-27...`) rather than
+  erroring -- it just happened not to matter for this specific test
+  (which only checks that a `latitude=999` violation gets quarantined,
+  not the dates themselves). Whatever newer numpy release pip resolved
+  specifically for the Python 3.12 CI job added a proper overflow check
+  that raises instead of silently corrupting the date, surfacing the
+  latent bug as a hard failure. Fixed by overriding `origin_time` in this
+  one test with 1-second spacing instead of relying on the shared
+  fixture's 1-day default (origin_time is irrelevant to what this test
+  actually checks) -- still exercises the same 100,000-record P1-P3
+  non-trivial-fraction logic, just without silently overflowing the date
+  range. Audited the rest of the suite for any other `make_dataset`/
+  `make_gr_dataset` call with `n` large enough to risk the same overflow
+  (the safe ceiling is roughly n<88,000 given the default 1-day spacing
+  from 2020) -- no other test exceeds `n=25,000`.
 
 Second external-review pass (same day as 0.1.0, following up on a review of
 the tagged 0.1.0 release itself). Also corrects a release/tag mismatch: the

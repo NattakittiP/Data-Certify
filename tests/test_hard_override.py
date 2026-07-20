@@ -20,10 +20,27 @@ class TestP1P3NonTrivialFraction:
         # Use a smaller but still large n for test speed; the key property
         # (single-digit violations in a huge dataset are NOT non-trivial)
         # holds at n=100,000 too.
+        #
+        # BUGFIX (2026-07-21, CI failure on Python 3.12 only): make_dataset's
+        # default origin_time spacing is one day per record starting
+        # 2020-01-01. At n=100,000 that spans ~274 years, landing around the
+        # year 2294 -- past datetime64[ns]'s representable ceiling (~2262,
+        # the well-known 292-year-from-epoch limit of nanosecond-precision
+        # datetime64). A newer numpy release (whichever pip resolved for the
+        # 3.12 CI job specifically) now raises OverflowError on this instead
+        # of silently wrapping, surfacing a latent bug in this fixture's
+        # date range that every other Python-version job's older numpy
+        # happened not to catch. origin_time is irrelevant to what this test
+        # actually checks (P1-P3's lat/lon-violation-fraction logic), so
+        # fixed here by overriding it with 1-second spacing instead of the
+        # default 1-day spacing -- still n=100,000 distinct records, just
+        # spanning about a day in total instead of ~274 years.
         n = 100_000
         lat = np.zeros(n)
         lat[0] = 999.0  # one impossible record
-        ds = make_dataset(n=n, latitude=lat)
+        base_time = np.datetime64("2020-01-01T00:00:00", "ns")
+        origin_time = (base_time + np.arange(n, dtype="int64") * np.timedelta64(1, "s")).astype("datetime64[ns]")
+        ds = make_dataset(n=n, latitude=lat, origin_time=origin_time)
         result = check_hard_override(ds)
         assert result.fired is False
         assert 0 in result.quarantined_indices

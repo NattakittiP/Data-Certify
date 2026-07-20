@@ -262,7 +262,7 @@ class TestGraduatedFabricationLadder:
         should score poorly on intrinsic checks alone (no A6 needed) --
         confirms the ladder's low end is genuinely easy, not accidentally
         already realistic."""
-        from calibration import corrupt as _corrupt
+        import _adversarial_fabrication as _corrupt
         ds = _corrupt.fabricate_level1(500, np.random.RandomState(42), name="test_level1")
         auditor = DataCertifyAuditor()
         result = auditor.audit(ds)
@@ -281,7 +281,7 @@ class TestGraduatedFabricationLadder:
         scoring exactly like fabricate_sophisticated already does --
         confirming A6 external cross-validation remains the load-bearing
         defense against the hardest tier, not a redundant one."""
-        from calibration import corrupt as _corrupt
+        import _adversarial_fabrication as _corrupt
         ds = _corrupt.fabricate_level10_adversarial(500, np.random.RandomState(42), name="test_level10")
         auditor = DataCertifyAuditor()
         result = auditor.audit(ds)
@@ -301,7 +301,7 @@ class TestGraduatedFabricationLadder:
         test_level10_multi_source_is_hard_rejected below for the
         >=2-source case that restores the full guarantee.
         """
-        from calibration import corrupt as _corrupt
+        import _adversarial_fabrication as _corrupt
         ds = _corrupt.fabricate_level10_adversarial(300, np.random.RandomState(7), name="test_level10b")
         monkeypatch.setattr(
             "data_certify.reference_data.urllib.request.urlopen",
@@ -339,7 +339,7 @@ class TestGraduatedFabricationLadder:
         relies on make_gamed_fabricated_catalog()'s own default n being
         large enough for the same reason.
         """
-        from calibration import corrupt as _corrupt
+        import _adversarial_fabrication as _corrupt
         ds = _corrupt.fabricate_level10_adversarial(3000, np.random.RandomState(7), name="test_level10c")
         monkeypatch.setattr(
             "data_certify.reference_data.urllib.request.urlopen",

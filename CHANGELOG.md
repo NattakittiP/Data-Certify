@@ -2,7 +2,40 @@
 
 All notable changes to DATA-CERTIFY are documented in this file.
 
-## [0.1.1] — 2026-07-21
+## [0.1.1] — 2026-07-21 (CI fixes appended same day, after first push)
+
+Two real, previously-undiagnosed CI failures were found from the actual
+GitHub Actions logs (first push of this release) and fixed. Both share one
+root cause: the public test suite assumed files/modules that `.gitignore`
+deliberately excludes from GitHub were present -- true on every local
+checkout (which has everything), false on a clean clone.
+
+### Fixed
+
+- **4 tests in `tests/test_adversarial.py::TestGraduatedFabricationLadder`
+  failed with `ModuleNotFoundError: No module named 'calibration'`.**
+  These tests did `from calibration import corrupt as _corrupt` to
+  generate synthetic fabricated catalogs, but `calibration/` is
+  intentionally gitignored (private corpus-building tooling). Fixed by
+  extracting the two pure, deterministic generator functions these tests
+  actually need (`fabricate_level1`, `fabricate_level10_adversarial`, and
+  their shared `fabricate_graduated`/`_omori_like_times` engine) into a new
+  self-contained `tests/_adversarial_fabrication.py`, credited back to
+  `calibration/corrupt.py` as the origin. No private corpus data is
+  involved -- these are procedural generators only -- so this does not
+  change what's actually private; `calibration/corrupt.py` remains the
+  authoritative copy for the maintainer's own corpus-building use.
+- **`tests/test_gem_active_faults_database.py::TestDefaultPathDetection::
+  test_default_gem_geojson_path_finds_repo_bundled_file` failed:
+  `assert None is not None`.** The test's own claim ("this repo ships
+  `Dataset/GAF-DB/gem_active_faults_harmonized.geojson`") was false for the
+  public repository -- `Dataset/` is gitignored in its entirety. Fixed by
+  publishing `Dataset/GAF-DB/` specifically (the GEM Global Active Faults
+  Database, CC-BY-SA 4.0, already public at
+  github.com/GEMScienceTools/gem-global-active-faults) with an
+  `ATTRIBUTION.md` satisfying the license's attribution requirement, while
+  the rest of `Dataset/` (private raw catalog CSVs) remains excluded, same
+  pattern already used for `datasets/nz/`+`datasets/chile/`.
 
 Second external-review pass (same day as 0.1.0, following up on a review of
 the tagged 0.1.0 release itself). Also corrects a release/tag mismatch: the

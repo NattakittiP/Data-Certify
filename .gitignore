@@ -84,8 +84,18 @@ fetch_theta_auth_references.py
 
 # Raw / derived seismic-catalog data — not published, EXCEPT the two
 # small real-catalog demo datasets (nz, chile) that the README Quick
-# Start and examples/example_nz_chile_audit.py actually run against.
-Dataset/
+# Start and examples/example_nz_chile_audit.py actually run against, AND
+# Dataset/GAF-DB/ (2026-07-21, CI fix): the GEM Global Active Faults
+# Database, openly licensed CC-BY-SA 4.0 by the GEM Foundation and already
+# public at github.com/GEMScienceTools/gem-global-active-faults — bundled
+# here (with attribution, see Dataset/GAF-DB/ATTRIBUTION.md) so P8's
+# default_gem_geojson_path() auto-discovery actually works out of the box
+# on a fresh clone, per tests/test_gem_active_faults_database.py::
+# TestDefaultPathDetection's own (previously false, CI-failing) claim that
+# this repo ships that file. This is licensed reference data, not part of
+# the private calibration corpus — unlike the rest of Dataset/ below.
+Dataset/*
+!Dataset/GAF-DB/
 datasets_adversarial/
 usgs_reference_fetch/
 dev_diagnostics/

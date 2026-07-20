@@ -53,15 +53,22 @@ checkout (which has everything), false on a clean clone.
   not the dates themselves). Whatever newer numpy release pip resolved
   specifically for the Python 3.12 CI job added a proper overflow check
   that raises instead of silently corrupting the date, surfacing the
-  latent bug as a hard failure. Fixed by overriding `origin_time` in this
-  one test with 1-second spacing instead of relying on the shared
-  fixture's 1-day default (origin_time is irrelevant to what this test
-  actually checks) -- still exercises the same 100,000-record P1-P3
-  non-trivial-fraction logic, just without silently overflowing the date
-  range. Audited the rest of the suite for any other `make_dataset`/
-  `make_gr_dataset` call with `n` large enough to risk the same overflow
-  (the safe ceiling is roughly n<88,000 given the default 1-day spacing
-  from 2020) -- no other test exceeds `n=25,000`.
+  latent bug as a hard failure. **First fix attempt was incomplete**:
+  overriding `origin_time` in the test itself wasn't enough, because
+  `conftest.py`'s `make_dataset` built its entire `defaults` dict --
+  including the unconditional default `origin_time` expression -- as one
+  eagerly-evaluated dict literal, THEN called `defaults.update(overrides)`;
+  Python evaluates every value in a dict literal regardless of what
+  `.update()` does to it afterwards, so the default's overflow-prone
+  computation still ran even when a caller supplied its own `origin_time`.
+  Properly fixed by making that default computation conditional on
+  `"origin_time" not in overrides` in `make_dataset` itself, so a
+  caller-supplied override actually skips the unsafe default path instead
+  of merely overwriting its result after the fact. Audited the rest of the
+  suite for any other `make_dataset`/`make_gr_dataset` call with `n` large
+  enough to risk the same overflow via the (now conditional, but still
+  present for callers who don't override) default spacing -- no other test
+  exceeds `n=25,000`.
 
 Second external-review pass (same day as 0.1.0, following up on a review of
 the tagged 0.1.0 release itself). Also corrects a release/tag mismatch: the

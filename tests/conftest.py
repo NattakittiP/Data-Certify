@@ -28,12 +28,34 @@ def make_dataset(n: int = 50, **overrides: Any) -> CertifyDataset:
     magnitude 4.0, depth 10km, lat/lon 0, one event per day starting
     2020-01-01, no optional fields populated.
     """
-    base_time = np.datetime64("2020-01-01T00:00:00", "ns")
-    day = np.timedelta64(1, "D")
+    # BUGFIX (2026-07-21, CI failure on Python 3.12 only): the default
+    # origin_time expression below (one day per record starting
+    # 2020-01-01) was previously computed UNCONDITIONALLY as part of this
+    # dict literal, even when the caller passed their own `origin_time` in
+    # `overrides` that would immediately replace it via `defaults.update
+    # (overrides)` below -- Python evaluates every value in a dict literal
+    # eagerly, regardless of what `.update()` does to it afterwards. For
+    # n>=~88,000 that default expression itself overflows datetime64[ns]'s
+    # representable range (base_time + n days lands past the ~292-year-
+    # from-epoch ceiling, i.e. past ~year 2262) -- so a test that overrides
+    # origin_time specifically BECAUSE it needs a large n (e.g.
+    # test_hard_override.py's n=100,000 large-dataset test) still crashed
+    # on this unused default before its own override ever took effect. A
+    # newer numpy raises OverflowError here instead of the older silent
+    # wraparound-to-a-garbage-date behaviour (confirmed via direct
+    # reproduction), which is how this was first caught. Fixed by only
+    # computing the default when the caller hasn't already supplied their
+    # own origin_time.
+    if "origin_time" in overrides:
+        origin_time_default = None
+    else:
+        base_time = np.datetime64("2020-01-01T00:00:00", "ns")
+        day = np.timedelta64(1, "D")
+        origin_time_default = (base_time + np.arange(n) * day).astype("datetime64[ns]")
 
     defaults = {
         "name": "test_dataset",
-        "origin_time": (base_time + np.arange(n) * day).astype("datetime64[ns]"),
+        "origin_time": origin_time_default,
         "latitude": np.linspace(-10, 10, n),
         "longitude": np.linspace(-10, 10, n),
         "depth_km": np.full(n, 10.0),

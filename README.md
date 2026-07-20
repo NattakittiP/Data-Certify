@@ -91,7 +91,7 @@ changed individual dataset outcomes materially (607/968 had a non-trivial
 in either direction — consistent with fixing a real geographic bug without
 that bug having been the dominant driver of the pre-existing false-admit
 finding. See `calibration/group_b_reports/three_way_matrix_report.txt` for
-the full breakdown (not published, internal corpus).
+the full breakdown (published as of 2026-07-21 — see `calibration/README.md`).
 
 **A subsequent full weight/threshold refit against these fixed scores was
 attempted and deliberately rejected.** `calibration/compute_ewm.py` (a
@@ -420,11 +420,16 @@ prepare_dataset.py         CLI helper to convert a raw CSV into the schema
 ```
 
 This repository ships the core system plus two small real-catalog demo
-datasets so the Quick Start commands below work out of the box. Internal
-calibration/verification tooling, the test suite, theory/validation
-write-ups, and the full raw-data corpus used to calibrate the framework are
-kept out of this repository and are not required to install or use
-DATA-CERTIFY.
+datasets so the Quick Start commands below work out of the box, the
+automated test suite (`tests/`), and — as of 2026-07-21 — the
+calibration/verification/analysis scripts, corpus manifests, score
+matrices, and calibration reports in `calibration/` (see
+`calibration/README.md`). Internal theory/validation write-ups and the
+full raw-record earthquake-event corpus used to calibrate the framework
+are kept out of this repository (the latter pending a redistribution-rights
+check on third-party real-catalog sources — it is deterministically
+regenerable from the published manifests and scripts in the interim).
+None of this is required to install or use DATA-CERTIFY.
 
 ---
 
@@ -543,24 +548,38 @@ roughly 1–2 minutes rather than seconds.
 ## Data & tooling not included in this repository
 
 This repository ships the core system plus two small bundled demo catalogs
-(`datasets/nz`, `datasets/chile`) so the Quick Start actually runs. The
-following are kept out of this repository, deliberately, and are not
-required to install or use DATA-CERTIFY:
+(`datasets/nz`, `datasets/chile`) so the Quick Start actually runs, the
+automated test suite (`tests/`, 332 tests — see "Repository layout" and the
+GitHub Actions CI workflow), and — as of 2026-07-21 — the
+calibration/corpus-building/analysis **scripts**, the corpus manifests, the
+computed score matrices, and the calibration reports in `calibration/`
+(`calibration/README.md` documents exactly what's there). This last
+addition was made specifically so a reviewer or reader can inspect how
+every calibrated weight and threshold in this project was actually
+derived, not just take it on faith.
 
-- The internal calibration/verification corpus (hundreds of additional
-  known-good, corrupted, and fabricated seismic catalogs beyond the two
-  bundled demo catalogs) and the scripts used to build, corrupt, score, and
-  calibrate weights/thresholds against it.
-- Internal theory and validation write-ups.
+What's still kept out of this repository, and is not required to install
+or use DATA-CERTIFY:
 
-The automated test suite (`tests/`, 321 tests) IS included, unlike the two
-items above — see "Repository layout" and the GitHub Actions CI workflow.
+- The raw, per-record earthquake-event catalogs the calibration corpus's
+  `real` and `corrupted_real` entries were built from/derived from
+  (hundreds of catalogs beyond the two bundled demo datasets). These are
+  deterministically regenerable from the published `calibration/corpus_manifest.csv`
+  plus the now-published generation scripts (same seeds, same corruption
+  parameters), but are not yet republished verbatim, pending a check of the
+  redistribution terms of the original third-party real-catalog sources
+  (USGS ComCat is U.S. public domain; some other sources have not yet been
+  individually checked).
+- Internal theory and validation write-ups (`Docs/`).
 
 P8 (plate-boundary proximity) can optionally use the real **GEM Global
 Active Faults Database** (Styron & Pagani 2020, ~13,700 faults,
 `--fault-db-source gem`). GEM GAF-DB is licensed under **CC-BY-SA 4.0** by
-the GEM Foundation and is not included in this repository at all — point
-`--gem-fault-db-path` at your own copy of it to use this mode. By default
+the GEM Foundation and, as of 2026-07-21, is bundled with this repository
+at `Dataset/GAF-DB/` (with attribution, `Dataset/GAF-DB/ATTRIBUTION.md`) so
+`--fault-db-source gem`'s default path auto-discovery works out of the box
+on a fresh clone — point `--gem-fault-db-path` at a different copy only if
+you want to use a different GAF-DB version/location. By default
 (`--fault-db-source bundled`, or the legacy `--fault-db` flag), P8 instead
 uses a small (~30-point) demonstration plate-boundary reference that ships
 with the code and is independent of GEM's dataset — sufficient to exercise

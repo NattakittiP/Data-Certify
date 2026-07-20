@@ -166,6 +166,39 @@ diagnostics) using the real corpus, run by the maintainer:
   headline 0% false-admit rate is a ceiling artifact (ADMIT becomes
   practically unreachable), not a genuine improvement.
 
+### Added (2026-07-21, later the same day — reproducibility fix)
+
+- **Published `calibration/`**, in response to an external review: a
+  Methodology Article reviewer cannot check false-admit rates, threshold
+  derivation, or weight calibration without access to the calibration
+  tooling, and "available upon reasonable request" is not sufficient on
+  its own. Now public: every corpus-building/calibration/analysis script
+  (`corrupt.py`, `build_corpus.py`, `run_scoring.py`, `compute_ewm.py`,
+  `calibrate_thresholds.py`, `calibrate_hard_override_params.py`,
+  `calibrate_theta_auth.py`, `refit_full_corpus.py`,
+  `score_adversarial_holdout.py`, `analysis_*.py`, `make_paper_figures.py`,
+  and others); both corpus manifests (`corpus_manifest.csv`,
+  `adversarial_corpus_manifest.csv` — dataset identity, category, label,
+  corruption type/severity, seed, parent catalog, for all 968+30
+  datasets); every score matrix (`score_matrix*.csv` — computed `T(D)`/
+  sub-test scores per dataset, not raw catalog records); and every
+  calibration/analysis report (`bootstrap_stability_report.*`,
+  `ewm_report.*`, `hard_override_calibration_report.*`,
+  `theta_auth_report.*`, `threshold_report.*`, `group_b_reports/`,
+  `group_c_reports/`, `group_d_reports/`). See `calibration/README.md` for
+  the complete list and the reasoning behind what's included.
+- **Not yet published**: the raw, per-record earthquake-event CSVs the
+  corpus's `real`/`corrupted_real` entries were built from/derived from.
+  These are deterministically regenerable from the published manifest and
+  scripts (same seeds, same corruption parameters applied to the same
+  named real source), but are withheld verbatim pending a check of the
+  redistribution terms of the original third-party sources (USGS ComCat is
+  U.S. public domain; other sources have not yet been individually
+  checked). Same reasoning applied to exclude
+  `group_d_reports/d1d_multisource/` (raw EMSC/USGS records used in the
+  cross-agency merge case study). This is disclosed as a temporary,
+  specific gap, not a permanent one.
+
 ## [0.1.0] — 2026-07-21
 
 First tagged release. Summary of everything notable since the initial
@@ -290,13 +323,21 @@ public commit.
   generation scripts, and calibration-fitting tooling are not published;
   external readers can verify the logic in this repository but cannot
   independently reproduce the calibrated weights/thresholds or a
-  confusion matrix against that corpus.
+  confusion matrix against that corpus. **Update (2026-07-21, later the
+  same day, reproducibility fix):** the generation scripts and
+  calibration-fitting tooling described here ARE now published in
+  `calibration/` (see the `[0.1.1]` entry below and `calibration/README.md`),
+  along with the corpus manifest, computed score matrices, and every
+  calibration report. Only the raw, per-record earthquake-event catalogs
+  themselves remain unpublished, pending a redistribution-rights check on
+  third-party real-catalog sources — they are deterministically
+  regenerable from the now-published manifest and scripts in the interim.
 - The evidence-coverage gate's `min_evidence_coverage=0.5` default is a
   disclosed, pragmatic choice, not itself empirically calibrated against
   the internal corpus.
 - The 19-genuine-false-admit finding above predates the evidence-coverage
   gate; whether/how much the gate changes this figure has not yet been
-  re-measured against the private corpus.
+  re-measured against the corpus.
 - `AXIS_WEIGHTS`/`WITHIN_A`/`theta_admit`/`theta_reject` still reflect
   calibration done under the old (pre-A3/A4/A5-fix) behavior. A refit
   against the corrected scoring functions WAS attempted (see "Investigated
@@ -346,7 +387,7 @@ effect of the code fix itself from any weight recalibration, which has
   persists, in a different specific composition, after the fix.
 
 Full breakdown in `calibration/group_b_reports/three_way_matrix_report.txt`
-(internal corpus, not published).
+(published as of 2026-07-21 — see `calibration/README.md`).
 
 ### Investigated and rejected (2026-07-21) — full weight/threshold refit against fixed scores
 

@@ -1,0 +1,165 @@
+DATA-CERTIFY -- maximum_curvature_mc() bugfix: full corpus recalibration report
+TENTH CALIBRATION PASS, 2026-07-16
+=================================================================================
+
+SOURCE OF THIS PASS
+--------------------
+A real floating-point bin-edge bug in data_certify/stats.py::maximum_curvature_mc()
+was found during a user-requested independent 3-round re-verification of Group D1(d)
+(Docs/03_Paper_Prep/DATA-CERTIFY_Cross_Agency_Catalog_Merge_Case_Study.md, Section 1a). The bug: the old
+implementation built histogram bin edges with np.arange(lo, hi+bin_width, bin_width)
+and binned via np.histogram; np.arange's accumulated floating-point drift could push a
+bin edge conceptually meant to sit exactly at a reported (0.1-precision) magnitude a few
+ULPs off, silently misclassifying every event at that value into the neighboring bin.
+
+Fix (final, shipped): bin_idx = floor((m - lo) / bin_width + 1e-9); preserves the
+original left-edge binning convention (so continuously-valued catalogs like `nz`, which
+the old code was NOT actually wrong on, are unaffected) while eliminating the float-drift
+misclassification for quantized data. A first candidate fix (nearest-bin rounding) was
+tested and rejected because it silently shifted the binning convention for `nz`
+specifically (Mc 1.838 -> 1.938) despite the original code not being wrong there -- see
+data_certify/stats.py's own module comment for the full derivation.
+
+CORPUS-WIDE Mc IMPACT (before any A2 propagation)
+---------------------------------------------------
+175 of 985 total corpus datasets (calibration corpus + adversarial holdout) had a
+different computed Mc after the fix. Of the 968-dataset main calibration corpus
+specifically, only 18 datasets had a resulting A2 (Gutenberg-Richter b-value
+plausibility) score change of a nonzero amount once propagated through
+gr_b_value_aki() -- the remaining Mc shifts had no material effect on the derived
+b-value/score. A 19th affected dataset, `emsc_raw`, belongs to the D1(d) case study's
+own live-fetched data and is NOT part of the 968-dataset calibration corpus (see
+DATA-CERTIFY_Cross_Agency_Catalog_Merge_Case_Study.md Section 1a for its own before/after numbers).
+
+THE 18 AFFECTED CALIBRATION-CORPUS DATASETS -- A2 score delta (|new - old|), descending
+------------------------------------------------------------------------------------------
+dataset_id                                                          |A2 delta|
+real_newzealand_kaikoura_2016_recent                                0.794386
+real_southafrica_general_early2                                     0.568069
+real_poland_general_recent                                          0.328608
+real_southafrica_general                                            0.248386
+real_iceland_reykjanes_2021_recent                                  0.239318
+real_usa_puertorico_general_early                                   0.209391
+real_azerbaijan_general_early2                                      0.138264
+real_madagascar_general                                             0.137911
+corrupt_real_madagascar_general_depth_implausible_med                0.137911
+corrupt_real_lebanon_general_inject_duplicates_high                  0.102251
+real_cyprus_general_early2                                          0.057945
+real_usa_puertorico_general_early2                                  0.042354
+real_usa_nevada_basinrange_general_early3                           0.025981
+real_iceland_general                                                0.012711
+corrupt_real_azerbaijan_general_magnitude_gr_violation_med           0.012519
+corrupt_real_india_gujarat_bhuj_2001_magnitude_gr_violation_med      0.009657
+corrupt_real_india_kashmir_2005_magnitude_gr_violation_med           0.005700
+corrupt_real_germany_general_magnitude_gr_violation_med              0.004907
+
+10 of these 18 changed by more than 0.1 (max: real_newzealand_kaikoura_2016_recent,
+delta=0.794). D1(a)'s and D1(b)'s own catalogs (nz, real_kahramanmaras_turkey_2023,
+real_gorkha_nepal_2015) are confirmed UNCHANGED (delta=0.0 exactly for all three) -- both
+case studies' already-3x-independently-re-verified numbers remain fully valid.
+
+DECISION-LEVEL IMPACT: PRODUCTION DataCertifyAuditor.audit(), OLD vs NEW WEIGHTS
+------------------------------------------------------------------------------------
+All 18 datasets re-audited via the actual production decision path (AHP x EWM blended
+weights, not the diagnostic trust_score_ahp_only column) under both the pre-fix and
+post-fix blended weights. RESULT: ZERO decision flips -- every one of the 18 datasets
+retains the exact same ADMIT / CONDITIONAL / REJECT verdict under the corrected weights.
+
+dataset_id                                                        old_T(D)   old_decision  new_T(D)   new_decision
+corrupt_real_azerbaijan_general_magnitude_gr_violation_med         0.77516   ADMIT          0.77704   ADMIT
+corrupt_real_germany_general_magnitude_gr_violation_med            0.61876   CONDITIONAL    0.62900   CONDITIONAL
+corrupt_real_india_gujarat_bhuj_2001_magnitude_gr_violation_med    0.58970   CONDITIONAL    0.59017   CONDITIONAL
+corrupt_real_india_kashmir_2005_magnitude_gr_violation_med         0.66101   CONDITIONAL    0.65882   CONDITIONAL
+corrupt_real_lebanon_general_inject_duplicates_high                0.18450   REJECT         0.16726   REJECT
+corrupt_real_madagascar_general_depth_implausible_med               --      REJECT (hard override)  --  REJECT (hard override)
+real_azerbaijan_general_early2                                     0.54565   CONDITIONAL    0.56143   CONDITIONAL
+real_cyprus_general_early2                                         0.53035   CONDITIONAL    0.53276   CONDITIONAL
+real_iceland_general                                                0.51657   CONDITIONAL    0.52553   CONDITIONAL
+real_iceland_reykjanes_2021_recent                                  0.51580   CONDITIONAL    0.51547   CONDITIONAL
+real_madagascar_general                                             0.45235   CONDITIONAL    0.48877   CONDITIONAL
+real_newzealand_kaikoura_2016_recent                                0.57259   CONDITIONAL    0.57063   CONDITIONAL
+real_poland_general_recent                                          0.55928   CONDITIONAL    0.58414   CONDITIONAL
+real_southafrica_general                                            0.76147   ADMIT          0.79629   ADMIT
+real_southafrica_general_early2                                     0.53146   CONDITIONAL    0.58020   CONDITIONAL
+real_usa_nevada_basinrange_general_early3                           0.46439   CONDITIONAL    0.47267   CONDITIONAL
+real_usa_puertorico_general_early                                   0.67628   CONDITIONAL    0.66997   CONDITIONAL
+real_usa_puertorico_general_early2                                  0.72343   CONDITIONAL    0.72558   CONDITIONAL
+
+BLENDED WEIGHT RECALIBRATION (calibration/compute_ewm.py re-run against the corrected
+score_matrix.csv, all 968 rows, after regenerating the 18 stale rows via
+calibration/run_scoring.py's resumable pipeline)
+-------------------------------------------------------------------------------------
+group.criterion    old (ninth pass, n=968)   new (tenth pass, n=968)   delta
+axis.A             0.6883928110              0.6894844988              +0.001092
+axis.P             0.1685785506              0.1683694366              -0.000209
+axis.C             0.0280744967              0.0282585889              +0.000184
+axis.I             0.1149541417              0.1138874757              -0.001067
+within_A.A1        0.3764423641              0.3761270287              -0.000315
+within_A.A2        0.0078378922              0.0086689991              +0.000831
+within_A.A3        0.4228164722              0.4224622904              -0.000354
+within_A.A4        0.1899018410              0.1897427655              -0.000159
+within_A.A5        0.0030014304              0.0029989162              -0.000003
+within_C.C1        0.0012420224              0.0012354172              -0.000007
+within_C.C2        0.3336650875              0.3372086862              +0.003544
+within_C.C3        0.2292753833              0.2280560865              -0.001219
+within_C.C4        0.4358175069              0.4334998100              -0.002318
+within_I.I1        0.4860301680              0.4877818849              +0.001752
+within_I.I2        0.2716178832              0.2689926978              -0.002625
+within_I.I3        0.1988297440              0.1995463527              +0.000717
+within_I.I4        0.0039661573              0.0039804519              +0.000014
+within_I.I5        0.0395560475              0.0396986127              +0.000143
+
+within_P is UNCHANGED (P criteria never call maximum_curvature_mc, so its EWM inputs
+are byte-identical before/after) and was left untouched in _constants.py.
+
+Every weight moved by under 0.004 -- an order of magnitude smaller than any prior
+calibration pass's weight movement (see data_certify/_constants.py's module docstring
+for the full nine-pass calibration history), consistent with the fix touching only
+18/968 (1.9%) of the corpus.
+
+DECISION THRESHOLD RE-VALIDATION (calibration/calibrate_thresholds.py re-run against
+the corrected score_matrix.csv and the new blended weights)
+-------------------------------------------------------------------------------------
+theta_admit:  0.75 -> 0.75 (unchanged)
+theta_reject: 0.20 -> 0.20 (unchanged)
+theta_auth:   0.50 -> 0.50 (unchanged, still provisional -- unaffected, A6 not exercised
+              in this corpus's scoring run)
+
+Confusion counts, new thresholds x new (tenth-pass) weights vs new thresholds x old
+(ninth-pass) weights -- IDENTICAL in every field:
+  n_known_good=508, n_known_bad=460, n_known_bad_soft=434
+  good_admitted=88, good_conditional=420, good_falsely_rejected=0
+  bad_falsely_admitted=22, bad_conditional=437, bad_rejected_by_T=1,
+  bad_rejected_total_incl_hard_override=27
+
+This confirms: (1) the already-disclosed 22-known-bad-false-admit finding (see
+_constants.py's THETA_ADMIT comment, ninth-pass) is UNCHANGED by this fix -- neither
+worsened nor improved; (2) zero known_good false-rejects still holds; (3) no threshold
+value needed to change.
+
+CONCLUSION
+----------
+The maximum_curvature_mc() fix's corpus-wide impact, once fully propagated through
+score_matrix.csv regeneration, EWM weight recalibration, and threshold re-validation,
+is CONFIRMED to be below the precision most of this project's documentation quotes
+weights to (4 decimal places) and produces ZERO ADMIT/CONDITIONAL/REJECT decision
+changes for any of the 968 corpus datasets. The open item raised in D1(d)'s Section 1a
+("whether any of the other 19 affected datasets... require updates to previously
+reported Group A-C calibration/validation numbers") is RESOLVED: no previously reported
+Groups A-C headline number (axis weights, within-axis weights, decision thresholds,
+false-admit/false-reject counts) requires a substantive correction beyond the routine
+weight-value updates already applied to data_certify/_constants.py (deltas all <0.004,
+i.e. below the 4-decimal-place precision those docs already quote). Individual dataset
+A2 sub-scores did shift (up to 0.79 for one dataset), but this had no effect on any
+aggregate/reported statistic beyond the weight table itself.
+
+Artifacts underlying this report:
+  - calibration/score_matrix.csv (regenerated, 18 rows re-scored via run_scoring.py)
+  - calibration/ewm_report.json / .md (regenerated via compute_ewm.py)
+  - calibration/threshold_report.json / .md (regenerated via calibrate_thresholds.py)
+  - data_certify/_constants.py (AXIS_WEIGHTS, WITHIN_A, WITHIN_C, WITHIN_I updated;
+    WITHIN_P, all *_AHP_PRIOR constants, and THETA_ADMIT/THETA_REJECT/THETA_AUTH
+    confirmed unchanged)
+  - tests/test_scientific_validity.py (TestConstantsMatchCriteriaAndWeightsDoc's
+    hardcoded weight-drift-check dicts updated to match)
+  - Full pytest suite (313/313) re-confirmed passing against the new weights.

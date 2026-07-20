@@ -1,0 +1,4 @@
+arm,description,false_reject_rate,false_reject_k,false_admit_rate,false_admit_k,not_rejected_bad_rate,n_admit,n_conditional,n_reject
+full_two_stage,"Hard-override gate (Stage 1) + composite score (Stage 2), as in production",0.0,0,0.03877551020408163,19,0.9448979591836735,107,864,27
+weighted_sum_only,Composite score only -- hard-override gate never consulted,0.0,0,0.044897959183673466,22,0.9979591836734694,110,887,1
+hard_override_only,"Binary: REJECT if Stage-1 gate fires, else ADMIT -- composite score never consulted (no CONDITIONAL zone exists in this arm by construction)",0.0,0,0.9469387755102041,464,0.9469387755102041,972,0,26

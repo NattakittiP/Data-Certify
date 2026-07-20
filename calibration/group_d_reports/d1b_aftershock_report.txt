@@ -1,0 +1,109 @@
+====================================================================================================
+Group D1: Downstream DRR case study, option (b)
+Aftershock-forecast accuracy (Omori-Utsu): naive vs DATA-CERTIFY-informed usage,
+plus a Short-Term Aftershock Incompleteness (STAI) correction ablation
+(Downstream DRR validation, Group D)
+====================================================================================================
+
+STAI correction: Helmstetter, Kagan & Jackson (2006, BSSA 96(1):90-106) magnitude-time detection-threshold relation m_det(t,M)=M-4.5-0.75*log10(t), inverted once per catalog (from the clean baseline) to a clearance time t_c above which the catalog's own maximum_curvature_mc()-estimated Mc_ref is trusted. 'naive' fits use every M>=Mc_ref event from t=0; 'STAI-corrected' fits use the same M>=Mc_ref population but only t>t_c.
+
+----------------------------------------------------------------------------------------------------
+(0) Base catalogs and clean-baseline fits
+----------------------------------------------------------------------------------------------------
+  'kahramanmaras_2023': mainshock M=7.80, Mc_ref=4.30, t_c=0.0464d (1.11h)
+      naive fit (n=264): p=1.789 c=0.5623 K=210.76 degenerate=False -> forecast=30.48
+      STAI-corrected fit (n=244): p=1.935 c=0.7499 K=310.44 degenerate=False -> forecast=30.30
+      ACTUAL count in (7,21] days = 29  |  naive |error|=1.48 (5.1%)  STAI-corrected |error|=1.30 (4.5%)  |  T(D)=0.7160 (CONDITIONAL)  A3=0.9023
+  'gorkha_nepal_2015': mainshock M=7.80, Mc_ref=4.00, t_c=0.1166d (2.80h)
+      naive fit (n=130): p=1.101 c=0.0422 K=31.64 degenerate=False -> forecast=26.92
+      STAI-corrected fit (n=89): p=1.065 c=0.0750 K=40.49 degenerate=False -> forecast=37.59
+      ACTUAL count in (7,21] days = 94  |  naive |error|=67.08 (71.4%)  STAI-corrected |error|=56.41 (60.0%)  |  T(D)=0.5698 (CONDITIONAL)  A3=0.7242
+
+Corrupted variants: 36 total across 2 catalogs (18 corruption-fn x severity combinations per catalog).
+  Mainshock-anchor-lost (origin_time at the mainshock's own row became NaT after corruption): 3 variant(s) -- excluded from fit/forecast analysis below, but still audited.
+  Usable (anchor intact) variants: 33; of those, 33 produced a non-degenerate STAI-corrected fit.
+
+----------------------------------------------------------------------------------------------------
+(1) STAI-corrected forecast |error| BY DATA-CERTIFY VERDICT (pooled, corrupted variants)
+----------------------------------------------------------------------------------------------------
+  CAVEAT (read together with Section (2)): REJECT here is exclusively depth_implausible, which does not touch time/magnitude at all -- its forecast error is NOT zero, it equals that catalog's OWN clean-baseline error (gorkha_nepal_2015's baseline error is large due to the secondary-aftershock effect noted in the caveats below), so a REJECT-vs-CONDITIONAL comparison here is a composition artifact of catalog mix, not a clean signal about DATA-CERTIFY protecting forecast accuracy specifically -- same caution as D1(a)'s Section (2).
+  ADMIT: n=0 variants
+  CONDITIONAL: n=27  mean |error|=36.151  median |error|=25.163  mean rel.error=58.1%
+  REJECT: n=6  mean |error|=28.854  median |error|=28.854  mean rel.error=32.2%
+
+----------------------------------------------------------------------------------------------------
+(2) NAIVE-USER vs DATA-CERTIFY-INFORMED downstream usage (STAI-corrected fit)
+----------------------------------------------------------------------------------------------------
+  CAVEAT: as in D1(a), check whether REJECT correlates with a magnitude/time-independent failure mode before reading this as a clean signal. REJECTed variants here come from: ['depth_implausible'].
+  ALL variants (regardless of verdict): mean |forecast error| across 33 = 34.824
+  DATA-CERTIFY-INFORMED (drop REJECTed, keep 27 ADMIT/CONDITIONAL): mean |forecast error| = 36.151
+
+----------------------------------------------------------------------------------------------------
+(3) CORRELATION: T(D) and A3 vs STAI-corrected forecast |error| (pooled)
+----------------------------------------------------------------------------------------------------
+  Spearman rank correlation(T(D), |forecast error|) across 33 variants = -0.6977
+  Spearman rank correlation(A3, |forecast error|) across 33 variants = -0.8214
+
+----------------------------------------------------------------------------------------------------
+(4) Per-variant detail
+----------------------------------------------------------------------------------------------------
+           catalog                     variant      t_d    decision  a3_score  mainshock_anchor_lost   stai_p  stai_pred_n  actual_forecast_n  stai_abs_err
+kahramanmaras_2023       coordinate_jitter_low 0.713381 CONDITIONAL  0.902298                  False 1.934907    30.299863                 29      1.299863
+kahramanmaras_2023       coordinate_jitter_med 0.716788 CONDITIONAL  0.902298                  False 1.934907    30.299863                 29      1.299863
+kahramanmaras_2023      coordinate_jitter_high 0.703260 CONDITIONAL  0.902298                  False 1.934907    30.299863                 29      1.299863
+kahramanmaras_2023       inject_duplicates_low 0.678877 CONDITIONAL  0.899400                  False 2.028735    33.434205                 29      4.434205
+kahramanmaras_2023       inject_duplicates_med 0.664179 CONDITIONAL  0.898980                  False 2.083673    34.545620                 29      5.545620
+kahramanmaras_2023      inject_duplicates_high 0.649533 CONDITIONAL  0.901570                  False 2.060906    41.236992                 29     12.236992
+kahramanmaras_2023      inject_missingness_low 0.709918 CONDITIONAL  0.887788                  False 1.907120    16.464592                 29     12.535408
+kahramanmaras_2023      inject_missingness_med 0.695814 CONDITIONAL  0.871501                  False 2.089680     8.770799                 29     20.229201
+kahramanmaras_2023     inject_missingness_high 0.663560 CONDITIONAL  0.743114                  False 2.119187     4.574101                 29     24.425899
+kahramanmaras_2023       depth_implausible_low      NaN      REJECT  0.902298                  False 1.934907    30.299863                 29      1.299863
+kahramanmaras_2023       depth_implausible_med      NaN      REJECT  0.902298                  False 1.934907    30.299863                 29      1.299863
+kahramanmaras_2023      depth_implausible_high      NaN      REJECT  0.902298                  False 1.934907    30.299863                 29      1.299863
+kahramanmaras_2023     timestamp_collision_low 0.717516 CONDITIONAL  0.909005                  False 1.987692    19.833128                 29      9.166872
+kahramanmaras_2023     timestamp_collision_med 0.661432 CONDITIONAL  0.888691                  False 2.288355     9.504279                 29     19.495721
+kahramanmaras_2023    timestamp_collision_high 0.634382 CONDITIONAL  0.875166                  False 2.189284     5.774031                 29     23.225969
+kahramanmaras_2023  magnitude_gr_violation_low 0.746582 CONDITIONAL  0.815787                  False 1.592907    51.817948                 29     22.817948
+kahramanmaras_2023  magnitude_gr_violation_med 0.745365 CONDITIONAL  0.816124                  False 1.591285    54.163211                 29     25.163211
+kahramanmaras_2023 magnitude_gr_violation_high 0.734352 CONDITIONAL  0.802071                  False 1.410678    67.986306                 29     38.986306
+ gorkha_nepal_2015       coordinate_jitter_low 0.612372 CONDITIONAL  0.724181                  False 1.064763    37.591441                 94     56.408559
+ gorkha_nepal_2015       coordinate_jitter_med 0.662188 CONDITIONAL  0.724181                  False 1.064763    37.591441                 94     56.408559
+ gorkha_nepal_2015      coordinate_jitter_high 0.636524 CONDITIONAL  0.724181                  False 1.064763    37.591441                 94     56.408559
+ gorkha_nepal_2015       inject_duplicates_low 0.554468 CONDITIONAL  0.773817                  False 1.305609    34.600814                 94     59.399186
+ gorkha_nepal_2015       inject_duplicates_med 0.537457 CONDITIONAL  0.770696                  False 1.513481    32.708860                 94     61.291140
+ gorkha_nepal_2015      inject_duplicates_high 0.523538 CONDITIONAL  0.781346                  False 1.163461    58.717264                 94     35.282736
+ gorkha_nepal_2015      inject_missingness_low 0.621996 CONDITIONAL  0.802664                   True      NaN          NaN                 94           NaN
+ gorkha_nepal_2015      inject_missingness_med 0.583782 CONDITIONAL  0.618602                   True      NaN          NaN                 94           NaN
+ gorkha_nepal_2015     inject_missingness_high 0.519344 CONDITIONAL       NaN                   True      NaN          NaN                 94           NaN
+ gorkha_nepal_2015       depth_implausible_low      NaN      REJECT  0.724181                  False 1.064763    37.591441                 94     56.408559
+ gorkha_nepal_2015       depth_implausible_med      NaN      REJECT  0.724181                  False 1.064763    37.591441                 94     56.408559
+ gorkha_nepal_2015      depth_implausible_high      NaN      REJECT  0.724181                  False 1.064763    37.591441                 94     56.408559
+ gorkha_nepal_2015     timestamp_collision_low 0.612661 CONDITIONAL  0.755817                  False 1.463717    11.975230                 94     82.024770
+ gorkha_nepal_2015     timestamp_collision_med 0.575222 CONDITIONAL  0.734499                  False 2.055282     7.535137                 94     86.464863
+ gorkha_nepal_2015    timestamp_collision_high 0.556748 CONDITIONAL  0.819867                  False 2.202225     3.005075                 94     90.994925
+ gorkha_nepal_2015  magnitude_gr_violation_low 0.547514 CONDITIONAL  0.642765                  False 1.064763    37.591441                 94     56.408559
+ gorkha_nepal_2015  magnitude_gr_violation_med 0.605713 CONDITIONAL  0.659322                  False 1.064763    37.591441                 94     56.408559
+ gorkha_nepal_2015 magnitude_gr_violation_high 0.599790 CONDITIONAL  0.654783                  False 1.064763    37.591441                 94     56.408559
+
+----------------------------------------------------------------------------------------------------
+(5) magnitude_gr_violation check: cross-axis cancellation (like D1(a)'s A2/I1/I2), or clean degradation, for A3/forecast accuracy?
+----------------------------------------------------------------------------------------------------
+    [kahramanmaras_2023] magnitude_gr_violation_low: T(D) 0.7160 -> 0.7466  A3 0.9023 -> 0.8158  STAI-forecast-error 1.30 -> 22.82  (anchor_lost=False)
+    [kahramanmaras_2023] magnitude_gr_violation_med: T(D) 0.7160 -> 0.7454  A3 0.9023 -> 0.8161  STAI-forecast-error 1.30 -> 25.16  (anchor_lost=False)
+    [kahramanmaras_2023] magnitude_gr_violation_high: T(D) 0.7160 -> 0.7344  A3 0.9023 -> 0.8021  STAI-forecast-error 1.30 -> 38.99  (anchor_lost=False)
+    [gorkha_nepal_2015] magnitude_gr_violation_low: T(D) 0.5698 -> 0.5475  A3 0.7242 -> 0.6428  STAI-forecast-error 56.41 -> 56.41  (anchor_lost=False)
+    [gorkha_nepal_2015] magnitude_gr_violation_med: T(D) 0.5698 -> 0.6057  A3 0.7242 -> 0.6593  STAI-forecast-error 56.41 -> 56.41  (anchor_lost=False)
+    [gorkha_nepal_2015] magnitude_gr_violation_high: T(D) 0.5698 -> 0.5998  A3 0.7242 -> 0.6548  STAI-forecast-error 56.41 -> 56.41  (anchor_lost=False)
+
+----------------------------------------------------------------------------------------------------
+(6) STAI-correction ablation (clean catalogs only -- isolates STAI's own effect)
+----------------------------------------------------------------------------------------------------
+  'kahramanmaras_2023': naive p=1.789 vs STAI-corrected p=1.935 (delta=+0.146)  |  naive forecast |error|=1.48 (5.1%) vs STAI-corrected |error|=1.30 (4.5%)
+  'gorkha_nepal_2015': naive p=1.101 vs STAI-corrected p=1.065 (delta=-0.036)  |  naive forecast |error|=67.08 (71.4%) vs STAI-corrected |error|=56.41 (60.0%)
+
+Caveats (disclosed explicitly, consistent with this project's honesty discipline):
+  - 'Ground truth' is each clean catalog's OWN recorded event count in the forecast window, not an independently published catalog or aftershock-forecast benchmark -- this validates INTERNAL CONSISTENCY (recovery from corruption), not agreement with an external standard.
+  - real_gorkha_nepal_2015's forecast window (7,21] days contains a well-documented Mw7.3 secondary aftershock (~17 days after the mainshock) that triggered its own aftershock burst. A single-sequence Omori-Utsu fit on the primary mainshock's early decay structurally cannot predict this (ETAS-family multi-generation models exist precisely for this reason) -- expect a large under-prediction on this catalog independent of any corruption; this is a genuine domain limitation of the Omori-Utsu single-sequence model, not a script or DATA-CERTIFY bug.
+  - Mc_ref and t_c are fixed from the CLEAN catalog and reused across all corrupted variants of that catalog (same rationale as fixing the mainshock row-index) -- this measures 'how well does a fit on possibly-corrupted DATA still predict the true future,' not 'how would the corrupted data's own (possibly also corrupted) Mc/STAI estimate come out.'
+  - reference=None (offline/intrinsic-only A6) throughout, matching D1(a).
+  - Two base catalogs (kahramanmaras_2023, gorkha_nepal_2015), both large (M7.8) shallow continental mainshocks with well-instrumented global monitoring -- findings here should not be assumed to generalize to smaller-magnitude or poorly-instrumented sequences without further testing.

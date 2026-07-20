@@ -1,0 +1,4384 @@
+{
+  "chile_regression_finding": {
+    "description": "Real dataset 'chile' scores 0.5846 (CONDITIONAL) under the old AHP-only weights but 0.4089 under the new EWM-blended weights (968-dataset corpus) -- a byproduct of EWM reweighting A(D)'s budget toward A1 (Benford's Law), not any change in chile's underlying data. Under the OLD theta_reject=0.50 this would flip chile from CONDITIONAL to REJECT -- an unacceptable side effect on a real, known-good dataset. This finding is what motivates lowering theta_reject.",
+    "chile_T_ahp_only": 0.584587383229709,
+    "chile_T_new_blended": 0.4089183421327479
+  },
+  "old_thresholds": {
+    "theta_admit": 0.75,
+    "theta_reject": 0.5,
+    "theta_auth": 0.5
+  },
+  "new_thresholds": {
+    "theta_admit": 0.75,
+    "theta_reject": 0.2,
+    "theta_auth": 0.5
+  },
+  "theta_auth_note": "theta_auth is NOT calibrated by this script: A6 (external-catalog cross-match) is never exercised in this corpus's main scoring run (calibration/run_scoring.py uses no external reference, so A6 is applicable=False for every dataset -- there is no A6 column in score_matrix.csv at all). A SEPARATE, dedicated pipeline has since exercised A6 across the full corpus with a real USGS reference (calibration/run_a6_scoring.py / score_matrix_a6.csv + calibration/calibrate_theta_auth.py -- see calibration/theta_auth_report.md) and confirmed that no clean theta_auth value separates known_good from known_bad (a structural property of what A6 measures, not a data-volume artifact). theta_auth therefore remains at its original 0.50 as a considered, evidence-based non-change -- see Docs/02_Calibration_and_Validation/DATA-CERTIFY_Criteria_and_Weights_Master_Reference.md Section 4's theta_auth row.",
+  "corpus_gap_disclosure": "This corpus was originally built with 71 datasets. An independent re-verification pass on 2026-07-05 found that ishikawa_202401.json and japan_2023-.json -- present in the user's original file list -- had been missed by the initial build (neither included nor recorded as excluded). Both were confirmed genuine, distinct real USGS ComCat catalogs and added as known_good, growing the corpus to 73. The SAME re-verification pass also found and fixed a more significant bug: a circularity where axis-level A/P/C/I columns were computed using whatever within-axis weights happened to be live in _constants.py at scoring time (see calibration/compute_ewm.py's recompute_axis_columns_from_ahp_prior docstring). Both this script and compute_ewm.py now unconditionally recompute those columns from the underlying sub-criteria under a fixed weight basis before doing anything else.",
+  "sixth_pass_no_clean_separation_finding": "2026-07-06, sixth pass: a live `run_audit.py --dataset chile` sanity check revealed that every prior pass (including this project's own '0 false-admits, 0 false-rejects' claims) validated theta_reject against a formula production never actually runs -- see this script's module docstring for the full root-cause. Once corrected to match production exactly, known_good and known_bad T(D) distributions are heavily interleaved from ~0.17 to ~0.63 -- no theta_reject value cleanly separates them. theta_reject=0.20 was chosen to guarantee zero known_good false-rejects (the documented priority -- Deep-Dive 05 Section 2.1), at the disclosed cost that it now catches only 1 of 15 non-hard-override known_bad datasets by itself. theta_admit=0.75 is UNAFFECTED by this finding and remains safely validated (max known_bad T(D) under the corrected formula is 0.6276, an even larger margin than previously reported).",
+  "confusion_counts_with_old_thresholds_and_new_weights": {
+    "theta_admit": 0.75,
+    "theta_reject": 0.5,
+    "n_known_good": 508,
+    "n_known_bad": 460,
+    "n_known_bad_soft": 434,
+    "good_admitted": 71,
+    "good_conditional": 395,
+    "good_falsely_rejected": 42,
+    "bad_falsely_admitted": 19,
+    "bad_conditional": 222,
+    "bad_rejected_by_T": 219,
+    "bad_rejected_total_incl_hard_override": 240
+  },
+  "confusion_counts_with_new_thresholds_and_new_weights": {
+    "theta_admit": 0.75,
+    "theta_reject": 0.2,
+    "n_known_good": 508,
+    "n_known_bad": 460,
+    "n_known_bad_soft": 434,
+    "good_admitted": 71,
+    "good_conditional": 437,
+    "good_falsely_rejected": 0,
+    "bad_falsely_admitted": 19,
+    "bad_conditional": 441,
+    "bad_rejected_by_T": 0,
+    "bad_rejected_total_incl_hard_override": 26
+  },
+  "known_good_sorted_T_new": [
+    {
+      "dataset_id": "real_drc_rift_general_recent",
+      "T_new": 0.34030355799870465
+    },
+    {
+      "dataset_id": "real_russia_baikal_general_early2",
+      "T_new": 0.34723022785308877
+    },
+    {
+      "dataset_id": "real_potvilla_2024012",
+      "T_new": 0.35796479542632564
+    },
+    {
+      "dataset_id": "real_afghanistan_2025_09_01",
+      "T_new": 0.36495751825332723
+    },
+    {
+      "dataset_id": "real_china_gansu_general_recent",
+      "T_new": 0.3665903606649446
+    },
+    {
+      "dataset_id": "real_cuba_general_early2",
+      "T_new": 0.36677295147556666
+    },
+    {
+      "dataset_id": "real_croatia_petrinja_2020",
+      "T_new": 0.36766429966781256
+    },
+    {
+      "dataset_id": "real_taiwan_20240403_query",
+      "T_new": 0.3676820787642031
+    },
+    {
+      "dataset_id": "real_turkey_202504",
+      "T_new": 0.3678199561193892
+    },
+    {
+      "dataset_id": "real_colombia_armenia_1999",
+      "T_new": 0.36814028085937545
+    },
+    {
+      "dataset_id": "real_dominicanrepublic_general",
+      "T_new": 0.38752078372126575
+    },
+    {
+      "dataset_id": "real_romania_vrancea_general",
+      "T_new": 0.4010781132668942
+    },
+    {
+      "dataset_id": "real_tokara_202506",
+      "T_new": 0.4050598801464814
+    },
+    {
+      "dataset_id": "nz",
+      "T_new": 0.4066229491084281
+    },
+    {
+      "dataset_id": "chile",
+      "T_new": 0.4089183421327479
+    },
+    {
+      "dataset_id": "real_bangladesh_general_early2",
+      "T_new": 0.4209528355270722
+    },
+    {
+      "dataset_id": "real_greenland_general_early3",
+      "T_new": 0.43201383997635373
+    },
+    {
+      "dataset_id": "real_romania_vrancea_general_early2",
+      "T_new": 0.4324107622046077
+    },
+    {
+      "dataset_id": "real_samoa_general_early3",
+      "T_new": 0.43370537366542355
+    },
+    {
+      "dataset_id": "real_madagascar_general",
+      "T_new": 0.4356326394361269
+    },
+    {
+      "dataset_id": "real_myanmar_sagaing_general_early2",
+      "T_new": 0.44478149256317584
+    },
+    {
+      "dataset_id": "real_poland_general_early2",
+      "T_new": 0.45159447183142964
+    },
+    {
+      "dataset_id": "real_turkey_izmit_1999_recent",
+      "T_new": 0.45473977745362454
+    },
+    {
+      "dataset_id": "real_nicaragua_general_early3",
+      "T_new": 0.4576985961546054
+    },
+    {
+      "dataset_id": "real_italy_sicily_etna_general_early",
+      "T_new": 0.4718724005516026
+    },
+    {
+      "dataset_id": "real_colombia_armenia_1999_recent",
+      "T_new": 0.4736051421065764
+    },
+    {
+      "dataset_id": "real_iceland_general",
+      "T_new": 0.4756240774467595
+    },
+    {
+      "dataset_id": "real_norway_general_early",
+      "T_new": 0.4766242122543824
+    },
+    {
+      "dataset_id": "real_usa_nevada_basinrange_general_early3",
+      "T_new": 0.4772134757623903
+    },
+    {
+      "dataset_id": "real_peru_pisco_2007_recent",
+      "T_new": 0.47864634456785315
+    },
+    {
+      "dataset_id": "real_colombia_andes_general_early",
+      "T_new": 0.48339787611366714
+    },
+    {
+      "dataset_id": "real_guam_general_early2",
+      "T_new": 0.48495680885249887
+    },
+    {
+      "dataset_id": "real_honduras_general_early2",
+      "T_new": 0.48622322360473724
+    },
+    {
+      "dataset_id": "real_jordan_general",
+      "T_new": 0.48893424793066953
+    },
+    {
+      "dataset_id": "real_australia_general_early3",
+      "T_new": 0.4894201472108618
+    },
+    {
+      "dataset_id": "real_venezuela_general_early3",
+      "T_new": 0.49393336351015027
+    },
+    {
+      "dataset_id": "real_newcaledonia_general_early3",
+      "T_new": 0.4947591586755548
+    },
+    {
+      "dataset_id": "real_guam_general_early3",
+      "T_new": 0.4953077653555261
+    },
+    {
+      "dataset_id": "real_israel_deadsea_general",
+      "T_new": 0.49731899966969867
+    },
+    {
+      "dataset_id": "real_chile_maule_2010",
+      "T_new": 0.4979206463432414
+    },
+    {
+      "dataset_id": "real_papuanewguinea_general_early3",
+      "T_new": 0.4979964226606684
+    },
+    {
+      "dataset_id": "real_austria_general_early2",
+      "T_new": 0.4994842099670803
+    },
+    {
+      "dataset_id": "real_dominicanrepublic_general_early2",
+      "T_new": 0.5012123990032408
+    },
+    {
+      "dataset_id": "real_iran_ahar_varzaghan_2012_recent",
+      "T_new": 0.5019783552105778
+    },
+    {
+      "dataset_id": "real_peru_arequipa_2001",
+      "T_new": 0.5023654272885708
+    },
+    {
+      "dataset_id": "real_iceland_reykjanes_2021_recent",
+      "T_new": 0.5026219821612732
+    },
+    {
+      "dataset_id": "real_guadeloupe_martinique_general_early2",
+      "T_new": 0.5039462045269919
+    },
+    {
+      "dataset_id": "real_elsalvador_2001",
+      "T_new": 0.5079638591136934
+    },
+    {
+      "dataset_id": "real_iceland_reykjanes_2021",
+      "T_new": 0.5085223819740701
+    },
+    {
+      "dataset_id": "real_azerbaijan_general_early",
+      "T_new": 0.5102590810715386
+    },
+    {
+      "dataset_id": "real_algeria_boumerdes_2003_recent",
+      "T_new": 0.5109559869846212
+    },
+    {
+      "dataset_id": "real_poland_general_early",
+      "T_new": 0.5110587152193911
+    },
+    {
+      "dataset_id": "real_nicaragua_general_early2",
+      "T_new": 0.5127337037214826
+    },
+    {
+      "dataset_id": "real_tuvalu_kiribati_general_early2",
+      "T_new": 0.5145501661452582
+    },
+    {
+      "dataset_id": "real_tohoku_2005_2011",
+      "T_new": 0.515141460533728
+    },
+    {
+      "dataset_id": "real_india_gujarat_bhuj_2001_recent",
+      "T_new": 0.5154117475927912
+    },
+    {
+      "dataset_id": "real_haiti_2010",
+      "T_new": 0.5158235791204396
+    },
+    {
+      "dataset_id": "real_switzerland_general_early2",
+      "T_new": 0.5160753534712925
+    },
+    {
+      "dataset_id": "real_papuanewguinea_general",
+      "T_new": 0.5165506796278287
+    },
+    {
+      "dataset_id": "real_china_taiwanstrait_general",
+      "T_new": 0.5165549051341377
+    },
+    {
+      "dataset_id": "real_png_highlands_2018",
+      "T_new": 0.5168537976797214
+    },
+    {
+      "dataset_id": "real_usgs_main",
+      "T_new": 0.5174963617757324
+    },
+    {
+      "dataset_id": "real_india_gujarat_bhuj_2001",
+      "T_new": 0.5176692956640064
+    },
+    {
+      "dataset_id": "real_vanuatu_general_early2",
+      "T_new": 0.5198836830520579
+    },
+    {
+      "dataset_id": "real_2025_03_myanmar",
+      "T_new": 0.5210220700142987
+    },
+    {
+      "dataset_id": "real_pakistan_balochistan_2013_recent",
+      "T_new": 0.5212429065343427
+    },
+    {
+      "dataset_id": "real_gorkha_nepal_2015",
+      "T_new": 0.5213172784226797
+    },
+    {
+      "dataset_id": "real_russia_sakhalin_general_recent",
+      "T_new": 0.5216459017597929
+    },
+    {
+      "dataset_id": "real_argentina_sanjuan_general_early2",
+      "T_new": 0.5232819652723665
+    },
+    {
+      "dataset_id": "real_vietnam_general_recent",
+      "T_new": 0.5241755200750327
+    },
+    {
+      "dataset_id": "real_trinidadtobago_general_early2",
+      "T_new": 0.5242682266968225
+    },
+    {
+      "dataset_id": "real_honduras_general_early",
+      "T_new": 0.5250833030129136
+    },
+    {
+      "dataset_id": "real_usa_yellowstone_general_early2",
+      "T_new": 0.5264730682554899
+    },
+    {
+      "dataset_id": "real_india_andaman_general_early3",
+      "T_new": 0.527031081723202
+    },
+    {
+      "dataset_id": "real_algeria_boumerdes_2003",
+      "T_new": 0.5280165959417493
+    },
+    {
+      "dataset_id": "real_india_uttarakhand_general_early2",
+      "T_new": 0.5292535547178528
+    },
+    {
+      "dataset_id": "real_guatemala_general_early",
+      "T_new": 0.5306652544557587
+    },
+    {
+      "dataset_id": "real_fiji_general_early2",
+      "T_new": 0.5310868830139687
+    },
+    {
+      "dataset_id": "real_uzbekistan_general_recent",
+      "T_new": 0.5321035065983363
+    },
+    {
+      "dataset_id": "real_india_assam_general_early2",
+      "T_new": 0.5322972418469295
+    },
+    {
+      "dataset_id": "real_indonesia_java_general_early3",
+      "T_new": 0.5323595329369702
+    },
+    {
+      "dataset_id": "real_peru_pisco_2007",
+      "T_new": 0.5328732903800694
+    },
+    {
+      "dataset_id": "real_russia_kurilislands_general_early3",
+      "T_new": 0.5330344152487015
+    },
+    {
+      "dataset_id": "real_bolivia_deep_general_early3",
+      "T_new": 0.5338009460403299
+    },
+    {
+      "dataset_id": "real_india_kashmir_2005",
+      "T_new": 0.5340097859666354
+    },
+    {
+      "dataset_id": "real_indonesia_sumatra_general_early2",
+      "T_new": 0.5342435962403047
+    },
+    {
+      "dataset_id": "real_india_kashmir_2005_recent",
+      "T_new": 0.5346700165315235
+    },
+    {
+      "dataset_id": "real_haiti_2010_recent",
+      "T_new": 0.5354220191417088
+    },
+    {
+      "dataset_id": "real_dominicanrepublic_general_recent",
+      "T_new": 0.5384026945054288
+    },
+    {
+      "dataset_id": "real_cyprus_general_early2",
+      "T_new": 0.539684865406657
+    },
+    {
+      "dataset_id": "real_iran_bam_2003_recent",
+      "T_new": 0.5400174253322004
+    },
+    {
+      "dataset_id": "real_bangladesh_general_recent",
+      "T_new": 0.5408523672719496
+    },
+    {
+      "dataset_id": "real_taiwan_20240423_query",
+      "T_new": 0.5417894663006374
+    },
+    {
+      "dataset_id": "real_myanmar_sagaing_general_early3",
+      "T_new": 0.5418754209015703
+    },
+    {
+      "dataset_id": "real_canada_quebec_general_early",
+      "T_new": 0.5430746431833016
+    },
+    {
+      "dataset_id": "real_southafrica_general_early2",
+      "T_new": 0.5457071554526867
+    },
+    {
+      "dataset_id": "real_ethiopia_general_early3",
+      "T_new": 0.5466255243308218
+    },
+    {
+      "dataset_id": "real_samoa_general_recent",
+      "T_new": 0.5468446824840361
+    },
+    {
+      "dataset_id": "real_usa_cascadia_general_early",
+      "T_new": 0.5469913756432229
+    },
+    {
+      "dataset_id": "real_vanuatu_general_early3",
+      "T_new": 0.5478093816358903
+    },
+    {
+      "dataset_id": "real_guatemala_general_early2",
+      "T_new": 0.548483833029015
+    },
+    {
+      "dataset_id": "real_ecuador_general_early2",
+      "T_new": 0.5494106359611084
+    },
+    {
+      "dataset_id": "real_russia_sakhalin_general_early2",
+      "T_new": 0.5496765176673164
+    },
+    {
+      "dataset_id": "real_papuanewguinea_general_early2",
+      "T_new": 0.5499269333194527
+    },
+    {
+      "dataset_id": "real_bolivia_deep_general",
+      "T_new": 0.550003340711684
+    },
+    {
+      "dataset_id": "real_panama_general_early",
+      "T_new": 0.5517669270192689
+    },
+    {
+      "dataset_id": "real_costarica_general_early2",
+      "T_new": 0.5522188712853525
+    },
+    {
+      "dataset_id": "real_chile_iquique_2014",
+      "T_new": 0.5529334317342184
+    },
+    {
+      "dataset_id": "real_bangladesh_general",
+      "T_new": 0.5534859624128405
+    },
+    {
+      "dataset_id": "real_colombia_andes_general_early3",
+      "T_new": 0.5539757873431641
+    },
+    {
+      "dataset_id": "real_202507_Kamchatka",
+      "T_new": 0.554292278426407
+    },
+    {
+      "dataset_id": "real_botswana_general_early",
+      "T_new": 0.5543965767096513
+    },
+    {
+      "dataset_id": "real_indonesia_sumatra_general_early3",
+      "T_new": 0.5547258849803394
+    },
+    {
+      "dataset_id": "real_ecuador_general_early3",
+      "T_new": 0.5561859630474882
+    },
+    {
+      "dataset_id": "real_puertorico_2020_ponce",
+      "T_new": 0.557057053300821
+    },
+    {
+      "dataset_id": "real_southafrica_general_early",
+      "T_new": 0.5583314636327266
+    },
+    {
+      "dataset_id": "real_ishikawa_2024_query",
+      "T_new": 0.5584986641092635
+    },
+    {
+      "dataset_id": "real_peru_arequipa_2001_recent",
+      "T_new": 0.5587727112154093
+    },
+    {
+      "dataset_id": "real_philippines_luzon_general_early",
+      "T_new": 0.5589812733191832
+    },
+    {
+      "dataset_id": "real_portugal_azores_general_recent",
+      "T_new": 0.5598740120691604
+    },
+    {
+      "dataset_id": "real_newcaledonia_general_early",
+      "T_new": 0.5603473070515583
+    },
+    {
+      "dataset_id": "real_italy_sicily_etna_general_early2",
+      "T_new": 0.5608294957485835
+    },
+    {
+      "dataset_id": "real_bulgaria_general_early",
+      "T_new": 0.5629935282308088
+    },
+    {
+      "dataset_id": "real_china_tibet_plateau_general_early3",
+      "T_new": 0.5632495345359655
+    },
+    {
+      "dataset_id": "real_guam_general",
+      "T_new": 0.5634778368708526
+    },
+    {
+      "dataset_id": "real_iceland_general_early",
+      "T_new": 0.5641350484016806
+    },
+    {
+      "dataset_id": "real_indonesia_java_general_early2",
+      "T_new": 0.564164235633139
+    },
+    {
+      "dataset_id": "real_mexico_oaxaca_general",
+      "T_new": 0.5658060124220168
+    },
+    {
+      "dataset_id": "real_canada_quebec_general_early2",
+      "T_new": 0.5667620762201555
+    },
+    {
+      "dataset_id": "real_earthquake1",
+      "T_new": 0.567323323997146
+    },
+    {
+      "dataset_id": "real_russia_kurilislands_general_early2",
+      "T_new": 0.5675546050603186
+    },
+    {
+      "dataset_id": "real_china_taiwanstrait_general_early",
+      "T_new": 0.5687188891319169
+    },
+    {
+      "dataset_id": "real_usa_yellowstone_general_early3",
+      "T_new": 0.568983803866945
+    },
+    {
+      "dataset_id": "real_china_hebei_general_early2",
+      "T_new": 0.570108517147011
+    },
+    {
+      "dataset_id": "real_syria_general_early",
+      "T_new": 0.5718534930120197
+    },
+    {
+      "dataset_id": "real_china_sichuan_2008",
+      "T_new": 0.5728873804403584
+    },
+    {
+      "dataset_id": "real_russia_caucasus_general_early2",
+      "T_new": 0.5738117157209048
+    },
+    {
+      "dataset_id": "real_canada_quebec_general",
+      "T_new": 0.5741001312763467
+    },
+    {
+      "dataset_id": "real_poland_general_recent",
+      "T_new": 0.575077502842821
+    },
+    {
+      "dataset_id": "real_canada_britishcolumbia_general",
+      "T_new": 0.5754580885353637
+    },
+    {
+      "dataset_id": "real_mexico_oaxaca_general_early2",
+      "T_new": 0.5761009307934116
+    },
+    {
+      "dataset_id": "real_ishikawa_202401",
+      "T_new": 0.5761437550226568
+    },
+    {
+      "dataset_id": "real_argentina_sanjuan_general_early",
+      "T_new": 0.576809505473284
+    },
+    {
+      "dataset_id": "real_nicaragua_general",
+      "T_new": 0.5770480993666951
+    },
+    {
+      "dataset_id": "real_usa_nevada_basinrange_general_early2",
+      "T_new": 0.5779299219136043
+    },
+    {
+      "dataset_id": "real_samoa_general_early2",
+      "T_new": 0.5791247877901934
+    },
+    {
+      "dataset_id": "real_trinidadtobago_general_early",
+      "T_new": 0.5793164090804079
+    },
+    {
+      "dataset_id": "real_turkey_izmit_1999",
+      "T_new": 0.5794761754843041
+    },
+    {
+      "dataset_id": "real_elsalvador_2001_recent",
+      "T_new": 0.5798057574718987
+    },
+    {
+      "dataset_id": "real_panama_general_early3",
+      "T_new": 0.5804050617626771
+    },
+    {
+      "dataset_id": "real_southafrica_general_recent",
+      "T_new": 0.5813005953700254
+    },
+    {
+      "dataset_id": "real_uzbekistan_general_early3",
+      "T_new": 0.581335777474502
+    },
+    {
+      "dataset_id": "real_trinidadtobago_general",
+      "T_new": 0.5825206018112391
+    },
+    {
+      "dataset_id": "real_china_taiwanstrait_general_early2",
+      "T_new": 0.582564600250905
+    },
+    {
+      "dataset_id": "real_panama_general_early2",
+      "T_new": 0.5837230092711824
+    },
+    {
+      "dataset_id": "real_honduras_general_early3",
+      "T_new": 0.5837328132186971
+    },
+    {
+      "dataset_id": "real_canada_britishcolumbia_general_early2",
+      "T_new": 0.5840897040380028
+    },
+    {
+      "dataset_id": "real_india_uttarakhand_general",
+      "T_new": 0.5843454743926727
+    },
+    {
+      "dataset_id": "real_vanuatu_general",
+      "T_new": 0.5844630148105703
+    },
+    {
+      "dataset_id": "real_australia_general_early2",
+      "T_new": 0.5848746934323771
+    },
+    {
+      "dataset_id": "real_dominicanrepublic_general_early3",
+      "T_new": 0.5860355494178469
+    },
+    {
+      "dataset_id": "real_thailand_general_early2",
+      "T_new": 0.586533075385441
+    },
+    {
+      "dataset_id": "real_china_qinghai_yushu_2010_recent",
+      "T_new": 0.5875051176605004
+    },
+    {
+      "dataset_id": "real_venezuela_general_early2",
+      "T_new": 0.5875835414455999
+    },
+    {
+      "dataset_id": "real_fiji_general_recent",
+      "T_new": 0.5886979011926272
+    },
+    {
+      "dataset_id": "real_pakistan_balochistan_2013",
+      "T_new": 0.5889145346333191
+    },
+    {
+      "dataset_id": "real_solomonislands_general_early2",
+      "T_new": 0.5889536192638567
+    },
+    {
+      "dataset_id": "real_all_month",
+      "T_new": 0.5893353422731435
+    },
+    {
+      "dataset_id": "real_syria_general_recent",
+      "T_new": 0.5896899550639492
+    },
+    {
+      "dataset_id": "real_slovenia_general_early2",
+      "T_new": 0.5899732088765552
+    },
+    {
+      "dataset_id": "real_russia_kurilislands_general_early",
+      "T_new": 0.5900723441803848
+    },
+    {
+      "dataset_id": "real_newzealand_kaikoura_2016_recent",
+      "T_new": 0.590336918064445
+    },
+    {
+      "dataset_id": "real_yemen_general_early3",
+      "T_new": 0.5916535774848959
+    },
+    {
+      "dataset_id": "real_tohoku_202512",
+      "T_new": 0.5923027105698846
+    },
+    {
+      "dataset_id": "real_tanzania_rift_general_early2",
+      "T_new": 0.5930587998868955
+    },
+    {
+      "dataset_id": "real_morocco_alhoceima_2004",
+      "T_new": 0.5931329841991929
+    },
+    {
+      "dataset_id": "real_switzerland_general",
+      "T_new": 0.593367103163323
+    },
+    {
+      "dataset_id": "real_azerbaijan_general_early2",
+      "T_new": 0.5942461368330362
+    },
+    {
+      "dataset_id": "real_tohoku_202511",
+      "T_new": 0.5947983809669012
+    },
+    {
+      "dataset_id": "real_newcaledonia_general_recent",
+      "T_new": 0.5947985558239879
+    },
+    {
+      "dataset_id": "real_russia_caucasus_general",
+      "T_new": 0.5959590666456338
+    },
+    {
+      "dataset_id": "real_laos_general_early2",
+      "T_new": 0.5961882024945601
+    },
+    {
+      "dataset_id": "real_canada_britishcolumbia_general_early3",
+      "T_new": 0.5963025490082079
+    },
+    {
+      "dataset_id": "real_romania_vrancea_general_early",
+      "T_new": 0.5968670540568559
+    },
+    {
+      "dataset_id": "real_fiji_general_early",
+      "T_new": 0.5970905864681508
+    },
+    {
+      "dataset_id": "real_solomonislands_general_early3",
+      "T_new": 0.5975046124002017
+    },
+    {
+      "dataset_id": "real_guatemala_general_early3",
+      "T_new": 0.598542402558495
+    },
+    {
+      "dataset_id": "real_iraq_halabja_2017_recent",
+      "T_new": 0.5988768374037575
+    },
+    {
+      "dataset_id": "real_mexico_oaxaca_general_recent",
+      "T_new": 0.5990447623500174
+    },
+    {
+      "dataset_id": "real_russia_kurilislands_general_recent",
+      "T_new": 0.599854906016142
+    },
+    {
+      "dataset_id": "real_morocco_alhoceima_2004_recent",
+      "T_new": 0.6012848763019129
+    },
+    {
+      "dataset_id": "real_drc_rift_general_early2",
+      "T_new": 0.6014022230560934
+    },
+    {
+      "dataset_id": "real_cyprus_general_recent",
+      "T_new": 0.6021909198894324
+    },
+    {
+      "dataset_id": "real_china_yunnan_general_early3",
+      "T_new": 0.6029112446588872
+    },
+    {
+      "dataset_id": "real_muisne_pedernales_ecuador_2016",
+      "T_new": 0.6031485866703362
+    },
+    {
+      "dataset_id": "real_venezuela_general",
+      "T_new": 0.6035729102187419
+    },
+    {
+      "dataset_id": "real_indonesia_java_general_early",
+      "T_new": 0.6036435862857539
+    },
+    {
+      "dataset_id": "real_philippines_mindanao_general_early3",
+      "T_new": 0.6040718618474976
+    },
+    {
+      "dataset_id": "real_newcaledonia_general_early2",
+      "T_new": 0.6044563120076061
+    },
+    {
+      "dataset_id": "real_china_taiwanstrait_general_recent",
+      "T_new": 0.6048504653330627
+    },
+    {
+      "dataset_id": "real_egypt_general_early",
+      "T_new": 0.6054061236655226
+    },
+    {
+      "dataset_id": "real_argentina_sanjuan_general_recent",
+      "T_new": 0.6059786107425457
+    },
+    {
+      "dataset_id": "real_colombia_andes_general",
+      "T_new": 0.6060617679568453
+    },
+    {
+      "dataset_id": "real_tanzania_rift_general_early3",
+      "T_new": 0.6071029211213317
+    },
+    {
+      "dataset_id": "real_syria_general_early2",
+      "T_new": 0.6073483696521296
+    },
+    {
+      "dataset_id": "real_guam_general_early",
+      "T_new": 0.607783886050344
+    },
+    {
+      "dataset_id": "real_yemen_general_early2",
+      "T_new": 0.6079474650962361
+    },
+    {
+      "dataset_id": "real_usa_virginia_2011_recent",
+      "T_new": 0.608075909895377
+    },
+    {
+      "dataset_id": "real_portugal_azores_general_early2",
+      "T_new": 0.608210668032083
+    },
+    {
+      "dataset_id": "real_cuba_general",
+      "T_new": 0.608765988907141
+    },
+    {
+      "dataset_id": "real_colombia_andes_general_early2",
+      "T_new": 0.6088624840175171
+    },
+    {
+      "dataset_id": "real_newcaledonia_general",
+      "T_new": 0.6092212205056453
+    },
+    {
+      "dataset_id": "real_indonesia_palu_2018",
+      "T_new": 0.6107060003823507
+    },
+    {
+      "dataset_id": "real_guatemala_general",
+      "T_new": 0.6130075739007853
+    },
+    {
+      "dataset_id": "real_chile_iquique_2014_recent",
+      "T_new": 0.6138078648741405
+    },
+    {
+      "dataset_id": "real_solomonislands_general_early",
+      "T_new": 0.6141403415905954
+    },
+    {
+      "dataset_id": "real_malawi_general_early2",
+      "T_new": 0.6142062056905806
+    },
+    {
+      "dataset_id": "real_nicaragua_general_recent",
+      "T_new": 0.6150828803159605
+    },
+    {
+      "dataset_id": "real_austria_general_early",
+      "T_new": 0.61587564359005
+    },
+    {
+      "dataset_id": "real_argentina_sanjuan_general_early3",
+      "T_new": 0.6164847516225567
+    },
+    {
+      "dataset_id": "real_pakistan_general_early3",
+      "T_new": 0.616952292519882
+    },
+    {
+      "dataset_id": "real_philippines_luzon_general_early3",
+      "T_new": 0.6171458678251509
+    },
+    {
+      "dataset_id": "real_nicaragua_general_early",
+      "T_new": 0.617312379781403
+    },
+    {
+      "dataset_id": "real_bolivia_deep_general_early2",
+      "T_new": 0.6175833283842354
+    },
+    {
+      "dataset_id": "real_panama_general",
+      "T_new": 0.6185621514785128
+    },
+    {
+      "dataset_id": "real_202606_philippines",
+      "T_new": 0.6200488418104152
+    },
+    {
+      "dataset_id": "real_japan_20220319_query",
+      "T_new": 0.6205164958458353
+    },
+    {
+      "dataset_id": "real_vanuatu_general_early",
+      "T_new": 0.6213464402031142
+    },
+    {
+      "dataset_id": "real_china_gansu_general_early2",
+      "T_new": 0.6213768692396922
+    },
+    {
+      "dataset_id": "real_india_andaman_general_early",
+      "T_new": 0.6225880252166547
+    },
+    {
+      "dataset_id": "real_mexico_oaxaca_general_early3",
+      "T_new": 0.6230570690283083
+    },
+    {
+      "dataset_id": "real_usa_oklahoma_induced_general_recent",
+      "T_new": 0.6230733345491256
+    },
+    {
+      "dataset_id": "real_pakistan_general_early2",
+      "T_new": 0.6235923593016838
+    },
+    {
+      "dataset_id": "real_indonesia_java_general",
+      "T_new": 0.6243673515459773
+    },
+    {
+      "dataset_id": "real_china_hebei_general_early3",
+      "T_new": 0.6243708786928963
+    },
+    {
+      "dataset_id": "real_iceland_general_recent",
+      "T_new": 0.6244918509631174
+    },
+    {
+      "dataset_id": "real_amatrice_norcia_italy_2016",
+      "T_new": 0.6246857437939114
+    },
+    {
+      "dataset_id": "real_newzealand_kaikoura_2016",
+      "T_new": 0.625008844345904
+    },
+    {
+      "dataset_id": "real_solomonislands_general",
+      "T_new": 0.626566864195786
+    },
+    {
+      "dataset_id": "real_usa_cascadia_general_early2",
+      "T_new": 0.6273484442201207
+    },
+    {
+      "dataset_id": "real_greenland_general_early",
+      "T_new": 0.6273522262747889
+    },
+    {
+      "dataset_id": "real_taiwan_2024_query",
+      "T_new": 0.6277464953873008
+    },
+    {
+      "dataset_id": "real_russia_kurilislands_general",
+      "T_new": 0.6279137189369958
+    },
+    {
+      "dataset_id": "real_dominicanrepublic_general_early",
+      "T_new": 0.6281177764875203
+    },
+    {
+      "dataset_id": "real_albania_durres_2019",
+      "T_new": 0.6283563555571147
+    },
+    {
+      "dataset_id": "real_india_assam_general_early",
+      "T_new": 0.6284225461973336
+    },
+    {
+      "dataset_id": "real_chiapas_mexico_2017",
+      "T_new": 0.6285244963502277
+    },
+    {
+      "dataset_id": "real_argentina_sanjuan_general",
+      "T_new": 0.6285683523240975
+    },
+    {
+      "dataset_id": "real_guatemala_general_recent",
+      "T_new": 0.6290694142884896
+    },
+    {
+      "dataset_id": "real_australia_general_early",
+      "T_new": 0.6292948571037366
+    },
+    {
+      "dataset_id": "real_honduras_general_recent",
+      "T_new": 0.6297700741469876
+    },
+    {
+      "dataset_id": "real_canada_britishcolumbia_general_early",
+      "T_new": 0.6300947389463689
+    },
+    {
+      "dataset_id": "real_china_tibet_plateau_general",
+      "T_new": 0.6301654034002612
+    },
+    {
+      "dataset_id": "real_russia_baikal_general_early",
+      "T_new": 0.6309345480676223
+    },
+    {
+      "dataset_id": "real_india_andaman_general",
+      "T_new": 0.6309805454663313
+    },
+    {
+      "dataset_id": "real_costarica_general_early",
+      "T_new": 0.6317141297960196
+    },
+    {
+      "dataset_id": "real_pakistan_general_recent",
+      "T_new": 0.6319653011691665
+    },
+    {
+      "dataset_id": "real_tonga_20210101_20220117_query",
+      "T_new": 0.6321706505931775
+    },
+    {
+      "dataset_id": "real_costarica_general_early3",
+      "T_new": 0.6326074801804069
+    },
+    {
+      "dataset_id": "real_indonesia_sumatra_general_early",
+      "T_new": 0.632607950554591
+    },
+    {
+      "dataset_id": "real_usa_newmadrid_general_recent",
+      "T_new": 0.6338993211905629
+    },
+    {
+      "dataset_id": "real_iraq_halabja_2017",
+      "T_new": 0.6343774127402111
+    },
+    {
+      "dataset_id": "real_botswana_general_early2",
+      "T_new": 0.6345998169465284
+    },
+    {
+      "dataset_id": "real_202509_Kamchatka",
+      "T_new": 0.6351345871960085
+    },
+    {
+      "dataset_id": "real_china_xinjiang_general_early3",
+      "T_new": 0.6355609004629529
+    },
+    {
+      "dataset_id": "real_iceland_general_early3",
+      "T_new": 0.635642287611556
+    },
+    {
+      "dataset_id": "real_ethiopia_general_recent",
+      "T_new": 0.6358343667857986
+    },
+    {
+      "dataset_id": "real_202510_philippines",
+      "T_new": 0.6363742185395345
+    },
+    {
+      "dataset_id": "real_japan_2000_2023_query",
+      "T_new": 0.6365439337567194
+    },
+    {
+      "dataset_id": "real_kenya_general_recent",
+      "T_new": 0.6367296181847035
+    },
+    {
+      "dataset_id": "real_marianaislands_general_early2",
+      "T_new": 0.6368078035799705
+    },
+    {
+      "dataset_id": "real_turkey_van_2011",
+      "T_new": 0.6368269300799106
+    },
+    {
+      "dataset_id": "real_afghanistan_20231008_query",
+      "T_new": 0.6368498076772785
+    },
+    {
+      "dataset_id": "real_china_shanxi_general",
+      "T_new": 0.63716636178282
+    },
+    {
+      "dataset_id": "real_switzerland_general_early",
+      "T_new": 0.6372326395622658
+    },
+    {
+      "dataset_id": "real_japan_20190101-20211009_query",
+      "T_new": 0.63770365368872
+    },
+    {
+      "dataset_id": "real_jordan_general_early",
+      "T_new": 0.6384629186210355
+    },
+    {
+      "dataset_id": "real_fiji_general_early3",
+      "T_new": 0.6393138912581116
+    },
+    {
+      "dataset_id": "real_mexico_baja_general_early",
+      "T_new": 0.6397792447532175
+    },
+    {
+      "dataset_id": "real_bolivia_deep_general_recent",
+      "T_new": 0.6399079580991354
+    },
+    {
+      "dataset_id": "real_usa_newmadrid_general_early",
+      "T_new": 0.6401245313339445
+    },
+    {
+      "dataset_id": "real_puertorico_2020_ponce_recent",
+      "T_new": 0.6405348801516434
+    },
+    {
+      "dataset_id": "real_china_qinghai_yushu_2010",
+      "T_new": 0.6405404658246332
+    },
+    {
+      "dataset_id": "real_portugal_azores_general",
+      "T_new": 0.6413043243547666
+    },
+    {
+      "dataset_id": "real_centralasia_kyrgyzstan_tajikistan_early3",
+      "T_new": 0.6416494534323299
+    },
+    {
+      "dataset_id": "real_cyprus_general_early",
+      "T_new": 0.6422206889522305
+    },
+    {
+      "dataset_id": "real_egypt_general",
+      "T_new": 0.6427002784380083
+    },
+    {
+      "dataset_id": "real_bangladesh_general_early",
+      "T_new": 0.6434096428500597
+    },
+    {
+      "dataset_id": "real_canada_britishcolumbia_general_recent",
+      "T_new": 0.6459533902804218
+    },
+    {
+      "dataset_id": "real_bolivia_deep_general_early",
+      "T_new": 0.6460533859334385
+    },
+    {
+      "dataset_id": "real_russia_baikal_general",
+      "T_new": 0.6471873225525999
+    },
+    {
+      "dataset_id": "real_nepal_sikkim_general",
+      "T_new": 0.6474957611381911
+    },
+    {
+      "dataset_id": "real_mexico_oaxaca_general_early",
+      "T_new": 0.6479446667686859
+    },
+    {
+      "dataset_id": "real_india_assam_general_recent",
+      "T_new": 0.6503377177846739
+    },
+    {
+      "dataset_id": "real_marianaislands_general_early",
+      "T_new": 0.6505050897369904
+    },
+    {
+      "dataset_id": "real_usa_newmadrid_general_early2",
+      "T_new": 0.6506158319403486
+    },
+    {
+      "dataset_id": "real_ecuador_general_recent",
+      "T_new": 0.6515801433359214
+    },
+    {
+      "dataset_id": "real_guadeloupe_martinique_general_early",
+      "T_new": 0.6516526511762815
+    },
+    {
+      "dataset_id": "real_myanmar_sagaing_general_recent",
+      "T_new": 0.6522700384207893
+    },
+    {
+      "dataset_id": "real_india_assam_general_early3",
+      "T_new": 0.652583124261322
+    },
+    {
+      "dataset_id": "real_marianaislands_general",
+      "T_new": 0.6535316486402802
+    },
+    {
+      "dataset_id": "real_germany_general_early2",
+      "T_new": 0.6547115340808866
+    },
+    {
+      "dataset_id": "real_kazakhstan_general_early3",
+      "T_new": 0.6547953312912917
+    },
+    {
+      "dataset_id": "real_india_assam_general",
+      "T_new": 0.6548769326764973
+    },
+    {
+      "dataset_id": "real_tanzania_rift_general_early",
+      "T_new": 0.6551789819277479
+    },
+    {
+      "dataset_id": "real_kahramanmaras_turkey_2023",
+      "T_new": 0.6556059543057857
+    },
+    {
+      "dataset_id": "real_costarica_general_recent",
+      "T_new": 0.6559951542535362
+    },
+    {
+      "dataset_id": "real_bulgaria_general_early2",
+      "T_new": 0.6561728341141955
+    },
+    {
+      "dataset_id": "real_202604_tohoku_japan",
+      "T_new": 0.6566029454400162
+    },
+    {
+      "dataset_id": "real_japan-20190101_20211203_query",
+      "T_new": 0.6574292184197083
+    },
+    {
+      "dataset_id": "real_vanuatu_general_recent",
+      "T_new": 0.6574858762431587
+    },
+    {
+      "dataset_id": "real_kenya_general",
+      "T_new": 0.6577761166472761
+    },
+    {
+      "dataset_id": "real_philippines_mindanao_general_recent",
+      "T_new": 0.657779920981331
+    },
+    {
+      "dataset_id": "real_usa_hawaii_kilauea_2018",
+      "T_new": 0.6584076002596562
+    },
+    {
+      "dataset_id": "real_usa_puertorico_general",
+      "T_new": 0.6590184229665028
+    },
+    {
+      "dataset_id": "real_samoa_general",
+      "T_new": 0.6591143531038431
+    },
+    {
+      "dataset_id": "real_marianaislands_general_early3",
+      "T_new": 0.6595533902283123
+    },
+    {
+      "dataset_id": "real_centralasia_kyrgyzstan_tajikistan_early",
+      "T_new": 0.6595977253241172
+    },
+    {
+      "dataset_id": "real_solomonislands_general_recent",
+      "T_new": 0.6611267625410526
+    },
+    {
+      "dataset_id": "real_bulgaria_general",
+      "T_new": 0.6613487022138563
+    },
+    {
+      "dataset_id": "real_india_andaman_general_recent",
+      "T_new": 0.6617964393152568
+    },
+    {
+      "dataset_id": "real_colombia_andes_general_recent",
+      "T_new": 0.6620380112382948
+    },
+    {
+      "dataset_id": "real_ethiopia_general_early2",
+      "T_new": 0.6647351933197437
+    },
+    {
+      "dataset_id": "real_mexico_baja_general_early2",
+      "T_new": 0.6656543626321129
+    },
+    {
+      "dataset_id": "real_france_general_early",
+      "T_new": 0.6658673780003384
+    },
+    {
+      "dataset_id": "real_india_uttarakhand_general_early",
+      "T_new": 0.666625484401701
+    },
+    {
+      "dataset_id": "real_usa_utah_wasatch_general_early2",
+      "T_new": 0.6666540912127425
+    },
+    {
+      "dataset_id": "real_kermanshah_iran_2017",
+      "T_new": 0.6671565027159655
+    },
+    {
+      "dataset_id": "real_russia_caucasus_general_early",
+      "T_new": 0.667253134306784
+    },
+    {
+      "dataset_id": "real_indonesia_java_general_recent",
+      "T_new": 0.668421165656998
+    },
+    {
+      "dataset_id": "real_guam_general_recent",
+      "T_new": 0.669218695420233
+    },
+    {
+      "dataset_id": "real_germany_general_early",
+      "T_new": 0.669563320452651
+    },
+    {
+      "dataset_id": "real_myanmar_sagaing_general_early",
+      "T_new": 0.6695670987763715
+    },
+    {
+      "dataset_id": "real_greenland_general_recent",
+      "T_new": 0.6702638391892938
+    },
+    {
+      "dataset_id": "real_usa_puertorico_general_recent",
+      "T_new": 0.6711039110910183
+    },
+    {
+      "dataset_id": "real_france_general_early2",
+      "T_new": 0.6714366655199733
+    },
+    {
+      "dataset_id": "real_kazakhstan_general_early2",
+      "T_new": 0.6722846082922891
+    },
+    {
+      "dataset_id": "real_germany_general",
+      "T_new": 0.6725146063837975
+    },
+    {
+      "dataset_id": "real_usa_nevada_basinrange_general_early",
+      "T_new": 0.6728886416768534
+    },
+    {
+      "dataset_id": "real_centralasia_kyrgyzstan_tajikistan_early2",
+      "T_new": 0.6737843542152553
+    },
+    {
+      "dataset_id": "real_papuanewguinea_general_early",
+      "T_new": 0.673951012737519
+    },
+    {
+      "dataset_id": "real_yemen_general_early",
+      "T_new": 0.6755513965786603
+    },
+    {
+      "dataset_id": "real_ishikawa_202401_query",
+      "T_new": 0.676459426086449
+    },
+    {
+      "dataset_id": "real_indonesia_sumatra_general_recent",
+      "T_new": 0.6770779177795307
+    },
+    {
+      "dataset_id": "real_philippines_mindanao_general_early2",
+      "T_new": 0.6780801031931217
+    },
+    {
+      "dataset_id": "real_usa_cascadia_general_early3",
+      "T_new": 0.6782934915532264
+    },
+    {
+      "dataset_id": "real_philippines_luzon_general_early2",
+      "T_new": 0.6786223098145779
+    },
+    {
+      "dataset_id": "real_morocco_20230908_query",
+      "T_new": 0.6789330449409559
+    },
+    {
+      "dataset_id": "real_costarica_general",
+      "T_new": 0.6792269739871657
+    },
+    {
+      "dataset_id": "real_usa_cascadia_general",
+      "T_new": 0.6793512927202346
+    },
+    {
+      "dataset_id": "real_afghanistan_20231015_query",
+      "T_new": 0.6801697429931781
+    },
+    {
+      "dataset_id": "real_pakistan_general_early",
+      "T_new": 0.6805150424878283
+    },
+    {
+      "dataset_id": "real_india_andaman_general_early2",
+      "T_new": 0.6810955552847203
+    },
+    {
+      "dataset_id": "real_panama_general_recent",
+      "T_new": 0.6814723007804387
+    },
+    {
+      "dataset_id": "real_usa_puertorico_general_early",
+      "T_new": 0.6815658423708146
+    },
+    {
+      "dataset_id": "real_centralasia_kyrgyzstan_tajikistan",
+      "T_new": 0.681691902843958
+    },
+    {
+      "dataset_id": "real_usa_newmadrid_general",
+      "T_new": 0.6821321450317335
+    },
+    {
+      "dataset_id": "real_greenland_general_early2",
+      "T_new": 0.6833493601907608
+    },
+    {
+      "dataset_id": "real_ethiopia_general_early",
+      "T_new": 0.6837412941454997
+    },
+    {
+      "dataset_id": "real_albania_durres_2019_recent",
+      "T_new": 0.6850186207182559
+    },
+    {
+      "dataset_id": "real_indonesia_sumatra_general",
+      "T_new": 0.685146633376156
+    },
+    {
+      "dataset_id": "real_centralasia_kyrgyzstan_tajikistan_recent",
+      "T_new": 0.6860966319489927
+    },
+    {
+      "dataset_id": "real_france_general",
+      "T_new": 0.6865081997994882
+    },
+    {
+      "dataset_id": "real_turkmenistan_general_recent",
+      "T_new": 0.6874752422751558
+    },
+    {
+      "dataset_id": "real_miyazaki_2024-2025",
+      "T_new": 0.6879041584792602
+    },
+    {
+      "dataset_id": "real_ecuador_general",
+      "T_new": 0.6882739628084598
+    },
+    {
+      "dataset_id": "real_kazakhstan_general",
+      "T_new": 0.6883381651762277
+    },
+    {
+      "dataset_id": "real_venezuela_general_early",
+      "T_new": 0.688837222088043
+    },
+    {
+      "dataset_id": "real_iran_ahar_varzaghan_2012",
+      "T_new": 0.6892096157105928
+    },
+    {
+      "dataset_id": "real_mexico_baja_general_early3",
+      "T_new": 0.6920318973219713
+    },
+    {
+      "dataset_id": "real_kazakhstan_general_early",
+      "T_new": 0.692448941134457
+    },
+    {
+      "dataset_id": "real_greece_2024_2025",
+      "T_new": 0.6924854783911493
+    },
+    {
+      "dataset_id": "real_china_yunnan_general_early2",
+      "T_new": 0.6926947278666928
+    },
+    {
+      "dataset_id": "real_china_sichuan_2008_recent",
+      "T_new": 0.6938105779667493
+    },
+    {
+      "dataset_id": "real_anchorage_alaska_2018",
+      "T_new": 0.6943906676590771
+    },
+    {
+      "dataset_id": "real_usa_oklahoma_induced_general",
+      "T_new": 0.6944095298693718
+    },
+    {
+      "dataset_id": "real_chile_maule_2010_recent",
+      "T_new": 0.6951390499363709
+    },
+    {
+      "dataset_id": "real_yemen_general_recent",
+      "T_new": 0.6956438024990863
+    },
+    {
+      "dataset_id": "real_events_atkinson",
+      "T_new": 0.6960629015177904
+    },
+    {
+      "dataset_id": "real_fiji_general",
+      "T_new": 0.6971217285190817
+    },
+    {
+      "dataset_id": "real_philippines_mindanao_general_early",
+      "T_new": 0.697563737405521
+    },
+    {
+      "dataset_id": "real_tanzania_rift_general",
+      "T_new": 0.698358223569997
+    },
+    {
+      "dataset_id": "real_iceland_general_early2",
+      "T_new": 0.6983655967409607
+    },
+    {
+      "dataset_id": "real_china_yunnan_general_early",
+      "T_new": 0.699369887069342
+    },
+    {
+      "dataset_id": "real_usa_hawaii_kilauea_2018_recent",
+      "T_new": 0.7023744091346028
+    },
+    {
+      "dataset_id": "real_turkmenistan_general_early3",
+      "T_new": 0.7028560799450885
+    },
+    {
+      "dataset_id": "real_syria_general",
+      "T_new": 0.7041591161253948
+    },
+    {
+      "dataset_id": "real_china_xinjiang_general_early2",
+      "T_new": 0.704863954453358
+    },
+    {
+      "dataset_id": "real_uzbekistan_general",
+      "T_new": 0.7051899631481316
+    },
+    {
+      "dataset_id": "real_australia_general_recent",
+      "T_new": 0.705703485688455
+    },
+    {
+      "dataset_id": "real_usa_utah_wasatch_general_recent",
+      "T_new": 0.7061225707841761
+    },
+    {
+      "dataset_id": "real_turkmenistan_general",
+      "T_new": 0.7073821985688289
+    },
+    {
+      "dataset_id": "real_mongolia_gobialtai_general",
+      "T_new": 0.7090767350376846
+    },
+    {
+      "dataset_id": "real_usa_california_southnapa_2014_recent",
+      "T_new": 0.7092812072164671
+    },
+    {
+      "dataset_id": "real_drc_rift_general",
+      "T_new": 0.7106650431960203
+    },
+    {
+      "dataset_id": "real_guadeloupe_martinique_general_recent",
+      "T_new": 0.712877746335731
+    },
+    {
+      "dataset_id": "real_malawi_general",
+      "T_new": 0.7132698071818235
+    },
+    {
+      "dataset_id": "real_china_xinjiang_general",
+      "T_new": 0.7133937718576713
+    },
+    {
+      "dataset_id": "real_turkmenistan_general_early",
+      "T_new": 0.7138370853709718
+    },
+    {
+      "dataset_id": "real_usa_cascadia_general_recent",
+      "T_new": 0.7138602529011203
+    },
+    {
+      "dataset_id": "real_mexico_baja_general_recent",
+      "T_new": 0.7146649875316899
+    },
+    {
+      "dataset_id": "real_usa_yellowstone_general_early",
+      "T_new": 0.7147029524599212
+    },
+    {
+      "dataset_id": "real_pakistan_general",
+      "T_new": 0.7149853773075725
+    },
+    {
+      "dataset_id": "real_honduras_general",
+      "T_new": 0.7150176778679369
+    },
+    {
+      "dataset_id": "real_southafrica_general",
+      "T_new": 0.7157010044757365
+    },
+    {
+      "dataset_id": "real_drc_rift_general_early",
+      "T_new": 0.7160169978680359
+    },
+    {
+      "dataset_id": "real_papuanewguinea_general_recent",
+      "T_new": 0.7173544185272283
+    },
+    {
+      "dataset_id": "real_turkey_van_2011_recent",
+      "T_new": 0.7189375135000398
+    },
+    {
+      "dataset_id": "real_usa_puertorico_general_early2",
+      "T_new": 0.720169346049424
+    },
+    {
+      "dataset_id": "real_ecuador_general_early",
+      "T_new": 0.7214983918527647
+    },
+    {
+      "dataset_id": "real_china_tibet_plateau_general_early",
+      "T_new": 0.7216288428136556
+    },
+    {
+      "dataset_id": "real_usa_yellowstone_general_recent",
+      "T_new": 0.7226294072060343
+    },
+    {
+      "dataset_id": "real_russia_sakhalin_general_early",
+      "T_new": 0.7226852583492738
+    },
+    {
+      "dataset_id": "real_portugal_azores_general_early",
+      "T_new": 0.7234438719560903
+    },
+    {
+      "dataset_id": "real_greenland_general",
+      "T_new": 0.7241911122311167
+    },
+    {
+      "dataset_id": "real_azerbaijan_general_recent",
+      "T_new": 0.7249367299058163
+    },
+    {
+      "dataset_id": "real_turkmenistan_general_early2",
+      "T_new": 0.7250367168189489
+    },
+    {
+      "dataset_id": "real_china_gansu_general",
+      "T_new": 0.7266718315632895
+    },
+    {
+      "dataset_id": "real_ethiopia_general",
+      "T_new": 0.7269349690262132
+    },
+    {
+      "dataset_id": "real_yemen_general",
+      "T_new": 0.727257715875564
+    },
+    {
+      "dataset_id": "real_uzbekistan_general_early",
+      "T_new": 0.7291096190534807
+    },
+    {
+      "dataset_id": "real_azerbaijan_general",
+      "T_new": 0.7292140575575307
+    },
+    {
+      "dataset_id": "real_tanzania_rift_general_recent",
+      "T_new": 0.7292743462296956
+    },
+    {
+      "dataset_id": "real_philippines_luzon_general_recent",
+      "T_new": 0.7302858323903416
+    },
+    {
+      "dataset_id": "real_usa_yellowstone_general",
+      "T_new": 0.7321687906397725
+    },
+    {
+      "dataset_id": "real_china_tibet_plateau_general_recent",
+      "T_new": 0.7324953295609741
+    },
+    {
+      "dataset_id": "real_china_yunnan_general",
+      "T_new": 0.7342230901798013
+    },
+    {
+      "dataset_id": "real_slovenia_general_early",
+      "T_new": 0.7362177863015519
+    },
+    {
+      "dataset_id": "real_china_tibet_plateau_general_early2",
+      "T_new": 0.7376840238291351
+    },
+    {
+      "dataset_id": "real_marianaislands_general_recent",
+      "T_new": 0.7393488291081998
+    },
+    {
+      "dataset_id": "real_uzbekistan_general_early2",
+      "T_new": 0.7410156035123664
+    },
+    {
+      "dataset_id": "real_russia_sakhalin_general",
+      "T_new": 0.7410888815582665
+    },
+    {
+      "dataset_id": "real_japan_2023-",
+      "T_new": 0.7413079426833056
+    },
+    {
+      "dataset_id": "real_kazakhstan_general_recent",
+      "T_new": 0.7427386574818062
+    },
+    {
+      "dataset_id": "real_australia_general",
+      "T_new": 0.7432970347446306
+    },
+    {
+      "dataset_id": "real_china_xinjiang_general_early",
+      "T_new": 0.7441813820062801
+    },
+    {
+      "dataset_id": "real_china_xinjiang_general_recent",
+      "T_new": 0.7464055463178589
+    },
+    {
+      "dataset_id": "real_ridgecrest_california_2019",
+      "T_new": 0.7529046722236041
+    },
+    {
+      "dataset_id": "real_mexico_baja_general",
+      "T_new": 0.7595624461723267
+    },
+    {
+      "dataset_id": "real_haiti_20210814_query",
+      "T_new": 0.7602336944263508
+    },
+    {
+      "dataset_id": "real_venezuela_general_recent",
+      "T_new": 0.7731250988817071
+    },
+    {
+      "dataset_id": "real_usa_nevada_basinrange_general_recent",
+      "T_new": 0.7754724741352524
+    },
+    {
+      "dataset_id": "real_china_yunnan_general_recent",
+      "T_new": 0.7764102761858097
+    },
+    {
+      "dataset_id": "real_usa_utah_wasatch_general_early",
+      "T_new": 0.7811800684510118
+    },
+    {
+      "dataset_id": "real_guadeloupe_martinique_general_early3",
+      "T_new": 0.7964101732601558
+    },
+    {
+      "dataset_id": "real_usgs_current",
+      "T_new": 0.8280859199881345
+    },
+    {
+      "dataset_id": "real_nankai_historical",
+      "T_new": 0.851197674086747
+    },
+    {
+      "dataset_id": "real_russia_caucasus_general_early3",
+      "T_new": 0.9139045372507992
+    },
+    {
+      "dataset_id": "real_tibet_202501",
+      "T_new": 0.9413344656759575
+    },
+    {
+      "dataset_id": "real_canada_quebec_general_recent",
+      "T_new": 0.944876418360918
+    },
+    {
+      "dataset_id": "real_usa_newmadrid_general_early3",
+      "T_new": 0.9451275140750663
+    },
+    {
+      "dataset_id": "real_norway_general_early2",
+      "T_new": 0.9492696663251194
+    },
+    {
+      "dataset_id": "real_usa_california_southnapa_2014",
+      "T_new": 0.9493587950412978
+    },
+    {
+      "dataset_id": "real_northkorea_general",
+      "T_new": 0.9509412069245236
+    },
+    {
+      "dataset_id": "real_norway_general",
+      "T_new": 0.9510126172310736
+    },
+    {
+      "dataset_id": "real_china_shanxi_general_early2",
+      "T_new": 0.9511528451316529
+    },
+    {
+      "dataset_id": "real_usa_oklahoma_induced_general_early",
+      "T_new": 0.9515513697300346
+    },
+    {
+      "dataset_id": "real_southafrica_general_early3",
+      "T_new": 0.9563685699016531
+    },
+    {
+      "dataset_id": "real_botswana_general_early3",
+      "T_new": 0.9593326401551052
+    },
+    {
+      "dataset_id": "real_china_hebei_general",
+      "T_new": 0.9693586587599494
+    },
+    {
+      "dataset_id": "real_vietnam_general_early2",
+      "T_new": 0.9699530548172133
+    },
+    {
+      "dataset_id": "real_cuba_general_recent",
+      "T_new": 0.970431346965889
+    },
+    {
+      "dataset_id": "real_china_hebei_general_early",
+      "T_new": 0.9777261973476186
+    },
+    {
+      "dataset_id": "real_romania_vrancea_general_recent",
+      "T_new": 0.9790218969389182
+    },
+    {
+      "dataset_id": "real_iran_bam_2003",
+      "T_new": 0.9834983075871202
+    },
+    {
+      "dataset_id": "real_india_uttarakhand_general_early3",
+      "T_new": 0.9878606997933088
+    },
+    {
+      "dataset_id": "real_tohoku_202606",
+      "T_new": 0.987933184601083
+    },
+    {
+      "dataset_id": "real_india_uttarakhand_general_recent",
+      "T_new": 0.9884801399873557
+    },
+    {
+      "dataset_id": "real_russia_sakhalin_general_early3",
+      "T_new": 0.9885712385080274
+    },
+    {
+      "dataset_id": "real_peru_20250616",
+      "T_new": 0.9896533417922673
+    },
+    {
+      "dataset_id": "real_vietnam_general_early",
+      "T_new": 0.990376701529023
+    },
+    {
+      "dataset_id": "real_russia_caucasus_general_recent",
+      "T_new": 0.9919466501177596
+    },
+    {
+      "dataset_id": "real_france_general_recent",
+      "T_new": 0.9921403514128451
+    },
+    {
+      "dataset_id": "real_japan_20220317_query",
+      "T_new": 0.9923178733462965
+    },
+    {
+      "dataset_id": "real_samoa_general_early",
+      "T_new": 0.9930276948173309
+    },
+    {
+      "dataset_id": "real_taiwan_202501",
+      "T_new": 0.9931403600066149
+    },
+    {
+      "dataset_id": "real_yamanashi_202606",
+      "T_new": 0.9935030446536084
+    },
+    {
+      "dataset_id": "real_egypt_general_early2",
+      "T_new": 0.9935461330264228
+    },
+    {
+      "dataset_id": "real_bhutan_general_early",
+      "T_new": 0.9937050394624538
+    },
+    {
+      "dataset_id": "real_kenya_general_early2",
+      "T_new": 0.9940103198607886
+    },
+    {
+      "dataset_id": "real_bangladesh_general_early3",
+      "T_new": 0.9944347359995827
+    },
+    {
+      "dataset_id": "real_china_shanxi_general_early",
+      "T_new": 0.9946432870145543
+    },
+    {
+      "dataset_id": "real_nepal_sikkim_general_early",
+      "T_new": 0.9946583511993468
+    },
+    {
+      "dataset_id": "real_mozambique_general_early2",
+      "T_new": 0.9949150879587729
+    },
+    {
+      "dataset_id": "real_nepal_sikkim_general_recent",
+      "T_new": 0.9953225497501281
+    },
+    {
+      "dataset_id": "real_portugal_azores_general_early3",
+      "T_new": 0.9956243812019214
+    },
+    {
+      "dataset_id": "real_mozambique_general",
+      "T_new": 0.9956362664616929
+    },
+    {
+      "dataset_id": "real_russia_baikal_general_early3",
+      "T_new": 0.9957207128749224
+    },
+    {
+      "dataset_id": "real_azerbaijan_general_early3",
+      "T_new": 0.9960143621942406
+    },
+    {
+      "dataset_id": "real_malawi_general_early",
+      "T_new": 0.9961637830012955
+    },
+    {
+      "dataset_id": "real_china_gansu_general_early",
+      "T_new": 0.9963825499804366
+    },
+    {
+      "dataset_id": "real_jordan_general_early2",
+      "T_new": 0.9965191355131662
+    },
+    {
+      "dataset_id": "real_russia_baikal_general_recent",
+      "T_new": 0.9966687859647478
+    },
+    {
+      "dataset_id": "real_drc_rift_general_early3",
+      "T_new": 0.9966798979725195
+    },
+    {
+      "dataset_id": "real_cuba_general_early",
+      "T_new": 0.9967598351013423
+    },
+    {
+      "dataset_id": "real_usa_puertorico_general_early3",
+      "T_new": 0.9969439719910111
+    },
+    {
+      "dataset_id": "real_mongolia_gobialtai_general_early",
+      "T_new": 0.9970832219427301
+    },
+    {
+      "dataset_id": "real_israel_deadsea_general_early",
+      "T_new": 0.9970904199926822
+    },
+    {
+      "dataset_id": "real_mongolia_gobialtai_general_early2",
+      "T_new": 0.9972600424621283
+    },
+    {
+      "dataset_id": "real_ishikawa_202411_query",
+      "T_new": 0.9972679148558858
+    },
+    {
+      "dataset_id": "real_202506_turkey",
+      "T_new": 0.9973089710957097
+    },
+    {
+      "dataset_id": "real_202505_tokyo",
+      "T_new": 0.9974109651772516
+    },
+    {
+      "dataset_id": "real_japan_saitama_202407_202501",
+      "T_new": 0.9974929725476889
+    },
+    {
+      "dataset_id": "real_lebanon_general",
+      "T_new": 0.9976082306453113
+    },
+    {
+      "dataset_id": "real_laos_general_early",
+      "T_new": 0.9976690492209102
+    },
+    {
+      "dataset_id": "real_usa_utah_wasatch_general_early3",
+      "T_new": 0.9976924893943162
+    },
+    {
+      "dataset_id": "real_venezuela_202606",
+      "T_new": 0.997769444698583
+    },
+    {
+      "dataset_id": "real_thailand_general_early",
+      "T_new": 0.9978464155596665
+    }
+  ],
+  "known_bad_sorted_T_new": [
+    {
+      "dataset_id": "corrupt_real_lebanon_general_inject_duplicates_high",
+      "T_new": 0.2083239442302493,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_2025_03_myanmar_timestamp_collision_high",
+      "T_new": 0.25340742974819164,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_jordan_general_timestamp_collision_high",
+      "T_new": 0.2558767447709478,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_japan_20220319_query_timestamp_collision_high",
+      "T_new": 0.25710598200003115,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_9",
+      "T_new": 0.2659166054554851,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_23",
+      "T_new": 0.26604347486227925,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_20",
+      "T_new": 0.26762080811411454,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_22",
+      "T_new": 0.2685129915180945,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_china_qinghai_yushu_2010_inject_duplicates_high",
+      "T_new": 0.29758708782714904,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_14",
+      "T_new": 0.30641116374676686,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_2",
+      "T_new": 0.30773956486987797,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_18",
+      "T_new": 0.30918342275027916,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_11",
+      "T_new": 0.3120415880737937,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_13",
+      "T_new": 0.3130667684211351,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_22",
+      "T_new": 0.31349520395009955,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_2",
+      "T_new": 0.31395087213001716,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_10",
+      "T_new": 0.3145170892599133,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_1",
+      "T_new": 0.31567030366743687,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_6",
+      "T_new": 0.31705323574689154,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_5",
+      "T_new": 0.3171095342084915,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_11",
+      "T_new": 0.3197042809887186,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_29",
+      "T_new": 0.31988289422355803,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_24",
+      "T_new": 0.31998950562348544,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_14",
+      "T_new": 0.3205369524066551,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_9",
+      "T_new": 0.32101977758245265,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_24",
+      "T_new": 0.32155799936734797,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_27",
+      "T_new": 0.32195163994005743,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_5",
+      "T_new": 0.3223492409335827,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_26",
+      "T_new": 0.32249218824592857,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_20",
+      "T_new": 0.32285351579560123,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_30",
+      "T_new": 0.3229624215322452,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_naive_2",
+      "T_new": 0.32329865422240767,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_18",
+      "T_new": 0.3235093593282686,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_4",
+      "T_new": 0.32358110510911686,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_13",
+      "T_new": 0.32367682959849586,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_15",
+      "T_new": 0.32368453065060876,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_28",
+      "T_new": 0.32370017053321504,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_16",
+      "T_new": 0.3239115322993755,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_5",
+      "T_new": 0.32404476295288864,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_20",
+      "T_new": 0.3241299673961158,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_4",
+      "T_new": 0.32419617027085285,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_naive_1",
+      "T_new": 0.3243737450006505,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_27",
+      "T_new": 0.3245210526168096,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_13",
+      "T_new": 0.3246864236601717,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_22",
+      "T_new": 0.3247321135851719,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_15",
+      "T_new": 0.32497223640136,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_23",
+      "T_new": 0.3250265542133327,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_8",
+      "T_new": 0.32512502706080965,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_10",
+      "T_new": 0.32513198108424823,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_14",
+      "T_new": 0.3252767787014988,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_naive_3",
+      "T_new": 0.3253188357161845,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_naive_8",
+      "T_new": 0.3254400820098274,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_25",
+      "T_new": 0.32564646415533427,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_10",
+      "T_new": 0.3256587438825982,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_24",
+      "T_new": 0.32573305525627894,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_21",
+      "T_new": 0.32596600079388827,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_12",
+      "T_new": 0.3262091438225218,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_6",
+      "T_new": 0.32637336273975315,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_9",
+      "T_new": 0.3264809969235314,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_7",
+      "T_new": 0.3264994022347627,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_8",
+      "T_new": 0.32652539816076653,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_12",
+      "T_new": 0.32654479745660614,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_15",
+      "T_new": 0.32676943054197605,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_16",
+      "T_new": 0.32692113611484475,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_7",
+      "T_new": 0.3270183500921747,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_30",
+      "T_new": 0.32712783495027487,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_19",
+      "T_new": 0.32719867541807873,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_naive_6",
+      "T_new": 0.327480693490218,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_11",
+      "T_new": 0.3275095089065528,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_18",
+      "T_new": 0.32752072570252116,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_25",
+      "T_new": 0.32752950003040116,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_29",
+      "T_new": 0.32790757151220234,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_26",
+      "T_new": 0.32798103199259804,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_1",
+      "T_new": 0.32859233178190617,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_3",
+      "T_new": 0.3286520062031221,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_30",
+      "T_new": 0.3287252210854706,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_19",
+      "T_new": 0.3289405738954049,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_3",
+      "T_new": 0.3291806243328804,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_naive_7",
+      "T_new": 0.3295839698163941,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_17",
+      "T_new": 0.32976091086343595,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_17",
+      "T_new": 0.329854927028758,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_1",
+      "T_new": 0.32990337659998914,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_27",
+      "T_new": 0.32996301195459143,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_19",
+      "T_new": 0.33001433941918307,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_28",
+      "T_new": 0.33075525944583095,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_naive_5",
+      "T_new": 0.3307684120019934,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_7",
+      "T_new": 0.33089119330222716,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_naive_4",
+      "T_new": 0.3309324718403505,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_25",
+      "T_new": 0.33107714156745116,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_29",
+      "T_new": 0.33111305556678816,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_17",
+      "T_new": 0.33116301958640304,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_3",
+      "T_new": 0.33162511031154146,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level1_4",
+      "T_new": 0.3323311122808988,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_12",
+      "T_new": 0.3334064439604879,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_16",
+      "T_new": 0.33349520862332493,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_23",
+      "T_new": 0.33391132995212347,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_21",
+      "T_new": 0.3354803918121934,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_26",
+      "T_new": 0.3355620800015908,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_6",
+      "T_new": 0.33612128623033033,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_21",
+      "T_new": 0.3369149316173884,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_2",
+      "T_new": 0.3378786043854706,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level2_28",
+      "T_new": 0.3420600774967373,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_potvilla_2024012_inject_missingness_low",
+      "T_new": 0.35168077333383546,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_nz_inject_missingness_high",
+      "T_new": 0.3582746891744827,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level3_8",
+      "T_new": 0.3590740661280623,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_1",
+      "T_new": 0.3628081105133983,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_tibet_202501_magnitude_gr_violation_med",
+      "T_new": 0.36342370382636113,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_afghanistan_2025_09_01_depth_implausible_med",
+      "T_new": 0.36495751825332723,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_taiwan_20240403_query_depth_implausible_med",
+      "T_new": 0.3676820787642031,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_turkey_202504_magnitude_gr_violation_med",
+      "T_new": 0.3678199561193892,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_9",
+      "T_new": 0.389796847247484,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_8",
+      "T_new": 0.39103611665953136,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_dominicanrepublic_general_inject_missingness_low",
+      "T_new": 0.39786751050290875,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_muisne_pedernales_ecuador_2016_timestamp_collision_high",
+      "T_new": 0.4025123233734722,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_chile_depth_implausible_high",
+      "T_new": 0.4089183421327479,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_chile_depth_implausible_low",
+      "T_new": 0.4089183421327479,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "fabricated_level7_13",
+      "T_new": 0.4141971862713466,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_nz_inject_missingness_med",
+      "T_new": 0.41475692845783224,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_20",
+      "T_new": 0.4176940379642026,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_28",
+      "T_new": 0.4181930229856404,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_8",
+      "T_new": 0.4209746600569006,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_8",
+      "T_new": 0.42256963461177566,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_22",
+      "T_new": 0.42410943622524533,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_21",
+      "T_new": 0.42420846085504343,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_13",
+      "T_new": 0.4256229529648074,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_3",
+      "T_new": 0.4257233925456074,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_nz_inject_missingness_low",
+      "T_new": 0.42673749556920554,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_19",
+      "T_new": 0.4268303224423375,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_16",
+      "T_new": 0.4278960642494307,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_25",
+      "T_new": 0.4281805478687509,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_2",
+      "T_new": 0.42830049112328705,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_15",
+      "T_new": 0.4294988581072633,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_26",
+      "T_new": 0.4295678626254722,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_23",
+      "T_new": 0.4297958842477902,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_29",
+      "T_new": 0.4303013403417991,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_18",
+      "T_new": 0.43084864240201715,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_20",
+      "T_new": 0.431796978137606,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_24",
+      "T_new": 0.4320562969275458,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_27",
+      "T_new": 0.432267455361373,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_7",
+      "T_new": 0.4322855328374624,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_30",
+      "T_new": 0.43233205696233934,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_17",
+      "T_new": 0.4337413836244011,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_12",
+      "T_new": 0.4347270019770293,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_madagascar_general_depth_implausible_med",
+      "T_new": 0.4356326394361269,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_5",
+      "T_new": 0.43814719604674945,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_9",
+      "T_new": 0.4385001985205541,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_4",
+      "T_new": 0.4395756291184112,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_7",
+      "T_new": 0.4395895769637765,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_14",
+      "T_new": 0.4403098217440105,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_10",
+      "T_new": 0.44142580661677244,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_4",
+      "T_new": 0.44159495925285075,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_6",
+      "T_new": 0.44232130059582325,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_1",
+      "T_new": 0.442736380128061,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_7",
+      "T_new": 0.44281832179006536,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_11",
+      "T_new": 0.44318616730550764,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_5",
+      "T_new": 0.4434617256105476,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_2",
+      "T_new": 0.4436037859062941,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_10",
+      "T_new": 0.44507508759150693,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_9",
+      "T_new": 0.44566530980332386,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level4_3",
+      "T_new": 0.44569109144938296,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_6",
+      "T_new": 0.4477899374725176,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_china_gansu_general_timestamp_collision_high",
+      "T_new": 0.4503731474643376,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_14",
+      "T_new": 0.45591882923350247,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_peru_20250616_inject_duplicates_high",
+      "T_new": 0.4563939671265707,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_8",
+      "T_new": 0.46197958110133114,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_15",
+      "T_new": 0.46278018473698,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_tohoku_2005_2011_inject_duplicates_high",
+      "T_new": 0.46334308013372316,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_12",
+      "T_new": 0.4639991855546799,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_taiwan_20240423_query_timestamp_collision_high",
+      "T_new": 0.4661348162669422,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_26",
+      "T_new": 0.46618990268109894,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_14",
+      "T_new": 0.4666039431518259,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_15",
+      "T_new": 0.4670513257270787,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_all_month_coordinate_jitter_high",
+      "T_new": 0.4685985286691633,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_4",
+      "T_new": 0.4693272124961143,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_23",
+      "T_new": 0.4699915866070248,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_7",
+      "T_new": 0.47114768281020714,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_11",
+      "T_new": 0.4740241799541098,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_26",
+      "T_new": 0.47462216052032236,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_17",
+      "T_new": 0.47513363404057485,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_11",
+      "T_new": 0.4773283753044374,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_21",
+      "T_new": 0.4791667980608651,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_20",
+      "T_new": 0.4805036161342219,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_24",
+      "T_new": 0.48069376760774707,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_12",
+      "T_new": 0.4807124613440369,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_28",
+      "T_new": 0.4807276812801367,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_nicaragua_general_inject_missingness_low",
+      "T_new": 0.4808681565067707,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_3",
+      "T_new": 0.4810135971437275,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_iceland_general_inject_missingness_low",
+      "T_new": 0.4810298077897778,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_29",
+      "T_new": 0.4815471270859777,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_1",
+      "T_new": 0.4819332988147545,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_17",
+      "T_new": 0.48293102282059275,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_30",
+      "T_new": 0.4832691442545745,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_2",
+      "T_new": 0.4864643481266213,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_18",
+      "T_new": 0.486510085078613,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_12",
+      "T_new": 0.4875832510832762,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_22",
+      "T_new": 0.4884281931254793,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_4",
+      "T_new": 0.4889201791688482,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_canada_britishcolumbia_general_timestamp_collision_high",
+      "T_new": 0.4889526523457526,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_8",
+      "T_new": 0.48998664937574216,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_27",
+      "T_new": 0.4910199583405839,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_10",
+      "T_new": 0.4915967321207525,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_19",
+      "T_new": 0.4916850616706072,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_19",
+      "T_new": 0.4925204064831975,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_29",
+      "T_new": 0.4930262836809121,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_16",
+      "T_new": 0.493147591039764,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_ecuador_general_timestamp_collision_high",
+      "T_new": 0.4934684349968634,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_israel_deadsea_general_coordinate_jitter_low",
+      "T_new": 0.4937454524362917,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_202507_Kamchatka_inject_duplicates_high",
+      "T_new": 0.49438393737317887,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_29",
+      "T_new": 0.49609681701807684,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_22",
+      "T_new": 0.4977575089658679,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_5",
+      "T_new": 0.497864409871662,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_indonesia_java_general_coordinate_jitter_low",
+      "T_new": 0.4980905887802576,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_15",
+      "T_new": 0.4982396953551762,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_28",
+      "T_new": 0.4983201614521639,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_25",
+      "T_new": 0.4986924290657543,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_6",
+      "T_new": 0.49872408297906007,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_guam_general_coordinate_jitter_low",
+      "T_new": 0.49896862932257313,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_chile_maule_2010_coordinate_jitter_low",
+      "T_new": 0.499002982083406,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_2",
+      "T_new": 0.49969881523865634,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_16",
+      "T_new": 0.5043141311962236,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_26",
+      "T_new": 0.5051347491008561,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_13",
+      "T_new": 0.5054291397174407,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_27",
+      "T_new": 0.5058452707235326,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_chile_iquique_2014_inject_duplicates_high",
+      "T_new": 0.5064412642466088,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_24",
+      "T_new": 0.5067265495655716,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level7_6",
+      "T_new": 0.5067778602113833,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_21",
+      "T_new": 0.5071169101361753,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_5",
+      "T_new": 0.5079049255664114,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_1",
+      "T_new": 0.508334119341735,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_25",
+      "T_new": 0.5090234208405875,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_23",
+      "T_new": 0.5109353296872897,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_bolivia_deep_general_timestamp_collision_high",
+      "T_new": 0.5126315038672642,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_romania_vrancea_general_coordinate_jitter_low",
+      "T_new": 0.5145982420889125,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_5",
+      "T_new": 0.515628520051047,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_papuanewguinea_general_depth_implausible_med",
+      "T_new": 0.5165506796278287,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "fabricated_level9_17",
+      "T_new": 0.5172654270546794,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_earthquake1_inject_duplicates_med",
+      "T_new": 0.5173682888601238,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_mexico_oaxaca_general_inject_duplicates_high",
+      "T_new": 0.5185030680972268,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_18",
+      "T_new": 0.5186932931663297,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_25",
+      "T_new": 0.5195092538616533,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_23",
+      "T_new": 0.519610694250144,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_tanzania_rift_general_coordinate_jitter_low",
+      "T_new": 0.519893674117546,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_24",
+      "T_new": 0.5199665983562589,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_6",
+      "T_new": 0.5208510026701513,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_portugal_azores_general_timestamp_collision_high",
+      "T_new": 0.5219134530443963,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_21",
+      "T_new": 0.5225102206058208,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_3",
+      "T_new": 0.5226624669044455,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_17",
+      "T_new": 0.5231244648225493,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_turkey_izmit_1999_timestamp_collision_high",
+      "T_new": 0.5238703304650032,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_7",
+      "T_new": 0.5244418772376561,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_usgs_main_inject_duplicates_high",
+      "T_new": 0.5250766908239568,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_30",
+      "T_new": 0.5253307977138673,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_29",
+      "T_new": 0.5256650674363453,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_20",
+      "T_new": 0.525965605831424,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_9",
+      "T_new": 0.5265124691592021,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_haiti_2010_inject_missingness_low",
+      "T_new": 0.5270475860419053,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_tokara_202506_coordinate_jitter_low",
+      "T_new": 0.5276634659758477,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_11",
+      "T_new": 0.5278368478144708,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_27",
+      "T_new": 0.5280710555806332,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_usa_hawaii_kilauea_2018_inject_missingness_low",
+      "T_new": 0.5283661951956248,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_trinidadtobago_general_timestamp_collision_high",
+      "T_new": 0.529039529731133,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_18",
+      "T_new": 0.5294313543699308,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_30",
+      "T_new": 0.5303213463077954,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_ishikawa_202401_query_timestamp_collision_high",
+      "T_new": 0.531744126051089,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_22",
+      "T_new": 0.5319268457366013,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_22",
+      "T_new": 0.5321233226624116,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_russia_caucasus_general_coordinate_jitter_low",
+      "T_new": 0.5326793545326369,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_13",
+      "T_new": 0.5340131765273675,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_28",
+      "T_new": 0.5361964390674133,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_26",
+      "T_new": 0.5376509580328527,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_4",
+      "T_new": 0.5382221144327444,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_1",
+      "T_new": 0.5409736718144685,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level5_3",
+      "T_new": 0.5428760202866334,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_27",
+      "T_new": 0.543046827570046,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_19",
+      "T_new": 0.5442624258285762,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_morocco_20230908_query_timestamp_collision_high",
+      "T_new": 0.5448599811560478,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_bangladesh_general_inject_missingness_low",
+      "T_new": 0.5451815243483958,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_1",
+      "T_new": 0.5459772712322523,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_usgs_main_inject_duplicates_low",
+      "T_new": 0.5472630375047874,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_kenya_general_inject_duplicates_high",
+      "T_new": 0.5473879742442679,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_3",
+      "T_new": 0.5483522924048919,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_russia_kurilislands_general_inject_duplicates_high",
+      "T_new": 0.5491742339407972,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_25",
+      "T_new": 0.5499393694745248,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_algeria_boumerdes_2003_coordinate_jitter_low",
+      "T_new": 0.5509548694796608,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_china_taiwanstrait_general_coordinate_jitter_low",
+      "T_new": 0.551352010701187,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_turkmenistan_general_timestamp_collision_high",
+      "T_new": 0.5514544981701466,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_9",
+      "T_new": 0.5514732316990278,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_18",
+      "T_new": 0.5518775138400265,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_afghanistan_20231015_query_inject_missingness_low",
+      "T_new": 0.5519009105015235,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_16",
+      "T_new": 0.5528104655327379,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_202604_tohoku_japan_coordinate_jitter_low",
+      "T_new": 0.5529123272594914,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_2",
+      "T_new": 0.5530180887277312,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_14",
+      "T_new": 0.5535391579497,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_greece_2024_2025_timestamp_collision_med",
+      "T_new": 0.5549548357502481,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_23",
+      "T_new": 0.5557224400489645,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_17",
+      "T_new": 0.5567511996126807,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_vanuatu_general_coordinate_jitter_low",
+      "T_new": 0.5568449604812441,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_puertorico_2020_ponce_depth_implausible_med",
+      "T_new": 0.557057053300821,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "fabricated_level6_10",
+      "T_new": 0.5579780200057489,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_panama_general_inject_duplicates_high",
+      "T_new": 0.5586928135237001,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_tonga_20210101_20220117_query_coordinate_jitter_med",
+      "T_new": 0.5590348601797653,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level6_8",
+      "T_new": 0.5592998706638288,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_colombia_andes_general_inject_duplicates_high",
+      "T_new": 0.5610058796154689,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_india_gujarat_bhuj_2001_magnitude_gr_violation_med",
+      "T_new": 0.5616757336526603,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_elsalvador_2001_coordinate_jitter_low",
+      "T_new": 0.5656925242155273,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_10",
+      "T_new": 0.5660783654223194,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_21",
+      "T_new": 0.5663721457046325,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_9",
+      "T_new": 0.5672158920692673,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_iceland_reykjanes_2021_coordinate_jitter_low",
+      "T_new": 0.5690769439918013,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_honduras_general_timestamp_collision_high",
+      "T_new": 0.5699040378543624,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_peru_arequipa_2001_magnitude_gr_violation_med",
+      "T_new": 0.5711981207389373,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_24",
+      "T_new": 0.5720619544619572,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_all_month_coordinate_jitter_low",
+      "T_new": 0.5726015759898997,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_5",
+      "T_new": 0.572888072474441,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_gorkha_nepal_2015_magnitude_gr_violation_med",
+      "T_new": 0.5730194019346012,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_2",
+      "T_new": 0.573270454316277,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_15",
+      "T_new": 0.5760984311426898,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_4",
+      "T_new": 0.5768760324401994,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_7",
+      "T_new": 0.5775432718673472,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_china_shanxi_general_inject_duplicates_high",
+      "T_new": 0.5785347949572236,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_usa_oklahoma_induced_general_timestamp_collision_high",
+      "T_new": 0.5787663372130718,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_australia_general_timestamp_collision_high",
+      "T_new": 0.5805362873500111,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_afghanistan_20231008_query_inject_duplicates_high",
+      "T_new": 0.5806884139874018,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_5",
+      "T_new": 0.5831259943047468,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_6",
+      "T_new": 0.5833279656987377,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_16",
+      "T_new": 0.5838405813157134,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_202606_philippines_magnitude_gr_violation_med",
+      "T_new": 0.5838422694463791,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_guatemala_general_inject_missingness_low",
+      "T_new": 0.5838783514420773,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_14",
+      "T_new": 0.5841455261947818,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_30",
+      "T_new": 0.5848472754793628,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_26",
+      "T_new": 0.5849447468763275,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_13",
+      "T_new": 0.5857766544663782,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_india_uttarakhand_general_depth_implausible_med",
+      "T_new": 0.5866855246304936,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_peru_pisco_2007_coordinate_jitter_low",
+      "T_new": 0.5870343541151342,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_events_atkinson_inject_missingness_med",
+      "T_new": 0.5884597481598113,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_11",
+      "T_new": 0.5885118783208686,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_12",
+      "T_new": 0.5888217552302778,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_amatrice_norcia_italy_2016_magnitude_gr_violation_med",
+      "T_new": 0.589698810037462,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_20",
+      "T_new": 0.5908082872672877,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_iraq_halabja_2017_magnitude_gr_violation_med",
+      "T_new": 0.5913981952601379,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_15",
+      "T_new": 0.5921567125867375,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_tohoku_202512_depth_implausible_med",
+      "T_new": 0.5923027105698846,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_anchorage_alaska_2018_inject_duplicates_high",
+      "T_new": 0.5924661277041283,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_switzerland_general_depth_implausible_med",
+      "T_new": 0.593367103163323,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_chiapas_mexico_2017_inject_duplicates_med",
+      "T_new": 0.5939258318482813,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_ishikawa_2024_query_magnitude_gr_violation_med",
+      "T_new": 0.5956605762515067,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_samoa_general_inject_duplicates_high",
+      "T_new": 0.596297349427343,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_drc_rift_general_coordinate_jitter_low",
+      "T_new": 0.5977656571436724,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_japan-20190101_20211203_query_inject_duplicates_high",
+      "T_new": 0.5992012382203649,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_japan_20190101-20211009_query_inject_missingness_low",
+      "T_new": 0.6016166254455365,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_22",
+      "T_new": 0.6024299924121591,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_28",
+      "T_new": 0.6027234798895598,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_bulgaria_general_inject_duplicates_high",
+      "T_new": 0.6037603610792822,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_1",
+      "T_new": 0.6040137564730708,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_18",
+      "T_new": 0.6042794490907666,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_marianaislands_general_timestamp_collision_high",
+      "T_new": 0.6046487855558887,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_india_kashmir_2005_magnitude_gr_violation_med",
+      "T_new": 0.6047511286818119,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_9",
+      "T_new": 0.6047630788987854,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_india_assam_general_inject_duplicates_high",
+      "T_new": 0.6057326939327082,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_pakistan_balochistan_2013_inject_missingness_low",
+      "T_new": 0.6072084667364722,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_cuba_general_depth_implausible_med",
+      "T_new": 0.608765988907141,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_newcaledonia_general_depth_implausible_med",
+      "T_new": 0.6092212205056453,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "fabricated_level8_16",
+      "T_new": 0.6098565701928378,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level9_19",
+      "T_new": 0.6108262858365576,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_7",
+      "T_new": 0.6127953198641956,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_china_sichuan_2008_coordinate_jitter_low",
+      "T_new": 0.6128181766254106,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_indonesia_sumatra_general_timestamp_collision_high",
+      "T_new": 0.6129717270691272,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_4",
+      "T_new": 0.615265591545268,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_2",
+      "T_new": 0.616155056660894,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_3",
+      "T_new": 0.6168454791504244,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_6",
+      "T_new": 0.6193458038660974,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_14",
+      "T_new": 0.6200715228699689,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_japan_2000_2023_query_magnitude_gr_violation_high",
+      "T_new": 0.620641225370748,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_ethiopia_general_timestamp_collision_high",
+      "T_new": 0.6223533079267963,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_russia_baikal_general_inject_missingness_low",
+      "T_new": 0.6227991045764874,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_japan_2000_2023_query_magnitude_gr_violation_low",
+      "T_new": 0.6241140158820035,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_newzealand_kaikoura_2016_inject_missingness_low",
+      "T_new": 0.6248991839792648,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_turkey_van_2011_inject_missingness_low",
+      "T_new": 0.6254974055994295,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_germany_general_magnitude_gr_violation_med",
+      "T_new": 0.6255191541479855,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_27",
+      "T_new": 0.6259493027347733,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_28",
+      "T_new": 0.626251735056661,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_19",
+      "T_new": 0.6270612571338984,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_13",
+      "T_new": 0.6274160899145221,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_taiwan_2024_query_depth_implausible_med",
+      "T_new": 0.6277464953873008,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_china_tibet_plateau_general_inject_missingness_low",
+      "T_new": 0.628340726064537,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_albania_durres_2019_depth_implausible_med",
+      "T_new": 0.6283563555571147,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_202509_Kamchatka_inject_missingness_low",
+      "T_new": 0.628428933101781,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_argentina_sanjuan_general_depth_implausible_med",
+      "T_new": 0.6285683523240975,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "fabricated_level8_8",
+      "T_new": 0.6288496918396664,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_kazakhstan_general_inject_missingness_low",
+      "T_new": 0.6295383909419687,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_21",
+      "T_new": 0.6312725247371475,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_usa_newmadrid_general_inject_duplicates_high",
+      "T_new": 0.6335372923622999,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_india_andaman_general_inject_missingness_low",
+      "T_new": 0.6345190245215039,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_indonesia_palu_2018_timestamp_collision_high",
+      "T_new": 0.6346581348975346,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_nepal_sikkim_general_depth_implausible_med",
+      "T_new": 0.6369126272410857,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_china_yunnan_general_coordinate_jitter_low",
+      "T_new": 0.6377671786810505,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_egypt_general_magnitude_gr_violation_med",
+      "T_new": 0.639486002494512,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_kahramanmaras_turkey_2023_timestamp_collision_med",
+      "T_new": 0.6402514086055203,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_centralasia_kyrgyzstan_tajikistan_magnitude_gr_violation_med",
+      "T_new": 0.6408877012548502,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_france_general_coordinate_jitter_low",
+      "T_new": 0.6467452914069967,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_23",
+      "T_new": 0.6471357485619709,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_11",
+      "T_new": 0.6487277272145001,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_costarica_general_magnitude_gr_violation_med",
+      "T_new": 0.6489974331507206,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_25",
+      "T_new": 0.650145067780188,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_24",
+      "T_new": 0.6525948603490965,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_10",
+      "T_new": 0.6530446945686375,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_20",
+      "T_new": 0.6535349780624026,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_12",
+      "T_new": 0.6549105540823623,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_venezuela_general_magnitude_gr_violation_med",
+      "T_new": 0.6569778879152474,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_morocco_alhoceima_2004_inject_missingness_low",
+      "T_new": 0.6573427826850872,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_solomonislands_general_coordinate_jitter_low",
+      "T_new": 0.6573943203147526,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_png_highlands_2018_coordinate_jitter_med",
+      "T_new": 0.658719295285046,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_india_assam_general_early_inject_missingness_low",
+      "T_new": 0.6588544090132226,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_canada_quebec_general_magnitude_gr_violation_med",
+      "T_new": 0.6600067815722711,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_china_xinjiang_general_inject_duplicates_high",
+      "T_new": 0.6603544474041504,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_29",
+      "T_new": 0.660939569783578,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_morocco_20230908_query_timestamp_collision_low",
+      "T_new": 0.6624967425379145,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "fabricated_level8_30",
+      "T_new": 0.6665280782415954,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_kermanshah_iran_2017_depth_implausible_med",
+      "T_new": 0.6671565027159655,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_greenland_general_inject_duplicates_high",
+      "T_new": 0.6734913177845588,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_haiti_20210814_query_magnitude_gr_violation_med",
+      "T_new": 0.6760018803022845,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_southafrica_general_magnitude_gr_violation_med",
+      "T_new": 0.6761619143466557,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_miyazaki_2024-2025_magnitude_gr_violation_med",
+      "T_new": 0.6781167075916115,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_usa_cascadia_general_depth_implausible_med",
+      "T_new": 0.6793512927202346,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_china_yunnan_general_early_magnitude_gr_violation_med",
+      "T_new": 0.6802958539331587,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_russia_sakhalin_general_inject_duplicates_high",
+      "T_new": 0.6818554670718737,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_china_xinjiang_general_early_inject_duplicates_high",
+      "T_new": 0.6890338876326918,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_iran_ahar_varzaghan_2012_depth_implausible_med",
+      "T_new": 0.6892096157105928,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_fiji_general_magnitude_gr_violation_med",
+      "T_new": 0.6908075879958593,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_202510_philippines_depth_implausible_med",
+      "T_new": 0.6924157003633691,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_uzbekistan_general_inject_missingness_low",
+      "T_new": 0.6996918421757913,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_mexico_baja_general_inject_missingness_low",
+      "T_new": 0.7063865929960979,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_tohoku_202511_inject_missingness_low",
+      "T_new": 0.7076802235946307,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_pakistan_general_depth_implausible_med",
+      "T_new": 0.7149853773075725,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_usa_puertorico_general_coordinate_jitter_low",
+      "T_new": 0.7189139831700975,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_malawi_general_magnitude_gr_violation_med",
+      "T_new": 0.7234285783569844,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_mongolia_gobialtai_general_depth_implausible_med",
+      "T_new": 0.7250252513280616,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_usgs_current_inject_duplicates_high",
+      "T_new": 0.7285007288291769,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_yemen_general_inject_missingness_low",
+      "T_new": 0.7286380278670102,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_usa_yellowstone_general_depth_implausible_med",
+      "T_new": 0.7321687906397725,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_syria_general_depth_implausible_med",
+      "T_new": 0.7359177896136341,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_azerbaijan_general_magnitude_gr_violation_med",
+      "T_new": 0.7688106364864247,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_ridgecrest_california_2019_coordinate_jitter_low",
+      "T_new": 0.7916213084118967,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_iran_bam_2003_inject_duplicates_high",
+      "T_new": 0.8754643329947078,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_tohoku_202606_timestamp_collision_high",
+      "T_new": 0.8967196858787612,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_croatia_petrinja_2020_timestamp_collision_high",
+      "T_new": 0.9136496874642888,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_colombia_armenia_1999_timestamp_collision_high",
+      "T_new": 0.9141256686558517,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_usa_california_southnapa_2014_depth_implausible_med",
+      "T_new": 0.9493587950412978,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_northkorea_general_magnitude_gr_violation_med",
+      "T_new": 0.9509412069245236,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_norway_general_magnitude_gr_violation_med",
+      "T_new": 0.9510126172310736,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_china_hebei_general_magnitude_gr_violation_med",
+      "T_new": 0.9693586587599494,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_ishikawa_202411_query_coordinate_jitter_low",
+      "T_new": 0.9890205421525358,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_taiwan_202501_coordinate_jitter_low",
+      "T_new": 0.9894339159456438,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_venezuela_202606_inject_missingness_low",
+      "T_new": 0.9919926698351462,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_japan_20220317_query_depth_implausible_med",
+      "T_new": 0.9923178733462965,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_yamanashi_202606_depth_implausible_med",
+      "T_new": 0.9935030446536084,
+      "hard_override_fired": true
+    },
+    {
+      "dataset_id": "corrupt_real_japan_saitama_202407_202501_coordinate_jitter_low",
+      "T_new": 0.99526446706689,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_mozambique_general_magnitude_gr_violation_med",
+      "T_new": 0.9956362664616929,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_202505_tokyo_coordinate_jitter_low",
+      "T_new": 0.9971280971077825,
+      "hard_override_fired": false
+    },
+    {
+      "dataset_id": "corrupt_real_202506_turkey_magnitude_gr_violation_med",
+      "T_new": 0.9973089710957097,
+      "hard_override_fired": false
+    }
+  ]
+}

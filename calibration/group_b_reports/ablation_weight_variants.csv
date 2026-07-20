@@ -1,0 +1,9 @@
+variant,label,false_reject_rate,false_reject_k,false_admit_rate,false_admit_k,not_rejected_bad_rate,n_admit,n_conditional,n_reject
+blended_current,"Current production weights (AHP x EWM blend, n=968)",0.0,0,0.03877551020408163,19,0.9448979591836735,107,864,27
+ahp_only,"AHP-only prior (single-analyst pairwise comparison, no data)",0.0,0,0.10204081632653061,50,0.9469387755102041,312,660,26
+ewm_only,"EWM-only (pure entropy/variance weighting, no AHP prior; P9=0)",0.0,0,0.07959183673469387,39,0.9469387755102041,159,813,26
+equal_weight,"Equal-weight baseline (0.25 per axis, uniform within axis)",0.0,0,0.32448979591836735,159,0.9469387755102041,558,414,26
+a_only,"A-only (axis weight = 1.0 on A(D), 0 elsewhere; within-axis weights unchanged from current blend)",0.03543307086614173,18,0.02857142857142857,14,0.6448979591836734,77,729,192
+p_only,"P-only (axis weight = 1.0 on P(D), 0 elsewhere; within-axis weights unchanged from current blend)",0.0,0,0.5816326530612245,285,0.8857142857142857,778,164,56
+c_only,"C-only (axis weight = 1.0 on C(D), 0 elsewhere; within-axis weights unchanged from current blend)",0.0,0,0.4,196,0.9469387755102041,299,673,26
+i_only,"I-only (axis weight = 1.0 on I(D), 0 elsewhere; within-axis weights unchanged from current blend)",0.005905511811023622,3,0.6183673469387755,303,0.9387755102040817,661,304,33

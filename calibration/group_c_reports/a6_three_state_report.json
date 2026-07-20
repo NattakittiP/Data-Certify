@@ -1,0 +1,455 @@
+{
+  "input_file": "/sessions/charming-friendly-allen/mnt/DATA-CERTIFY/calibration/score_matrix_a6_multi.csv",
+  "n_datasets": 968,
+  "n_a6_applicable": 659,
+  "constants_under_test": {
+    "A6_CONTRADICTED_MIN_SOURCES": 2,
+    "A6_CONTRADICTED_MIN_N_STRATUM": 20,
+    "A6_CONTRADICTED_ALPHA": 0.01,
+    "THETA_AUTH": 0.5
+  },
+  "q1_false_positive_check": {
+    "n_known_good_contradicted": 0,
+    "datasets": []
+  },
+  "q2_security_property_check": {
+    "n_known_bad_total": 460,
+    "n_known_bad_contradicted_eligible": 328,
+    "n_known_bad_confirmed": 258,
+    "confirmed_dataset_ids": [
+      "corrupt_real_all_month_coordinate_jitter_high",
+      "corrupt_real_japan_2000_2023_query_magnitude_gr_violation_high",
+      "corrupt_real_png_highlands_2018_coordinate_jitter_med",
+      "corrupt_real_india_kashmir_2005_magnitude_gr_violation_med",
+      "corrupt_real_iraq_halabja_2017_magnitude_gr_violation_med",
+      "corrupt_real_australia_general_timestamp_collision_high",
+      "corrupt_real_centralasia_kyrgyzstan_tajikistan_magnitude_gr_violation_med",
+      "corrupt_real_ecuador_general_timestamp_collision_high",
+      "corrupt_real_venezuela_general_magnitude_gr_violation_med",
+      "corrupt_real_germany_general_magnitude_gr_violation_med",
+      "corrupt_real_ethiopia_general_timestamp_collision_high",
+      "corrupt_real_southafrica_general_magnitude_gr_violation_med",
+      "corrupt_real_canada_quebec_general_magnitude_gr_violation_med",
+      "corrupt_real_honduras_general_timestamp_collision_high",
+      "corrupt_real_amatrice_norcia_italy_2016_magnitude_gr_violation_med",
+      "corrupt_real_bolivia_deep_general_timestamp_collision_high",
+      "corrupt_real_costarica_general_magnitude_gr_violation_med",
+      "corrupt_real_canada_britishcolumbia_general_timestamp_collision_high",
+      "corrupt_real_fiji_general_magnitude_gr_violation_med",
+      "corrupt_real_turkmenistan_general_timestamp_collision_high",
+      "corrupt_real_azerbaijan_general_magnitude_gr_violation_med",
+      "corrupt_real_marianaislands_general_timestamp_collision_high",
+      "fabricated_naive_1",
+      "fabricated_naive_2",
+      "fabricated_sophisticated_1",
+      "fabricated_sophisticated_2",
+      "fabricated_sophisticated_3",
+      "fabricated_naive_3",
+      "fabricated_naive_4",
+      "fabricated_naive_5",
+      "fabricated_naive_6",
+      "fabricated_naive_7",
+      "fabricated_naive_8",
+      "fabricated_sophisticated_4",
+      "fabricated_sophisticated_5",
+      "fabricated_sophisticated_6",
+      "fabricated_sophisticated_7",
+      "fabricated_sophisticated_8",
+      "fabricated_sophisticated_9",
+      "fabricated_level1_1",
+      "fabricated_level1_3",
+      "fabricated_level1_4",
+      "fabricated_level1_5",
+      "fabricated_level1_6",
+      "fabricated_level1_7",
+      "fabricated_level1_8",
+      "fabricated_level1_9",
+      "fabricated_level1_10",
+      "fabricated_level1_11",
+      "fabricated_level1_12",
+      "fabricated_level1_13",
+      "fabricated_level1_14",
+      "fabricated_level1_15",
+      "fabricated_level1_16",
+      "fabricated_level1_17",
+      "fabricated_level1_18",
+      "fabricated_level1_19",
+      "fabricated_level1_20",
+      "fabricated_level1_21",
+      "fabricated_level1_22",
+      "fabricated_level1_23",
+      "fabricated_level1_24",
+      "fabricated_level1_25",
+      "fabricated_level1_26",
+      "fabricated_level1_27",
+      "fabricated_level1_28",
+      "fabricated_level1_29",
+      "fabricated_level1_30",
+      "fabricated_level2_4",
+      "fabricated_level2_13",
+      "fabricated_level2_17",
+      "fabricated_level2_19",
+      "fabricated_level2_20",
+      "fabricated_level2_24",
+      "fabricated_level2_25",
+      "fabricated_level3_14",
+      "fabricated_level3_23",
+      "fabricated_level3_30",
+      "fabricated_level4_1",
+      "fabricated_level4_2",
+      "fabricated_level4_3",
+      "fabricated_level4_4",
+      "fabricated_level4_5",
+      "fabricated_level4_6",
+      "fabricated_level4_7",
+      "fabricated_level4_8",
+      "fabricated_level4_9",
+      "fabricated_level4_10",
+      "fabricated_level4_11",
+      "fabricated_level4_12",
+      "fabricated_level4_13",
+      "fabricated_level4_14",
+      "fabricated_level4_15",
+      "fabricated_level4_16",
+      "fabricated_level4_17",
+      "fabricated_level4_18",
+      "fabricated_level4_19",
+      "fabricated_level4_20",
+      "fabricated_level4_21",
+      "fabricated_level4_22",
+      "fabricated_level4_23",
+      "fabricated_level4_24",
+      "fabricated_level4_25",
+      "fabricated_level4_26",
+      "fabricated_level4_27",
+      "fabricated_level4_28",
+      "fabricated_level4_29",
+      "fabricated_level4_30",
+      "fabricated_level5_1",
+      "fabricated_level5_2",
+      "fabricated_level5_3",
+      "fabricated_level5_4",
+      "fabricated_level5_5",
+      "fabricated_level5_6",
+      "fabricated_level5_7",
+      "fabricated_level5_8",
+      "fabricated_level5_9",
+      "fabricated_level5_10",
+      "fabricated_level5_11",
+      "fabricated_level5_12",
+      "fabricated_level5_13",
+      "fabricated_level5_14",
+      "fabricated_level5_15",
+      "fabricated_level5_16",
+      "fabricated_level5_17",
+      "fabricated_level5_18",
+      "fabricated_level5_19",
+      "fabricated_level5_20",
+      "fabricated_level5_21",
+      "fabricated_level5_22",
+      "fabricated_level5_23",
+      "fabricated_level5_24",
+      "fabricated_level5_25",
+      "fabricated_level5_26",
+      "fabricated_level5_27",
+      "fabricated_level5_28",
+      "fabricated_level5_29",
+      "fabricated_level5_30",
+      "fabricated_level6_1",
+      "fabricated_level6_2",
+      "fabricated_level6_3",
+      "fabricated_level6_4",
+      "fabricated_level6_5",
+      "fabricated_level6_6",
+      "fabricated_level6_7",
+      "fabricated_level6_8",
+      "fabricated_level6_9",
+      "fabricated_level6_10",
+      "fabricated_level6_11",
+      "fabricated_level6_12",
+      "fabricated_level6_13",
+      "fabricated_level6_14",
+      "fabricated_level6_15",
+      "fabricated_level6_16",
+      "fabricated_level6_17",
+      "fabricated_level6_18",
+      "fabricated_level6_19",
+      "fabricated_level6_20",
+      "fabricated_level6_21",
+      "fabricated_level6_22",
+      "fabricated_level6_23",
+      "fabricated_level6_24",
+      "fabricated_level6_25",
+      "fabricated_level6_26",
+      "fabricated_level6_27",
+      "fabricated_level6_28",
+      "fabricated_level6_29",
+      "fabricated_level6_30",
+      "fabricated_level7_1",
+      "fabricated_level7_2",
+      "fabricated_level7_3",
+      "fabricated_level7_4",
+      "fabricated_level7_5",
+      "fabricated_level7_6",
+      "fabricated_level7_7",
+      "fabricated_level7_8",
+      "fabricated_level7_9",
+      "fabricated_level7_10",
+      "fabricated_level7_11",
+      "fabricated_level7_12",
+      "fabricated_level7_13",
+      "fabricated_level7_14",
+      "fabricated_level7_15",
+      "fabricated_level7_16",
+      "fabricated_level7_17",
+      "fabricated_level7_18",
+      "fabricated_level7_19",
+      "fabricated_level7_20",
+      "fabricated_level7_21",
+      "fabricated_level7_22",
+      "fabricated_level7_23",
+      "fabricated_level7_24",
+      "fabricated_level7_25",
+      "fabricated_level7_26",
+      "fabricated_level7_27",
+      "fabricated_level7_28",
+      "fabricated_level7_29",
+      "fabricated_level7_30",
+      "fabricated_level8_1",
+      "fabricated_level8_2",
+      "fabricated_level8_3",
+      "fabricated_level8_4",
+      "fabricated_level8_5",
+      "fabricated_level8_6",
+      "fabricated_level8_7",
+      "fabricated_level8_8",
+      "fabricated_level8_9",
+      "fabricated_level8_10",
+      "fabricated_level8_11",
+      "fabricated_level8_12",
+      "fabricated_level8_13",
+      "fabricated_level8_14",
+      "fabricated_level8_15",
+      "fabricated_level8_16",
+      "fabricated_level8_17",
+      "fabricated_level8_18",
+      "fabricated_level8_19",
+      "fabricated_level8_20",
+      "fabricated_level8_21",
+      "fabricated_level8_22",
+      "fabricated_level8_23",
+      "fabricated_level8_24",
+      "fabricated_level8_25",
+      "fabricated_level8_26",
+      "fabricated_level8_27",
+      "fabricated_level8_28",
+      "fabricated_level8_29",
+      "fabricated_level8_30",
+      "fabricated_level9_1",
+      "fabricated_level9_2",
+      "fabricated_level9_3",
+      "fabricated_level9_4",
+      "fabricated_level9_5",
+      "fabricated_level9_6",
+      "fabricated_level9_7",
+      "fabricated_level9_8",
+      "fabricated_level9_9",
+      "fabricated_level9_10",
+      "fabricated_level9_11",
+      "fabricated_level9_12",
+      "fabricated_level9_13",
+      "fabricated_level9_14",
+      "fabricated_level9_15",
+      "fabricated_level9_16",
+      "fabricated_level9_17",
+      "fabricated_level9_18",
+      "fabricated_level9_19",
+      "fabricated_level9_20",
+      "fabricated_level9_21",
+      "fabricated_level9_22",
+      "fabricated_level9_23",
+      "fabricated_level9_24",
+      "fabricated_level9_25",
+      "fabricated_level9_26",
+      "fabricated_level9_27",
+      "fabricated_level9_28",
+      "fabricated_level9_29",
+      "fabricated_level9_30"
+    ]
+  },
+  "q3_threshold_sensitivity": {
+    "near_miss_min_n_stratum": [
+      {
+        "dataset_id": "corrupt_real_turkey_izmit_1999_timestamp_collision_high",
+        "n_contradicted_eligible": 7.0
+      },
+      {
+        "dataset_id": "corrupt_real_france_general_coordinate_jitter_low",
+        "n_contradicted_eligible": 11.0
+      },
+      {
+        "dataset_id": "corrupt_real_algeria_boumerdes_2003_coordinate_jitter_low",
+        "n_contradicted_eligible": 4.0
+      },
+      {
+        "dataset_id": "corrupt_real_usa_oklahoma_induced_general_timestamp_collision_high",
+        "n_contradicted_eligible": 9.0
+      },
+      {
+        "dataset_id": "corrupt_real_northkorea_general_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 8.0
+      },
+      {
+        "dataset_id": "corrupt_real_bangladesh_general_inject_missingness_low",
+        "n_contradicted_eligible": 8.0
+      },
+      {
+        "dataset_id": "corrupt_real_malawi_general_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 15.0
+      },
+      {
+        "dataset_id": "corrupt_real_202507_Kamchatka_inject_duplicates_high",
+        "n_contradicted_eligible": 1.0
+      },
+      {
+        "dataset_id": "corrupt_real_2025_03_myanmar_timestamp_collision_high",
+        "n_contradicted_eligible": 11.0
+      },
+      {
+        "dataset_id": "corrupt_real_202604_tohoku_japan_coordinate_jitter_low",
+        "n_contradicted_eligible": 3.0
+      },
+      {
+        "dataset_id": "corrupt_real_202606_philippines_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 19.0
+      },
+      {
+        "dataset_id": "corrupt_real_ishikawa_202401_query_timestamp_collision_high",
+        "n_contradicted_eligible": 15.0
+      },
+      {
+        "dataset_id": "corrupt_real_japan_20220319_query_timestamp_collision_high",
+        "n_contradicted_eligible": 4.0
+      },
+      {
+        "dataset_id": "corrupt_real_miyazaki_2024-2025_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 18.0
+      },
+      {
+        "dataset_id": "corrupt_real_potvilla_2024012_inject_missingness_low",
+        "n_contradicted_eligible": 5.0
+      },
+      {
+        "dataset_id": "corrupt_real_taiwan_20240423_query_timestamp_collision_high",
+        "n_contradicted_eligible": 16.0
+      },
+      {
+        "dataset_id": "corrupt_real_taiwan_202501_coordinate_jitter_low",
+        "n_contradicted_eligible": 5.0
+      },
+      {
+        "dataset_id": "corrupt_real_tibet_202501_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 6.0
+      },
+      {
+        "dataset_id": "corrupt_real_tohoku_202511_inject_missingness_low",
+        "n_contradicted_eligible": 14.0
+      },
+      {
+        "dataset_id": "corrupt_real_tohoku_202606_timestamp_collision_high",
+        "n_contradicted_eligible": 6.0
+      },
+      {
+        "dataset_id": "corrupt_real_ridgecrest_california_2019_coordinate_jitter_low",
+        "n_contradicted_eligible": 15.0
+      },
+      {
+        "dataset_id": "corrupt_real_haiti_2010_inject_missingness_low",
+        "n_contradicted_eligible": 7.0
+      },
+      {
+        "dataset_id": "corrupt_real_muisne_pedernales_ecuador_2016_timestamp_collision_high",
+        "n_contradicted_eligible": 18.0
+      },
+      {
+        "dataset_id": "corrupt_real_pakistan_balochistan_2013_inject_missingness_low",
+        "n_contradicted_eligible": 2.0
+      },
+      {
+        "dataset_id": "corrupt_real_mozambique_general_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 3.0
+      },
+      {
+        "dataset_id": "corrupt_real_russia_baikal_general_inject_missingness_low",
+        "n_contradicted_eligible": 10.0
+      },
+      {
+        "dataset_id": "corrupt_real_uzbekistan_general_inject_missingness_low",
+        "n_contradicted_eligible": 16.0
+      },
+      {
+        "dataset_id": "corrupt_real_china_gansu_general_timestamp_collision_high",
+        "n_contradicted_eligible": 11.0
+      },
+      {
+        "dataset_id": "corrupt_real_china_taiwanstrait_general_coordinate_jitter_low",
+        "n_contradicted_eligible": 11.0
+      },
+      {
+        "dataset_id": "corrupt_real_china_hebei_general_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 1.0
+      },
+      {
+        "dataset_id": "corrupt_real_peru_pisco_2007_coordinate_jitter_low",
+        "n_contradicted_eligible": 10.0
+      },
+      {
+        "dataset_id": "corrupt_real_trinidadtobago_general_timestamp_collision_high",
+        "n_contradicted_eligible": 14.0
+      },
+      {
+        "dataset_id": "corrupt_real_iceland_reykjanes_2021_coordinate_jitter_low",
+        "n_contradicted_eligible": 5.0
+      },
+      {
+        "dataset_id": "corrupt_real_norway_general_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 3.0
+      },
+      {
+        "dataset_id": "corrupt_real_turkey_van_2011_inject_missingness_low",
+        "n_contradicted_eligible": 10.0
+      },
+      {
+        "dataset_id": "corrupt_real_jordan_general_timestamp_collision_high",
+        "n_contradicted_eligible": 3.0
+      },
+      {
+        "dataset_id": "corrupt_real_israel_deadsea_general_coordinate_jitter_low",
+        "n_contradicted_eligible": 1.0
+      },
+      {
+        "dataset_id": "corrupt_real_egypt_general_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 11.0
+      },
+      {
+        "dataset_id": "corrupt_real_russia_caucasus_general_coordinate_jitter_low",
+        "n_contradicted_eligible": 13.0
+      },
+      {
+        "dataset_id": "corrupt_real_china_yunnan_general_early_magnitude_gr_violation_med",
+        "n_contradicted_eligible": 19.0
+      }
+    ],
+    "near_miss_alpha": [
+      {
+        "dataset_id": "corrupt_real_malawi_general_magnitude_gr_violation_med",
+        "contradicted_p_value": 0.0206947326660156
+      },
+      {
+        "dataset_id": "corrupt_real_ishikawa_2024_query_magnitude_gr_violation_med",
+        "contradicted_p_value": 0.02833221317256
+      }
+    ]
+  },
+  "safe_to_rely_on": true
+}

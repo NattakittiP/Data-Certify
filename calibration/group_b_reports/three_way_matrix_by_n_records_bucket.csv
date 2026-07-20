@@ -1,0 +1,14 @@
+group,n_records_bucket,n,ADMIT_k,ADMIT_rate,CONDITIONAL_k,CONDITIONAL_rate,REJECT_k,REJECT_rate
+known_good,1-49,115,66,0.5739,49,0.4261,0,0.0
+known_good,50-199,161,11,0.0683,150,0.9317,0,0.0
+known_good,200-999,169,20,0.1183,149,0.8817,0,0.0
+known_good,1000-9999,57,1,0.0175,56,0.9825,0,0.0
+known_good,10000+,6,0,0.0,6,1.0,0,0.0
+corrupted_real,1-49,35,16,0.4571,13,0.3714,6,0.1714
+corrupted_real,50-199,41,2,0.0488,30,0.7317,9,0.2195
+corrupted_real,200-999,57,1,0.0175,50,0.8772,6,0.1053
+corrupted_real,1000-9999,28,0,0.0,24,0.8571,4,0.1429
+corrupted_real,10000+,12,0,0.0,10,0.8333,2,0.1667
+fabricated,200-999,3,0,0.0,3,1.0,0,0.0
+fabricated,1000-9999,284,0,0.0,284,1.0,0,0.0
+held_out_adversarial,1000-9999,30,0,0.0,30,1.0,0,0.0

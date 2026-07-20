@@ -1,0 +1,2231 @@
+{
+  "split_seed": 20260712,
+  "split_sizes": {
+    "dev": 678,
+    "validation": 145,
+    "locked_test": 145
+  },
+  "dev_refit_axis_weights": {
+    "A": 0.6826101367667,
+    "P": 0.17221973951100147,
+    "C": 0.028341002637339758,
+    "I": 0.1168291210849587
+  },
+  "dev_refit_within_weights": {
+    "A": {
+      "A1": 0.367743533286598,
+      "A2": 0.006832265014118897,
+      "A3": 0.4361252769621319,
+      "A4": 0.1868342332099281,
+      "A5": 0.002464691527223112
+    },
+    "P": {
+      "P9": 0.056,
+      "P4": 0.0030222676873259196,
+      "P5": 0.7602907698870219,
+      "P6": 2.287329373569449e-15,
+      "P7": 0.129091179043896,
+      "P8": 0.05159578338175369
+    },
+    "C": {
+      "C1": 0.0008006893178077106,
+      "C2": 0.31970597536274503,
+      "C3": 0.2343844189651567,
+      "C4": 0.4451089163542905
+    },
+    "I": {
+      "I1": 0.49124947163708826,
+      "I2": 0.27187146301273124,
+      "I3": 0.19206525411957318,
+      "I4": 0.0036751691831152684,
+      "I5": 0.041138642047492006
+    }
+  },
+  "validation_picked_thresholds": {
+    "theta_admit": 1.0,
+    "theta_reject": 0.305
+  },
+  "locked_test_result_under_refit": {
+    "n": 145,
+    "n_known_good": 74,
+    "n_known_bad": 71,
+    "false_reject_rate": "0.0000 (0/74) [95% CI: 0.0000-0.0494]",
+    "false_admit_rate": "0.0000 (0/71) [95% CI: 0.0000-0.0513]",
+    "false_reject_k": 0,
+    "false_admit_k": 0,
+    "decision_counts": {
+      "CONDITIONAL": 121,
+      "REJECT": 24
+    }
+  },
+  "locked_test_result_under_current_production": {
+    "n": 145,
+    "n_known_good": 74,
+    "n_known_bad": 71,
+    "false_reject_rate": "0.0000 (0/74) [95% CI: 0.0000-0.0494]",
+    "false_admit_rate": "0.0141 (1/71) [95% CI: 0.0025-0.0756]",
+    "false_reject_k": 0,
+    "false_admit_k": 1,
+    "decision_counts": {
+      "CONDITIONAL": 130,
+      "ADMIT": 9,
+      "REJECT": 6
+    }
+  },
+  "leave_one_parent_catalog_out": {
+    "sampled": true,
+    "n_folds": 150,
+    "results": [
+      {
+        "group": "real_marianaislands_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_10",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_4",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_29",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_russia_sakhalin_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_croatia_petrinja_2020",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_1",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_japan_2023-",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_israel_deadsea_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_usa_puertorico_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_drc_rift_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_india_assam_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_costarica_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_pakistan_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_naive_5",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_usa_cascadia_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_13",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_11",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_kazakhstan_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_poland_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_17",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_17",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_papuanewguinea_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_13",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_30",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_202509_Kamchatka",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_southafrica_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_philippines_mindanao_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_trinidadtobago_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_23",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_turkmenistan_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_15",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_27",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_indonesia_sumatra_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_kenya_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_guadeloupe_martinique_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_iraq_halabja_2017",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_9",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_china_taiwanstrait_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_ethiopia_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_uzbekistan_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_tanzania_rift_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_amatrice_norcia_italy_2016",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_australia_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_newcaledonia_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_romania_vrancea_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_bolivia_deep_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_india_andaman_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_27",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_greenland_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_slovenia_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_chile_maule_2010",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_canada_quebec_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_pakistan_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_6",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_28",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_202507_Kamchatka",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_ecuador_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_puertorico_2020_ponce_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_ridgecrest_california_2019",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_bolivia_deep_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_fiji_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_usa_utah_wasatch_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_4",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_25",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_malawi_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_guatemala_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_portugal_azores_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_mexico_oaxaca_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_china_qinghai_yushu_2010_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_19",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_9",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_pakistan_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_austria_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_uzbekistan_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_syria_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_10",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_cyprus_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_pakistan_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_5",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_24",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_24",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_chile_iquique_2014",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_kenya_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_20",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_papuanewguinea_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "nz",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_guam_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_muisne_pedernales_ecuador_2016",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_21",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_pakistan_balochistan_2013",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_russia_sakhalin_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_20",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_16",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_28",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_trinidadtobago_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_24",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_usa_cascadia_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_10",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_canada_britishcolumbia_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_20",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_kahramanmaras_turkey_2023",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_bangladesh_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_usa_newmadrid_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_mexico_baja_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_26",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_15",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_indonesia_sumatra_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_22",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_marianaislands_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_kazakhstan_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_26",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_japan_20220319_query",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_18",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_mexico_baja_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_myanmar_sagaing_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_18",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_indonesia_palu_2018",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_9",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_yemen_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_china_qinghai_yushu_2010",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_russia_kurilislands_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_india_uttarakhand_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_egypt_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_usa_nevada_basinrange_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_13",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_9",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_iceland_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_russia_baikal_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_29",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_chile_maule_2010_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_china_yunnan_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_germany_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_turkmenistan_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_naive_7",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_venezuela_general_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_28",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_iran_ahar_varzaghan_2012_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_india_uttarakhand_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_india_gujarat_bhuj_2001_recent",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_guam_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_27",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_16",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_indonesia_sumatra_general_early",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "real_bangladesh_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      }
+    ]
+  },
+  "leave_one_region_out": {
+    "sampled": true,
+    "n_folds": 150,
+    "results": [
+      {
+        "group": "romania_vrancea_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "kenya_general",
+        "n_held_out": 3,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_15",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_21",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_28",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "samoa_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_16",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_9",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "germany_general",
+        "n_held_out": 3,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "mexico_oaxaca_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_4",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_26",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "japan_20220319_query",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_10",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "202507_Kamchatka",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_10",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_13",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "iceland_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_24",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "chile_maule_2010",
+        "n_held_out": 3,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_9",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_11",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_17",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_8",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "earthquake1",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_24",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "ethiopia_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "indonesia_sumatra_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_26",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_27",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "nz",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "mexico_oaxaca_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_20",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_24",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "italy_sicily_etna_general",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "china_taiwanstrait_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "tanzania_rift_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_13",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_9",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "malawi_general",
+        "n_held_out": 3,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "indonesia_java_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "argentina_sanjuan_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "iceland_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_12",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_13",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "china_shanxi_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "pakistan_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "japan-20190101_20211203_query",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "greenland_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "muisne_pedernales_ecuador_2016",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "russia_baikal_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "austria_general",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_8",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_26",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_23",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "bangladesh_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "china_taiwanstrait_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "venezuela_202606",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "iceland_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "ethiopia_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "thailand_general",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_6",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "usgs_current",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "nankai_historical",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_4",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_22",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_16",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "costarica_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "panama_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_24",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "russia_sakhalin_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_21",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "canada_quebec_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "chile_iquique_2014",
+        "n_held_out": 3,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "croatia_petrinja_2020",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "bangladesh_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "italy_sicily_etna_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_8",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "usa_cascadia_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_1",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "202509_Kamchatka",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fiji_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "syria_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_1",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_14",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "mozambique_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "guatemala_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_25",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "cyprus_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_17",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_22",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "mongolia_gobialtai_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "albania_durres_2019",
+        "n_held_out": 3,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "202604_tohoku_japan",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "afghanistan_20231015_query",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "southafrica_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_14",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "usa_yellowstone_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level3_26",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "usa_cascadia_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_13",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "nicaragua_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_5",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "myanmar_sagaing_general",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_15",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_29",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "costarica_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "usa_newmadrid_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level6_21",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "kazakhstan_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_14",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level4_11",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level9_10",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_9",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_6",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "china_tibet_plateau_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "papuanewguinea_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "southafrica_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_27",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "china_hebei_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "india_assam_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "uzbekistan_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_19",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level7_18",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "newcaledonia_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "china_sichuan_2008",
+        "n_held_out": 3,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "marianaislands_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "russia_sakhalin_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "canada_britishcolumbia_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_1",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "slovenia_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "greenland_general_early3",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level2_18",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "trinidadtobago_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_25",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "china_xinjiang_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "vanuatu_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "202505_tokyo",
+        "n_held_out": 2,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level1_2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "usa_puertorico_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "turkmenistan_general_early2",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "portugal_azores_general",
+        "n_held_out": 4,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level5_24",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      },
+      {
+        "group": "fabricated_level8_1",
+        "n_held_out": 1,
+        "agreement_rate": 1.0,
+        "n_disagree": 0,
+        "disagreeing_dataset_ids": []
+      }
+    ]
+  },
+  "leave_one_corruption_family_out": [
+    {
+      "family": "coordinate_jitter",
+      "n_held_out": 30,
+      "not_admitted_rate": 0.8,
+      "agreement_rate": 1.0
+    },
+    {
+      "family": "depth_implausible",
+      "n_held_out": 27,
+      "not_admitted_rate": 0.9629629629629629,
+      "agreement_rate": 1.0
+    },
+    {
+      "family": "full_fabrication",
+      "n_held_out": 287,
+      "not_admitted_rate": 0.9965156794425087,
+      "agreement_rate": 0.9965156794425087
+    },
+    {
+      "family": "inject_duplicates",
+      "n_held_out": 29,
+      "not_admitted_rate": 0.9655172413793104,
+      "agreement_rate": 1.0
+    },
+    {
+      "family": "inject_missingness",
+      "n_held_out": 29,
+      "not_admitted_rate": 0.896551724137931,
+      "agreement_rate": 1.0
+    },
+    {
+      "family": "magnitude_gr_violation",
+      "n_held_out": 30,
+      "not_admitted_rate": 0.8,
+      "agreement_rate": 1.0
+    },
+    {
+      "family": "timestamp_collision",
+      "n_held_out": 28,
+      "not_admitted_rate": 0.9285714285714286,
+      "agreement_rate": 1.0
+    }
+  ]
+}

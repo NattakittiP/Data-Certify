@@ -1,0 +1,57 @@
+====================================================================================================
+Group B2: Three-way decision confusion matrix
+(Group B post-hoc verification analysis)
+====================================================================================================
+
+T(D) and decision computed LIVE via current production weights (WEIGHT_VARIANTS['blended_current']), not read from score_matrix.csv's cached columns -- see _analysis_common.py's LEGACY_STALE_COLUMNS note.
+
+--- Overall matrix: group x decision (Wilson 95% CI) ---
+group                      n                        ADMIT                  CONDITIONAL                       REJECT                hard_override
+------------------------------------------------------------------------------------------------------------------------------------------------
+known_good               508 0.1929 (98/508) [95% CI: 0.1610-0.2295] 0.8071 (410/508) [95% CI: 0.7705-0.8390] 0.0000 (0/508) [95% CI: 0.0000-0.0075] 0.0000 (0/508) [95% CI: 0.0000-0.0075]
+corrupted_real           173 0.1098 (19/173) [95% CI: 0.0714-0.1652] 0.7341 (127/173) [95% CI: 0.6637-0.7943] 0.1561 (27/173) [95% CI: 0.1095-0.2176] 0.1503 (26/173) [95% CI: 0.1047-0.2111]
+fabricated               287 0.0000 (0/287) [95% CI: 0.0000-0.0132] 1.0000 (287/287) [95% CI: 0.9868-1.0000] 0.0000 (0/287) [95% CI: 0.0000-0.0132] 0.0000 (0/287) [95% CI: 0.0000-0.0132]
+held_out_adversarial      30 0.0000 (0/30) [95% CI: 0.0000-0.1135] 1.0000 (30/30) [95% CI: 0.8865-1.0000] 0.0000 (0/30) [95% CI: 0.0000-0.1135] 0.0000 (0/30) [95% CI: 0.0000-0.1135]
+
+--- Headline rates ---
+False-reject rate on known_good (n=508): 0.0000 (0/508) [95% CI: 0.0000-0.0075]
+False-admit rate on known_bad, pooled corrupted+fabricated+held_out_adversarial (n=490): 0.0388 (19/490) [95% CI: 0.0250-0.0598]
+NOT-rejected rate (ADMIT or CONDITIONAL) on known_bad (n=490): 0.9449 (463/490) [95% CI: 0.9210-0.9619]
+Note: CONDITIONAL is a 'flag for manual review' outcome, not an autonomous acceptance -- the false-admit rate above (ADMIT only) is the safety-critical number; the NOT-rejected rate is a looser upper bound useful for gauging analyst review burden.
+
+--- corrupted_real, broken down by corruption_type ---
+       corruption_type  n  ADMIT_k  ADMIT_rate  CONDITIONAL_k  CONDITIONAL_rate  REJECT_k  REJECT_rate
+     coordinate_jitter 30        5    0.166667             25          0.833333         0     0.000000
+     depth_implausible 27        1    0.037037              0          0.000000        26     0.962963
+     inject_duplicates 29        1    0.034483             27          0.931034         1     0.034483
+    inject_missingness 29        2    0.068966             27          0.931034         0     0.000000
+magnitude_gr_violation 30        7    0.233333             23          0.766667         0     0.000000
+   timestamp_collision 28        3    0.107143             25          0.892857         0     0.000000
+
+--- corrupted_real, broken down by severity ---
+severity  n  ADMIT_k  ADMIT_rate  CONDITIONAL_k  CONDITIONAL_rate  REJECT_k  REJECT_rate
+     low 57        7      0.1228             49            0.8596         1       0.0175
+     med 61        8      0.1311             29            0.4754        24       0.3934
+    high 55        4      0.0727             49            0.8909         2       0.0364
+
+--- fabricated, broken down by fabrication style (DERIVED from corpus_manifest.csv's free-text `notes` column via substring match on 'naive'/'sophisticated' -- NOT a structured field; treat as indicative, not authoritative) ---
+fabrication_style   n  ADMIT_k  ADMIT_rate  CONDITIONAL_k  CONDITIONAL_rate  REJECT_k  REJECT_rate
+            naive  38        0         0.0             38               1.0         0          0.0
+other/unspecified 240        0         0.0            240               1.0         0          0.0
+    sophisticated   9        0         0.0              9               1.0         0          0.0
+
+--- All groups, broken down by n_records bucket ---
+               group n_records_bucket   n  ADMIT_k  ADMIT_rate  CONDITIONAL_k  CONDITIONAL_rate  REJECT_k  REJECT_rate
+          known_good             1-49 115       66      0.5739             49            0.4261         0       0.0000
+          known_good           50-199 161       11      0.0683            150            0.9317         0       0.0000
+          known_good          200-999 169       20      0.1183            149            0.8817         0       0.0000
+          known_good        1000-9999  57        1      0.0175             56            0.9825         0       0.0000
+          known_good           10000+   6        0      0.0000              6            1.0000         0       0.0000
+      corrupted_real             1-49  35       16      0.4571             13            0.3714         6       0.1714
+      corrupted_real           50-199  41        2      0.0488             30            0.7317         9       0.2195
+      corrupted_real          200-999  57        1      0.0175             50            0.8772         6       0.1053
+      corrupted_real        1000-9999  28        0      0.0000             24            0.8571         4       0.1429
+      corrupted_real           10000+  12        0      0.0000             10            0.8333         2       0.1667
+          fabricated          200-999   3        0      0.0000              3            1.0000         0       0.0000
+          fabricated        1000-9999 284        0      0.0000            284            1.0000         0       0.0000
+held_out_adversarial        1000-9999  30        0      0.0000             30            1.0000         0       0.0000

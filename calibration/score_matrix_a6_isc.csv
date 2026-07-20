@@ -1,0 +1,2 @@
+dataset_id,label,n_records,a6_applicable,matched_fraction,n_stratum,mc_ref,mc_ref_is_default,hard_reject_would_fire,elapsed_sec,note
+nz,known_good,20648,True,0.367021277,188,4.5,False,True,138.13,36.7% of 188 reference-complete-stratum records (M>=4.54) matched.

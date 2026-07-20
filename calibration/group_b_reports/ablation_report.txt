@@ -1,0 +1,59 @@
+====================================================================================================
+Group B3: Ablation study
+(Weight-ablation analysis, Group B)
+====================================================================================================
+
+Corpus: n=998 ({'known_good': 508, 'fabricated': 287, 'corrupted_real': 173, 'held_out_adversarial': 30})
+
+----------------------------------------------------------------------------------------------------
+(1) WEIGHT-VECTOR ABLATION
+Full two-stage architecture (hard-override respected) under each weight vector.
+----------------------------------------------------------------------------------------------------
+        variant                                                                                             label  false_reject_rate  false_reject_k  false_admit_rate  false_admit_k  not_rejected_bad_rate  n_admit  n_conditional  n_reject
+blended_current                                               Current production weights (AHP x EWM blend, n=968)           0.000000               0          0.038776             19               0.944898      107            864        27
+       ahp_only                                      AHP-only prior (single-analyst pairwise comparison, no data)           0.000000               0          0.102041             50               0.946939      312            660        26
+       ewm_only                                    EWM-only (pure entropy/variance weighting, no AHP prior; P9=0)           0.000000               0          0.079592             39               0.946939      159            813        26
+   equal_weight                                        Equal-weight baseline (0.25 per axis, uniform within axis)           0.000000               0          0.324490            159               0.946939      558            414        26
+         a_only A-only (axis weight = 1.0 on A(D), 0 elsewhere; within-axis weights unchanged from current blend)           0.035433              18          0.028571             14               0.644898       77            729       192
+         p_only P-only (axis weight = 1.0 on P(D), 0 elsewhere; within-axis weights unchanged from current blend)           0.000000               0          0.581633            285               0.885714      778            164        56
+         c_only C-only (axis weight = 1.0 on C(D), 0 elsewhere; within-axis weights unchanged from current blend)           0.000000               0          0.400000            196               0.946939      299            673        26
+         i_only I-only (axis weight = 1.0 on I(D), 0 elsewhere; within-axis weights unchanged from current blend)           0.005906               3          0.618367            303               0.938776      661            304        33
+
+Reading guide: false_reject_rate is the rate at which known-good real catalogs are wrongly REJECTed (safety-relevant to operators: rejecting good data has an operational cost). false_admit_rate is the rate at which known-bad (corrupted+fabricated+adversarial) data is wrongly ADMITted outright (the scientifically dangerous error). A weight vector that is simply better than blended_current on BOTH axes simultaneously would be a real finding worth acting on; a vector that trades one for the other is a value judgement, not a free win.
+
+----------------------------------------------------------------------------------------------------
+(2) MECHANISM ABLATION (blended_current weights throughout)
+----------------------------------------------------------------------------------------------------
+               arm                                                                                                                                  description  false_reject_rate  false_reject_k  false_admit_rate  false_admit_k  not_rejected_bad_rate  n_admit  n_conditional  n_reject
+    full_two_stage                                                                   Hard-override gate (Stage 1) + composite score (Stage 2), as in production                0.0               0          0.038776             19               0.944898      107            864        27
+ weighted_sum_only                                                                                   Composite score only -- hard-override gate never consulted                0.0               0          0.044898             22               0.997959      110            887         1
+hard_override_only Binary: REJECT if Stage-1 gate fires, else ADMIT -- composite score never consulted (no CONDITIONAL zone exists in this arm by construction)                0.0               0          0.946939            464               0.946939      972              0        26
+
+Reading guide: 'hard_override_only' has NO CONDITIONAL zone by construction (binary ADMIT/REJECT), so its false_admit_rate directly measures what fraction of known-bad data would be autonomously ADMITted if the composite score did not exist at all -- this is the cleanest measurement of how much protective value Stage 2 adds beyond Stage 1 alone. 'weighted_sum_only' measures the converse: how much protective value Stage 1 adds beyond Stage 2 alone (compare its false_admit_rate to full_two_stage's -- any difference is entirely attributable to cases the hard-override gate catches that the composite score's ADMIT/CONDITIONAL/REJECT thresholds do not).
+
+----------------------------------------------------------------------------------------------------
+(3) A6 MINI-ABLATION -- ⚠ PARTIAL CORPUS, DO NOT EXTRAPOLATE ⚠
+----------------------------------------------------------------------------------------------------
+⚠ SUPERSEDED SEMANTICS DISCLOSURE (added post-Group-C3 verification pass, 2026-07-16): score_matrix_a6.csv/score_matrix_a6_weighted-multi.csv/score_matrix_a6_emsc.csv/score_matrix_a6_isc.csv below were all generated 2026-07-09/10, BEFORE Group C3's A6 three-state redesign (2026-07-12/13, see data_certify/_constants.py's A6_CONTRADICTED_* block). Their cached hard_reject_would_fire column reflects the OLD BINARY rule (matched_fraction < theta_auth -> hard-REJECT on ANY single source's non-match), which current production code no longer implements. Under CURRENT code, a single reference source (e.g. USGS alone, the 'single-source (USGS)' row below) can STRUCTURALLY NEVER fire A6's hard-override at all (A6_CONTRADICTED_MIN_SOURCES=2) -- so the 'single-source (USGS) ... catch rate if A6 wired' figure below describes a hard-reject behavior that literally cannot occur under the codebase as it exists today, not a live prediction of what wiring up single-source A6 would currently do (it would land those catalogs in CONDITIONAL, not REJECT). The 'weighted-multi' row is less clear-cut -- WeightedMultiSourceExternalCatalogReference now also populates n_sources_queried/n_sources_matched (added during Group C3) and so DOES participate in today's three-state logic, but this specific CSV predates that code change entirely, so its cached verdicts were computed under the old rule too and have not been reconfirmed against the current implementation. This whole sub-analysis is retained for historical record (it motivated Group C3's redesign in the first place -- see Criteria_and_Weights_Master_Reference.md Section 4.4) but should NOT be cited in the paper as a description of current A6 behavior without this caveat attached.
+
+Coverage: score_matrix_a6.csv (single-source, USGS) has 87 rows total, 81 with a6_applicable=True (a non-trivial reference-complete stratum exists). score_matrix_a6_weighted-multi.csv (weighted multi-source blend) has 89 rows total, 83 with a6_applicable=True. This is 81-83 datasets out of the full 968-dataset corpus (8.6%) -- restricted to catalogs with enough high-magnitude events to form a reference-complete stratum in the first place. These files were produced by a SEPARATE one-off script (run_a6_scoring.py) that makes LIVE external-network calls (elapsed_sec column shows 100-400+ sec for the largest catalogs) and is NOT re-run as part of routine calibration/run_scoring.py. Findings below characterize A6's behavior ONLY on this specific reference-complete subset, not the corpus as a whole.
+
+--- single-source (USGS): n=81 (a6_applicable=True) ---
+  hard_reject_would_fire overall: 0.2222 (18/81) [95% CI: 0.1454-0.3242]
+  hard_reject_would_fire on known_good (n=52): 0.0000 (0/52) [95% CI: 0.0000-0.0688]  <- false-reject risk if A6 wired
+  hard_reject_would_fire on known_bad (n=28): 0.6429 (18/28) [95% CI: 0.4583-0.7929]  <- catch rate if A6 wired
+  Of those 18 known_bad catches, 2 are ALREADY caught by current production (P1-P3 only, A6 off) -> 16 are NET NEW catches attributable specifically to A6.
+
+--- weighted-multi: n=83 (a6_applicable=True) ---
+  hard_reject_would_fire overall: 0.2651 (22/83) [95% CI: 0.1820-0.3689]
+  hard_reject_would_fire on known_good (n=54): 0.0556 (3/54) [95% CI: 0.0191-0.1511]  <- false-reject risk if A6 wired
+  hard_reject_would_fire on known_bad (n=28): 0.6786 (19/28) [95% CI: 0.4934-0.8207]  <- catch rate if A6 wired
+  Of those 19 known_bad catches, 0 are ALREADY caught by current production (P1-P3 only, A6 off) -> 19 are NET NEW catches attributable specifically to A6.
+
+Single-source vs weighted-multi agreement on hard_reject_would_fire (overlapping n=81): 74/81 agree (91.4%).
+
+Supplementary single-source spot check (NOT a full ablation arm -- EMSC has 2 rows, ISC has 1 row(s), covering only nz/chile, the two catalogs large enough for every source to return a non-trivial reference-complete stratum):
+  EMSC  nz         matched_fraction=0.3355 hard_reject_would_fire=True
+  EMSC  chile      matched_fraction=0.5931 hard_reject_would_fire=False
+  ISC   nz         matched_fraction=0.3670 hard_reject_would_fire=True
+These agree qualitatively with the USGS/weighted-multi results above for the same two catalogs (see hard_reject_would_fire column), a reassuring but extremely low-N sensitivity signal, not a claim of general robustness across external catalog choice.

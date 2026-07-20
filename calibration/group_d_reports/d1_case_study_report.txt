@@ -1,0 +1,89 @@
+====================================================================================================
+Group D1: Downstream DRR case study, option (a)
+b-value / recurrence-interval accuracy: naive vs DATA-CERTIFY-informed usage
+(Downstream DRR validation, Group D)
+====================================================================================================
+
+Base catalog 'nz': n=20648, clean b=0.6264+/-0.0049 (Mc=1.84, n>=Mc=12747), clean T(D)=0.3952 (CONDITIONAL), A(D)=0.2729 I(D)=0.1838
+Base catalog 'kahramanmaras_2023': n=488, clean b=1.2958+/-0.0882 (Mc=4.30, n>=Mc=337), clean T(D)=0.7160 (CONDITIONAL), A(D)=0.6798 I(D)=0.5019
+
+Corrupted variants: 36 total across 2 catalogs (18 corruption-fn x severity combinations per catalog, same functions/severities used to build the main 968-dataset corpus)
+Valid variants (b-value computable on both clean & corrupted): 36
+
+----------------------------------------------------------------------------------------------------
+(1) b-value ERROR BY DATA-CERTIFY VERDICT (pooled across both catalogs)
+----------------------------------------------------------------------------------------------------
+  ADMIT: n=0 variants
+  CONDITIONAL: n=30  mean |b-error|=0.1534  median |b-error|=0.0039  max |b-error|=1.0247
+  REJECT: n=6  mean |b-error|=0.0000  median |b-error|=0.0000  max |b-error|=0.0000
+
+----------------------------------------------------------------------------------------------------
+(2) NAIVE vs DATA-CERTIFY-INFORMED downstream usage
+----------------------------------------------------------------------------------------------------
+  CAVEAT ON THIS COMPARISON: dropping REJECTed variants and comparing the mean |b-error| of what remains is only a fair 'before/after' comparison if REJECT correlates with the datasets that were hurting b-value the most. In this corpus, the REJECTed variants are exclusively depth_implausible (a corruption that does not touch magnitude at all, so its b-error is already ~0) -- so this comparison mechanically shows NO improvement or even a nominal increase in mean |b-error| once REJECTed (zero-error) variants are removed from the denominator. This is NOT evidence that following DATA-CERTIFY's verdict hurts b-value accuracy -- it is an artifact of this specific corruption battery's composition (REJECT was correctly triggered by a magnitude-independent failure mode). See Section (5) below for the finding that actually matters for b-value protection specifically.
+  NAIVE (use every variant regardless of verdict): mean |b-error| across all 36 variants = 0.1279
+  DATA-CERTIFY-INFORMED (drop the 6 REJECTed variant(s), keep 30 ADMIT/CONDITIONAL): mean |b-error| = 0.1534
+
+----------------------------------------------------------------------------------------------------
+(3) CORRELATION: T(D) vs b-value error (pooled)
+----------------------------------------------------------------------------------------------------
+  Spearman rank correlation(T(D), |b-error|) across 36 corrupted variants = 0.3251 (sign is NOT reliably negative -- see Section (5): T(D) is not a clean proxy for b-value accuracy specifically, because of cross-axis cancellation under magnitude_gr_violation)
+
+----------------------------------------------------------------------------------------------------
+(4) Per-variant detail
+----------------------------------------------------------------------------------------------------
+           catalog                     variant      t_d    decision  a_score  i_score        b  b_abs_error
+                nz       coordinate_jitter_low 0.363809 CONDITIONAL 0.226479 0.183828 0.626422     0.000000
+                nz       coordinate_jitter_med 0.364954 CONDITIONAL 0.227768 0.183828 0.626422     0.000000
+                nz      coordinate_jitter_high 0.370844 CONDITIONAL 0.233428 0.183828 0.626422     0.000000
+                nz       inject_duplicates_low 0.366752 CONDITIONAL 0.273609 0.219745 0.649986     0.023564
+                nz       inject_duplicates_med 0.356552 CONDITIONAL 0.284012 0.191649 0.627343     0.000921
+                nz      inject_duplicates_high 0.329906 CONDITIONAL 0.263398 0.212221 0.654102     0.027680
+                nz      inject_missingness_low 0.395098 CONDITIONAL 0.270761 0.195111 0.628397     0.001975
+                nz      inject_missingness_med 0.394324 CONDITIONAL 0.268174 0.202574 0.626303     0.000119
+                nz     inject_missingness_high 0.370738 CONDITIONAL 0.236617 0.216526 0.665112     0.038690
+                nz       depth_implausible_low      NaN      REJECT 0.272909 0.183828 0.626422     0.000000
+                nz       depth_implausible_med      NaN      REJECT 0.272909 0.183828 0.626422     0.000000
+                nz      depth_implausible_high      NaN      REJECT 0.272909 0.183828 0.626422     0.000000
+                nz     timestamp_collision_low 0.387589 CONDITIONAL 0.258404 0.672828 0.626422     0.000000
+                nz     timestamp_collision_med 0.354086 CONDITIONAL 0.246371 0.673463 0.626422     0.000000
+                nz    timestamp_collision_high 0.379187 CONDITIONAL 0.334442 0.673271 0.626422     0.000000
+                nz  magnitude_gr_violation_low 0.456916 CONDITIONAL 0.260059 0.799132 0.323714     0.302709
+                nz  magnitude_gr_violation_med 0.454381 CONDITIONAL 0.258929 0.799444 0.272548     0.353874
+                nz magnitude_gr_violation_high 0.456992 CONDITIONAL 0.262242 0.799948 0.221474     0.404948
+kahramanmaras_2023       coordinate_jitter_low 0.713381 CONDITIONAL 0.682873 0.501943 1.295770     0.000000
+kahramanmaras_2023       coordinate_jitter_med 0.716788 CONDITIONAL 0.686638 0.501943 1.295770     0.000000
+kahramanmaras_2023      coordinate_jitter_high 0.703260 CONDITIONAL 0.667283 0.501943 1.295770     0.000000
+kahramanmaras_2023       inject_duplicates_low 0.678877 CONDITIONAL 0.675855 0.502683 1.289924     0.005846
+kahramanmaras_2023       inject_duplicates_med 0.664179 CONDITIONAL 0.675568 0.502135 1.269496     0.026274
+kahramanmaras_2023      inject_duplicates_high 0.649533 CONDITIONAL 0.675636 0.501806 1.254953     0.040817
+kahramanmaras_2023      inject_missingness_low 0.709918 CONDITIONAL 0.676942 0.503020 1.493528     0.197758
+kahramanmaras_2023      inject_missingness_med 0.695814 CONDITIONAL 0.661563 0.501752 1.409300     0.113530
+kahramanmaras_2023     inject_missingness_high 0.663560 CONDITIONAL 0.598426 0.495735 1.476468     0.180698
+kahramanmaras_2023       depth_implausible_low      NaN      REJECT 0.679805 0.501943 1.295770     0.000000
+kahramanmaras_2023       depth_implausible_med      NaN      REJECT 0.679805 0.501943 1.295770     0.000000
+kahramanmaras_2023      depth_implausible_high      NaN      REJECT 0.679805 0.501943 1.295770     0.000000
+kahramanmaras_2023     timestamp_collision_low 0.717516 CONDITIONAL 0.677724 0.996745 1.295770     0.000000
+kahramanmaras_2023     timestamp_collision_med 0.661432 CONDITIONAL 0.633049 0.995768 1.295770     0.000000
+kahramanmaras_2023    timestamp_collision_high 0.634382 CONDITIONAL 0.644477 0.998535 1.295770     0.000000
+kahramanmaras_2023  magnitude_gr_violation_low 0.746582 CONDITIONAL 0.642469 0.996745 0.403266     0.892504
+kahramanmaras_2023  magnitude_gr_violation_med 0.745365 CONDITIONAL 0.642032 0.997070 0.329388     0.966382
+kahramanmaras_2023 magnitude_gr_violation_high 0.734352 CONDITIONAL 0.635633 0.996908 0.271104     1.024666
+
+----------------------------------------------------------------------------------------------------
+(5) HEADLINE FINDING: cross-axis (A/I) signal cancellation under magnitude_gr_violation
+----------------------------------------------------------------------------------------------------
+  magnitude_gr_violation is the ONE corruption type in this battery that directly degrades the Gutenberg-Richter b-value (it replaces genuine magnitudes with values drawn UNIFORMLY over the observed range). If T(D) tracked b-value fidelity cleanly, magnitude_gr_violation variants should show the LARGEST T(D) drop among all variants tested. They do not -- on BOTH base catalogs tested, T(D) INCREASES under magnitude_gr_violation despite A2 (the sub-test that specifically checks b-value plausibility) correctly degrading:
+    [nz] magnitude_gr_violation_low: T(D) 0.3952 -> 0.4569  A(D) 0.2729 -> 0.2601  I(D) 0.1838 -> 0.7991  A2 1.0000 -> 0.8237  I1 0.0000 -> 1.0000  I2 0.5363 -> 1.0000
+    [nz] magnitude_gr_violation_med: T(D) 0.3952 -> 0.4544  A(D) 0.2729 -> 0.2589  I(D) 0.1838 -> 0.7994  A2 1.0000 -> 0.7725  I1 0.0000 -> 1.0000  I2 0.5363 -> 1.0000
+    [nz] magnitude_gr_violation_high: T(D) 0.3952 -> 0.4570  A(D) 0.2729 -> 0.2622  I(D) 0.1838 -> 0.7999  A2 1.0000 -> 0.7215  I1 0.0000 -> 1.0000  I2 0.5363 -> 1.0000
+    [kahramanmaras_2023] magnitude_gr_violation_low: T(D) 0.7160 -> 0.7466  A(D) 0.6798 -> 0.6425  I(D) 0.5019 -> 0.9967  A2 1.0000 -> 0.9033  I1 0.0000 -> 1.0000  I2 1.0000 -> 1.0000
+    [kahramanmaras_2023] magnitude_gr_violation_med: T(D) 0.7160 -> 0.7454  A(D) 0.6798 -> 0.6420  I(D) 0.5019 -> 0.9971  A2 1.0000 -> 0.8294  I1 0.0000 -> 1.0000  I2 1.0000 -> 1.0000
+    [kahramanmaras_2023] magnitude_gr_violation_high: T(D) 0.7160 -> 0.7344  A(D) 0.6798 -> 0.6356  I(D) 0.5019 -> 0.9969  A2 1.0000 -> 0.7711  I1 0.0000 -> 1.0000  I2 1.0000 -> 1.0000
+  Mechanism (confirmed identical on both catalogs): A2 degrades as expected (b-value moves toward/past the edge of its plausible [0.5, 1.5] band). But I1 (Mann-Kendall trend-in-magnitude test) and I2 (observed-vs-G-R-extrapolated count check) both move STRONGLY TOWARD a PASSING score, because real catalogs have genuine temporal trends and genuine deviations from strict Gutenberg-Richter behaviour (regional heterogeneity, network detection-capability changes over time, real physical non-stationarity) that a uniform-magnitude-replacement corruption happens to erase as a side effect -- I1's trend statistic and I2's extrapolation check are BOTH sensitive to exactly the kind of irregularity that a real, un-fabricated catalog naturally has and a flattened, fabricated one does not. In the AHP x EWM-blended composite (A(D) dominant at ~0.69, I(D) at ~0.12 in the current production weights), this specific corruption mechanism happens to move I(D) by more than enough to offset A(D)'s correct degradation, net-INCREASING T(D).
+  This is a genuine, newly-discovered, GENERAL limitation of the current multi-axis composite architecture (confirmed on two structurally different real catalogs, not a one-off artifact) -- not a bug in this script or in DATA-CERTIFY's implementation of any individual sub-test. Each of A2, I1, I2 is computing exactly what its own docstring/spec says it computes; the limitation is emergent from how they combine under this specific corruption mechanism. See Docs/01_Deep_Dives/DATA-CERTIFY_06_Gap_Remediation_and_Robustness_Addendum.md and Docs/00_Overview/DATA-CERTIFY_Theoretical_Framework.md Section 7 for the formal disclosure and discussion of possible future mitigations (e.g. an explicit consistency check between A2 and I1/I2's implied narratives, or a floor on A(D) that I(D) cannot compensate past, analogous to the existing hard-override design).
+
+Caveats (disclosed explicitly, consistent with this project's honesty discipline):
+  - 'Ground truth' is each clean catalog's OWN b-value, not an externally published literature value -- this avoids Mc/completeness-window mismatch issues but means this case study validates INTERNAL CONSISTENCY (corruption recovery), not agreement with an independent external estimate.
+  - reference=None (offline/intrinsic-only A6) throughout -- this measures DATA-CERTIFY's P1-P3/A1-A5/C/I signals, not A6's external cross-agency corroboration (see option (d) in the D1 decision brief for that separate question).
+  - Two base catalogs tested (nz, kahramanmaras_2023). The magnitude_gr_violation finding reproduced identically on both, which is meaningful corroboration but not proof of universality across all possible real catalogs.

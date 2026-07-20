@@ -1,0 +1,445 @@
+{
+  "input_file": "calibration/score_matrix_a6.csv",
+  "current_theta_auth": 0.5,
+  "n_datasets_total_in_input": 89,
+  "n_datasets_a6_feasible": 83,
+  "n_datasets_excluded_a6_not_applicable": 6,
+  "known_good_matched_fraction_sorted": [
+    {
+      "dataset_id": "nz",
+      "matched_fraction": 0.391304347826087,
+      "n_stratum": 184
+    },
+    {
+      "dataset_id": "chile",
+      "matched_fraction": 0.7652126099706745,
+      "n_stratum": 5456
+    },
+    {
+      "dataset_id": "real_events_atkinson",
+      "matched_fraction": 0.8688046647230321,
+      "n_stratum": 343
+    },
+    {
+      "dataset_id": "real_potvilla_2024012",
+      "matched_fraction": 0.9166666666666666,
+      "n_stratum": 12
+    },
+    {
+      "dataset_id": "real_japan_20220319_query",
+      "matched_fraction": 0.9166666666666666,
+      "n_stratum": 12
+    },
+    {
+      "dataset_id": "real_taiwan_20240423_query",
+      "matched_fraction": 0.9647058823529412,
+      "n_stratum": 85
+    },
+    {
+      "dataset_id": "real_202507_Kamchatka",
+      "matched_fraction": 0.9716312056737588,
+      "n_stratum": 141
+    },
+    {
+      "dataset_id": "real_usgs_main",
+      "matched_fraction": 0.97434957860022,
+      "n_stratum": 2729
+    },
+    {
+      "dataset_id": "real_202606_philippines",
+      "matched_fraction": 0.975609756097561,
+      "n_stratum": 41
+    },
+    {
+      "dataset_id": "real_202509_Kamchatka",
+      "matched_fraction": 0.997104247104247,
+      "n_stratum": 1036
+    },
+    {
+      "dataset_id": "real_earthquake1",
+      "matched_fraction": 0.9973312672176308,
+      "n_stratum": 23232
+    },
+    {
+      "dataset_id": "real_japan-20190101_20211203_query",
+      "matched_fraction": 0.9978655282817502,
+      "n_stratum": 937
+    },
+    {
+      "dataset_id": "real_tonga_20210101_20220117_query",
+      "matched_fraction": 0.9987966305655837,
+      "n_stratum": 1662
+    },
+    {
+      "dataset_id": "real_afghanistan_20231015_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 70
+    },
+    {
+      "dataset_id": "real_afghanistan_2025_09_01",
+      "matched_fraction": 1.0,
+      "n_stratum": 10
+    },
+    {
+      "dataset_id": "real_all_month",
+      "matched_fraction": 1.0,
+      "n_stratum": 358
+    },
+    {
+      "dataset_id": "real_ishikawa_2024_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 46
+    },
+    {
+      "dataset_id": "real_ishikawa_202401_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 50
+    },
+    {
+      "dataset_id": "real_haiti_20210814_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 7
+    },
+    {
+      "dataset_id": "real_greece_2024_2025",
+      "matched_fraction": 1.0,
+      "n_stratum": 64
+    },
+    {
+      "dataset_id": "real_japan_saitama_202407_202501",
+      "matched_fraction": 1.0,
+      "n_stratum": 3
+    },
+    {
+      "dataset_id": "real_miyazaki_2024-2025",
+      "matched_fraction": 1.0,
+      "n_stratum": 15
+    },
+    {
+      "dataset_id": "real_japan_2000_2023_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 11132
+    },
+    {
+      "dataset_id": "real_japan_20190101-20211009_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 655
+    },
+    {
+      "dataset_id": "real_peru_20250616",
+      "matched_fraction": 1.0,
+      "n_stratum": 7
+    },
+    {
+      "dataset_id": "real_morocco_20230908_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 273
+    },
+    {
+      "dataset_id": "real_taiwan_20240403_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 8
+    },
+    {
+      "dataset_id": "real_taiwan_2024_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 130
+    },
+    {
+      "dataset_id": "real_afghanistan_20231008_query",
+      "matched_fraction": 1.0,
+      "n_stratum": 56
+    },
+    {
+      "dataset_id": "real_202510_philippines",
+      "matched_fraction": 1.0,
+      "n_stratum": 34
+    },
+    {
+      "dataset_id": "real_2025_03_myanmar",
+      "matched_fraction": 1.0,
+      "n_stratum": 17
+    },
+    {
+      "dataset_id": "real_202604_tohoku_japan",
+      "matched_fraction": 1.0,
+      "n_stratum": 9
+    },
+    {
+      "dataset_id": "real_tohoku_202511",
+      "matched_fraction": 1.0,
+      "n_stratum": 49
+    },
+    {
+      "dataset_id": "real_tohoku_2005_2011",
+      "matched_fraction": 1.0,
+      "n_stratum": 2293
+    },
+    {
+      "dataset_id": "real_tibet_202501",
+      "matched_fraction": 1.0,
+      "n_stratum": 6
+    },
+    {
+      "dataset_id": "real_taiwan_202501",
+      "matched_fraction": 1.0,
+      "n_stratum": 10
+    },
+    {
+      "dataset_id": "real_tokara_202506",
+      "matched_fraction": 1.0,
+      "n_stratum": 46
+    },
+    {
+      "dataset_id": "real_usgs_current",
+      "matched_fraction": 1.0,
+      "n_stratum": 8
+    },
+    {
+      "dataset_id": "real_tohoku_202606",
+      "matched_fraction": 1.0,
+      "n_stratum": 9
+    },
+    {
+      "dataset_id": "real_tohoku_202512",
+      "matched_fraction": 1.0,
+      "n_stratum": 49
+    },
+    {
+      "dataset_id": "real_yamanashi_202606",
+      "matched_fraction": 1.0,
+      "n_stratum": 3
+    },
+    {
+      "dataset_id": "real_venezuela_202606",
+      "matched_fraction": 1.0,
+      "n_stratum": 2
+    },
+    {
+      "dataset_id": "real_ishikawa_202401",
+      "matched_fraction": 1.0,
+      "n_stratum": 30
+    },
+    {
+      "dataset_id": "real_japan_2023_2024",
+      "matched_fraction": 1.0,
+      "n_stratum": 476
+    },
+    {
+      "dataset_id": "real_amatrice_norcia_italy_2016",
+      "matched_fraction": 1.0,
+      "n_stratum": 15
+    },
+    {
+      "dataset_id": "real_anchorage_alaska_2018",
+      "matched_fraction": 1.0,
+      "n_stratum": 16
+    },
+    {
+      "dataset_id": "real_chiapas_mexico_2017",
+      "matched_fraction": 1.0,
+      "n_stratum": 113
+    },
+    {
+      "dataset_id": "real_gorkha_nepal_2015",
+      "matched_fraction": 1.0,
+      "n_stratum": 66
+    },
+    {
+      "dataset_id": "real_haiti_2010",
+      "matched_fraction": 1.0,
+      "n_stratum": 22
+    },
+    {
+      "dataset_id": "real_indonesia_palu_2018",
+      "matched_fraction": 1.0,
+      "n_stratum": 69
+    },
+    {
+      "dataset_id": "real_kahramanmaras_turkey_2023",
+      "matched_fraction": 1.0,
+      "n_stratum": 119
+    },
+    {
+      "dataset_id": "real_kermanshah_iran_2017",
+      "matched_fraction": 1.0,
+      "n_stratum": 26
+    },
+    {
+      "dataset_id": "real_muisne_pedernales_ecuador_2016",
+      "matched_fraction": 1.0,
+      "n_stratum": 34
+    },
+    {
+      "dataset_id": "real_png_highlands_2018",
+      "matched_fraction": 1.0,
+      "n_stratum": 108
+    },
+    {
+      "dataset_id": "real_ridgecrest_california_2019",
+      "matched_fraction": 1.0,
+      "n_stratum": 35
+    }
+  ],
+  "known_bad_matched_fraction_sorted_desc": [
+    {
+      "dataset_id": "corrupt_real_chiapas_mexico_2017_inject_duplicates_med",
+      "matched_fraction": 1.0,
+      "n_stratum": 160
+    },
+    {
+      "dataset_id": "corrupt_real_taiwan_2024_query_depth_implausible_med",
+      "matched_fraction": 1.0,
+      "n_stratum": 130
+    },
+    {
+      "dataset_id": "corrupt_real_earthquake1_inject_duplicates_med",
+      "matched_fraction": 0.9972111916093244,
+      "n_stratum": 32989
+    },
+    {
+      "dataset_id": "corrupt_real_usgs_main_inject_duplicates_high",
+      "matched_fraction": 0.9752308038730017,
+      "n_stratum": 4441
+    },
+    {
+      "dataset_id": "corrupt_real_usgs_main_inject_duplicates_low",
+      "matched_fraction": 0.9751157407407408,
+      "n_stratum": 3456
+    },
+    {
+      "dataset_id": "corrupt_real_morocco_20230908_query_timestamp_collision_low",
+      "matched_fraction": 0.6776556776556777,
+      "n_stratum": 273
+    },
+    {
+      "dataset_id": "corrupt_real_japan_2000_2023_query_magnitude_gr_violation_low",
+      "matched_fraction": 0.6265720445562343,
+      "n_stratum": 11132
+    },
+    {
+      "dataset_id": "corrupt_real_all_month_coordinate_jitter_low",
+      "matched_fraction": 0.6061452513966481,
+      "n_stratum": 358
+    },
+    {
+      "dataset_id": "corrupt_real_kahramanmaras_turkey_2023_timestamp_collision_med",
+      "matched_fraction": 0.5798319327731093,
+      "n_stratum": 119
+    },
+    {
+      "dataset_id": "corrupt_real_greece_2024_2025_timestamp_collision_med",
+      "matched_fraction": 0.546875,
+      "n_stratum": 64
+    },
+    {
+      "dataset_id": "corrupt_real_tonga_20210101_20220117_query_coordinate_jitter_med",
+      "matched_fraction": 0.3904933814681107,
+      "n_stratum": 1662
+    },
+    {
+      "dataset_id": "corrupt_real_png_highlands_2018_coordinate_jitter_med",
+      "matched_fraction": 0.3518518518518518,
+      "n_stratum": 108
+    },
+    {
+      "dataset_id": "corrupt_real_morocco_20230908_query_timestamp_collision_high",
+      "matched_fraction": 0.326007326007326,
+      "n_stratum": 273
+    },
+    {
+      "dataset_id": "corrupt_real_events_atkinson_inject_missingness_med",
+      "matched_fraction": 0.3041237113402061,
+      "n_stratum": 194
+    },
+    {
+      "dataset_id": "corrupt_real_japan_2000_2023_query_magnitude_gr_violation_high",
+      "matched_fraction": 0.2824290334171757,
+      "n_stratum": 11132
+    },
+    {
+      "dataset_id": "corrupt_real_gorkha_nepal_2015_magnitude_gr_violation_med",
+      "matched_fraction": 0.2302631578947368,
+      "n_stratum": 152
+    },
+    {
+      "dataset_id": "corrupt_nz_inject_missingness_low",
+      "matched_fraction": 0.1285714285714285,
+      "n_stratum": 140
+    },
+    {
+      "dataset_id": "corrupt_nz_inject_missingness_med",
+      "matched_fraction": 0.128440366972477,
+      "n_stratum": 109
+    },
+    {
+      "dataset_id": "corrupt_real_all_month_coordinate_jitter_high",
+      "matched_fraction": 0.1173184357541899,
+      "n_stratum": 358
+    },
+    {
+      "dataset_id": "corrupt_real_haiti_20210814_query_magnitude_gr_violation_med",
+      "matched_fraction": 0.0454545454545454,
+      "n_stratum": 66
+    },
+    {
+      "dataset_id": "corrupt_nz_inject_missingness_high",
+      "matched_fraction": 0.0338983050847457,
+      "n_stratum": 59
+    },
+    {
+      "dataset_id": "corrupt_chile_depth_implausible_low",
+      "matched_fraction": 0.0,
+      "n_stratum": 4226
+    },
+    {
+      "dataset_id": "corrupt_chile_depth_implausible_high",
+      "matched_fraction": 0.0,
+      "n_stratum": 4226
+    },
+    {
+      "dataset_id": "fabricated_naive_1",
+      "matched_fraction": 0.0,
+      "n_stratum": 894
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_3",
+      "matched_fraction": 0.0,
+      "n_stratum": 42
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_2",
+      "matched_fraction": 0.0,
+      "n_stratum": 85
+    },
+    {
+      "dataset_id": "fabricated_sophisticated_1",
+      "matched_fraction": 0.0,
+      "n_stratum": 33
+    },
+    {
+      "dataset_id": "fabricated_naive_2",
+      "matched_fraction": 0.0,
+      "n_stratum": 417
+    }
+  ],
+  "known_good_minimum": {
+    "dataset_id": "nz",
+    "matched_fraction": 0.391304347826087
+  },
+  "known_bad_maximum": {
+    "dataset_id": "corrupt_real_chiapas_mexico_2017_inject_duplicates_med",
+    "matched_fraction": 1.0
+  },
+  "overlap_found": true,
+  "recommended_theta_auth": null,
+  "confusion_at_current_theta_auth": {
+    "theta_auth": 0.5,
+    "n_known_good_evaluated": 55,
+    "n_known_bad_evaluated": 28,
+    "good_wrongly_hard_rejected": 1,
+    "bad_correctly_hard_rejected": 18,
+    "bad_missed_by_a6_alone": 10
+  },
+  "confusion_at_recommended_theta_auth": null
+}

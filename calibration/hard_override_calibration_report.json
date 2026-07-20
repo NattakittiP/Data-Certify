@@ -1,0 +1,84 @@
+{
+  "current_epsilon_tol": 0.001,
+  "current_alpha": 0.01,
+  "current_alpha_corrected": 0.0033333333333333335,
+  "hard_override_family_size": 3,
+  "n_known_good": 508,
+  "n_known_bad": 460,
+  "n_depth_implausible_known_bad": 27,
+  "errors": [],
+  "known_good_worst_case_violation_fraction_per_test": {
+    "P1": {
+      "dataset_id": "nz",
+      "k": 0,
+      "n": 20648,
+      "frac": 0.0
+    },
+    "P2": {
+      "dataset_id": "nz",
+      "k": 0,
+      "n": 20648,
+      "frac": 0.0
+    },
+    "P3": {
+      "dataset_id": "nz",
+      "k": 0,
+      "n": 20648,
+      "frac": 0.0
+    }
+  },
+  "known_bad_weakest_depth_implausible_case": {
+    "dataset_id": "corrupt_chile_depth_implausible_low",
+    "severity": "low",
+    "k": 12723,
+    "n": 132964,
+    "frac": 0.09568755452603712,
+    "p_value": 0.0,
+    "non_trivial": true
+  },
+  "known_good_false_positives_at_current_params": [],
+  "known_bad_depth_implausible_missed_at_current_params": [
+    "corrupt_real_japan_20220317_query_depth_implausible_med"
+  ],
+  "any_p1_p3_violation_among_known_good": false,
+  "candidate_epsilon_tol_sweep": [
+    {
+      "epsilon_tol": 0.001,
+      "known_good_false_positives": [],
+      "known_bad_depth_implausible_missed": [
+        "corrupt_real_japan_20220317_query_depth_implausible_med"
+      ],
+      "clean": false
+    },
+    {
+      "epsilon_tol": 0.0005,
+      "known_good_false_positives": [],
+      "known_bad_depth_implausible_missed": [],
+      "clean": true
+    },
+    {
+      "epsilon_tol": 0.0002,
+      "known_good_false_positives": [],
+      "known_bad_depth_implausible_missed": [],
+      "clean": true
+    },
+    {
+      "epsilon_tol": 0.0001,
+      "known_good_false_positives": [],
+      "known_bad_depth_implausible_missed": [],
+      "clean": true
+    },
+    {
+      "epsilon_tol": 5e-05,
+      "known_good_false_positives": [],
+      "known_bad_depth_implausible_missed": [],
+      "clean": true
+    },
+    {
+      "epsilon_tol": 1e-05,
+      "known_good_false_positives": [],
+      "known_bad_depth_implausible_missed": [],
+      "clean": true
+    }
+  ]
+}

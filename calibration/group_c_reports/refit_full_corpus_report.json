@@ -1,0 +1,1613 @@
+{
+  "corpus_n": 968,
+  "axis_weights_current": {
+    "A": 0.6894844988460549,
+    "P": 0.16836943659202896,
+    "C": 0.028258588896277272,
+    "I": 0.11388747566563887
+  },
+  "axis_weights_refit": {
+    "A": 0.6441107486030064,
+    "P": 0.19440357008194922,
+    "C": 0.032185886048572844,
+    "I": 0.12929979526647145
+  },
+  "axis_diffs": {
+    "A": -0.04537375024304846,
+    "P": 0.026034133489920258,
+    "C": 0.003927297152295572,
+    "I": 0.015412319600832586
+  },
+  "within_weights_refit": {
+    "A": {
+      "A1": 0.519774899033584,
+      "A2": 0.011979804196031745,
+      "A3": 0.1978486039922474,
+      "A4": 0.26625245092073385,
+      "A5": 0.004144241857402983
+    },
+    "P": {
+      "P9": 0.056,
+      "P4": 0.002239068172281027,
+      "P5": 0.7657437676196038,
+      "P6": 2.450103053546287e-15,
+      "P7": 0.12608347509535475,
+      "P8": 0.04993368911275801
+    },
+    "C": {
+      "C1": 0.0012367385495405808,
+      "C2": 0.3364998123319294,
+      "C3": 0.2282999989185582,
+      "C4": 0.4339634501999718
+    },
+    "I": {
+      "I1": 0.493988049460606,
+      "I2": 0.2596919186163063,
+      "I3": 0.2020852282128899,
+      "I4": 0.004031096126078724,
+      "I5": 0.040203707584119154
+    }
+  },
+  "within_diffs": {
+    "A.A1": 0.14364787032538429,
+    "A.A2": 0.0033108050482526605,
+    "A.A3": -0.22461368645679036,
+    "A.A4": 0.0765096854469288,
+    "A.A5": 0.0011453256362246706,
+    "P.P9": 0.0,
+    "P.P4": 0.0,
+    "P.P5": 0.0,
+    "P.P6": 0.0,
+    "P.P7": 0.0,
+    "P.P8": 0.0,
+    "C.C1": 1.321313412160248e-06,
+    "C.C2": -0.000708873914587127,
+    "C.C3": 0.00024391238607329724,
+    "C.C4": 0.0004636402151016461,
+    "I.I1": 0.006206164529301339,
+    "I.I2": -0.009300779159452377,
+    "I.I3": 0.0025388755387917294,
+    "I.I4": 5.0644232829500334e-05,
+    "I.I5": 0.0005050948585298837
+  },
+  "theta_admit_current": 0.75,
+  "theta_admit_refit": 1.0,
+  "theta_reject_current": 0.2,
+  "theta_reject_refit": 0.34,
+  "false_admit_reject_refit": {
+    "false_admit": "0.0000 (0/460) [95% CI: 0.0000-0.0083]",
+    "false_reject": "0.0000 (0/508) [95% CI: 0.0000-0.0075]",
+    "false_admit_k": 0,
+    "false_reject_k": 0
+  },
+  "false_admit_reject_production": {
+    "false_admit": "0.0413 (19/460) [95% CI: 0.0266-0.0636]",
+    "false_reject": "0.0000 (0/508) [95% CI: 0.0000-0.0075]",
+    "false_admit_k": 19,
+    "false_reject_k": 0
+  },
+  "decision_agreement_rate": 0.7758264462809917,
+  "n_disagree": 217,
+  "disagreeing_datasets": [
+    {
+      "dataset_id": "real_202505_tokyo",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_202506_turkey",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_haiti_20210814_query",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_ishikawa_202411_query",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_japan_20220317_query",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_japan_saitama_202407_202501",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_miyazaki_2024-2025",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_peru_20250616",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_taiwan_202501",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_tibet_202501",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_tohoku_202606",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_usgs_current",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_venezuela_202606",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_yamanashi_202606",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_ridgecrest_california_2019",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_anchorage_alaska_2018",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_yunnan_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_xinjiang_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_drc_rift_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_mozambique_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_lebanon_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_russia_sakhalin_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_usa_california_southnapa_2014",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_hebei_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_honduras_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_norway_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_iran_bam_2003",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_iran_ahar_varzaghan_2012",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_southafrica_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_turkmenistan_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_azerbaijan_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_mexico_baja_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_northkorea_general",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_xinjiang_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_portugal_azores_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_drc_rift_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_samoa_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_mongolia_gobialtai_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_gansu_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_cuba_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_yunnan_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_xinjiang_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_tanzania_rift_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_russia_baikal_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_usa_cascadia_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_tibet_plateau_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_india_uttarakhand_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_nepal_sikkim_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_venezuela_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_cuba_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_romania_vrancea_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_turkey_van_2011_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_france_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_kazakhstan_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_russia_caucasus_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_canada_quebec_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_papuanewguinea_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_marianaislands_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_philippines_luzon_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_usa_nevada_basinrange_general_recent",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_portugal_azores_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_drc_rift_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_mozambique_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_russia_sakhalin_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_russia_baikal_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_uzbekistan_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_mongolia_gobialtai_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_hebei_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_shanxi_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_shanxi_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_tibet_plateau_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_china_tibet_plateau_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_india_uttarakhand_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_bangladesh_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_nepal_sikkim_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_norway_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_jordan_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_israel_deadsea_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_egypt_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_kenya_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_southafrica_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_malawi_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_russia_caucasus_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_azerbaijan_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_usa_newmadrid_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_usa_oklahoma_induced_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_usa_puertorico_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_slovenia_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_laos_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_thailand_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_vietnam_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_vietnam_general_early2",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_bhutan_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_usa_utah_wasatch_general_early",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_usa_utah_wasatch_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_guadeloupe_martinique_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_botswana_general_early3",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "real_nankai_historical",
+      "label": "known_good",
+      "group": "known_good",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_croatia_petrinja_2020_timestamp_collision_high",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_china_qinghai_yushu_2010_inject_duplicates_high",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "corrupt_real_iran_bam_2003_inject_duplicates_high",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_northkorea_general_magnitude_gr_violation_med",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_202505_tokyo_coordinate_jitter_low",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_202506_turkey_magnitude_gr_violation_med",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_2025_03_myanmar_timestamp_collision_high",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "corrupt_real_ishikawa_202411_query_coordinate_jitter_low",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_japan_20220317_query_depth_implausible_med",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_japan_20220319_query_timestamp_collision_high",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "corrupt_real_japan_saitama_202407_202501_coordinate_jitter_low",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_miyazaki_2024-2025_magnitude_gr_violation_med",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_taiwan_202501_coordinate_jitter_low",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_tohoku_202511_inject_missingness_low",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_tohoku_202606_timestamp_collision_high",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_venezuela_202606_inject_missingness_low",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_ridgecrest_california_2019_coordinate_jitter_low",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_mozambique_general_magnitude_gr_violation_med",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_china_hebei_general_magnitude_gr_violation_med",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_colombia_armenia_1999_timestamp_collision_high",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_norway_general_magnitude_gr_violation_med",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "corrupt_real_jordan_general_timestamp_collision_high",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "corrupt_real_azerbaijan_general_magnitude_gr_violation_med",
+      "label": "known_bad",
+      "group": "corrupted_real",
+      "decision_refit": "CONDITIONAL",
+      "decision_production": "ADMIT"
+    },
+    {
+      "dataset_id": "fabricated_naive_1",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_naive_2",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_naive_3",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_naive_4",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_naive_5",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_naive_6",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_naive_7",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_naive_8",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_1",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_2",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_3",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_4",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_5",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_6",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_7",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_8",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_9",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_10",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_11",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_12",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_13",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_14",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_15",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_16",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_17",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_18",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_19",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_20",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_21",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_22",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_23",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_24",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_25",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_26",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_27",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_28",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_29",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level1_30",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_1",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_2",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_3",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_4",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_5",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_6",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_7",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_8",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_9",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_10",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_11",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_12",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_13",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_14",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_15",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_16",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_17",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_18",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_19",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_20",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_21",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_22",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_23",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_24",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_25",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_26",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_27",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_29",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level2_30",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_1",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_2",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_3",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_4",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_5",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_6",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_7",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_9",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_10",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_11",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_12",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_13",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_14",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_15",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_16",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_17",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_18",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_19",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_20",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_21",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_22",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_23",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_24",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_25",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_26",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_27",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_28",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_29",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    },
+    {
+      "dataset_id": "fabricated_level3_30",
+      "label": "known_bad",
+      "group": "fabricated",
+      "decision_refit": "REJECT",
+      "decision_production": "CONDITIONAL"
+    }
+  ],
+  "materially_different": "True"
+}

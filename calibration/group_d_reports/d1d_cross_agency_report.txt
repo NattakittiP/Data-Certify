@@ -1,0 +1,45 @@
+====================================================================================================
+Group D1: Downstream DRR case study, option (d) [light scope: b-value only]
+Cross-agency (USGS + EMSC) naive merge: does DATA-CERTIFY's I4 sub-test detect
+and quantify the resulting duplication, and does trusting the verdict improve b-value?
+(Downstream DRR validation, Group D; directly tests D2's
+ related-work finding that no existing framework combines dedup with authenticity)
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+(0) Base data and b-value estimates
+----------------------------------------------------------------------------------------------------
+  usgs_raw: n=621, b=0.7651+/-0.0286 (Mc=4.00, n>=Mc=585)
+  emsc_raw: n=756, b=0.5684+/-0.0169 (Mc=3.50, n>=Mc=756)
+  naive_merged (no dedup): n=1377, b=0.7186+/-0.0196 (Mc=4.00, n>=Mc=1025)
+  deduplicated_merge (I4-informed dedup): n=912, b=0.7688+/-0.0286 (Mc=4.00, n>=Mc=611)
+  reference (real_chile_iquique_2014): n=621, b=0.7651+/-0.0286 (Mc=4.00, n>=Mc=585)
+  NOTE: 'reference' shares all 621 event_uid_source values with usgs_raw -- see Section (3) below, this is NOT an independent ground truth for this run.
+
+----------------------------------------------------------------------------------------------------
+(1) DATA-CERTIFY audit of naive_merged (offline, reference=None -- see module docstring)
+----------------------------------------------------------------------------------------------------
+  T(D)=0.5574  decision=CONDITIONAL  hard_override=False
+  A5 (near-duplicate detection): score=0.9782 applicable=True
+  I4 (cross-catalog duplicate-ID, EM-fitted Fellegi-Sunter): score=0.2869 applicable=True estimated_duplicate_fraction=0.7131
+
+----------------------------------------------------------------------------------------------------
+(2) Independent duplicate-fraction cross-check (fixed-threshold heuristic, NOT I4's own EM code)
+----------------------------------------------------------------------------------------------------
+  n_usgs=621  n_emsc=756  n_matched_pairs=465  independent_duplicate_fraction=0.7488
+  |I4 estimate - independent estimate| = 0.0357 (consistent)
+
+----------------------------------------------------------------------------------------------------
+(3) NAIVE vs DATA-CERTIFY-INFORMED downstream b-value usage -- CORRECTED FRAMING
+----------------------------------------------------------------------------------------------------
+  IMPORTANT: this script's original design planned to score both a naive merge and a 'DATA-CERTIFY-informed, fall back to a single source' behavior against datasets/real_chile_iquique_2014/records.csv as an independent reference. Verification against the REAL live-fetched data (2026-07-16) found this reference is NOT independent: it shares all 621/621 event_uid_source values with this run's own fresh usgs_raw pull -- it IS a prior USGS pull for this exact window, not a third-party check. Scoring 'informed' (which falls back to whichever single source is larger) against this reference is therefore a coin flip: when the fallback rule happens to pick EMSC (as it did this run, n=756>621), the comparison trivially looks bad, entirely because of which source the reference happens to already equal -- NOT because of anything DATA-CERTIFY did. This finding is disclosed rather than the misleading comparison being reported at face value. The Section (1)-(2) findings (I4 correctly detects and accurately quantifies the real duplication) are NOT affected by this issue and remain the headline result of this case study.
+
+  What IS a clean, non-circular comparison: naive_merged (raw, duplicate-inflated, n=1377) vs deduplicated_merge (I4-informed dedup action -- once warned by I4 that 71.3% of records are cross-catalog duplicates, a downstream analyst would deduplicate rather than either using the raw merge OR discarding an entire whole source, n=912).
+  naive_merged:        b=0.7186+/-0.0196  n=1377
+  deduplicated_merge:  b=0.7688+/-0.0286  n=912
+  For context (not a ground-truth claim, given the circularity above): usgs_raw b=0.7651, emsc_raw b=0.5684. The two single sources disagree substantially on b-value (delta=0.1967) -- itself a genuine, real finding: USGS and EMSC used different effective completeness magnitudes for this sequence (Mc=4.00 vs 3.50), a documented type of cross-agency reporting-threshold discrepancy, distinct from simple duplication.
+
+Caveats:
+  - Only USGS + EMSC (2 of 3 sources A6 supports) -- ISC deliberately excluded; see fetch_multisource_chile_iquique.py's docstring for why (QuakeML parsing risk, not shipped untested).
+  - No independent ground-truth b-value is available for this run (see Section (3)'s circularity finding) -- this case study's clean, defensible claim is about I4's duplicate-detection ACCURACY (Sections 1-2), not about b-value improvement, which would need a genuinely third-party reference (e.g. a hand-curated regional catalog from a source neither usgs_raw nor the existing corpus dataset was built from) to test properly -- left as open follow-up, not silently patched over.
+  - Deduplication here keeps the USGS record of each matched pair (disclosed, arbitrary choice) -- an EMSC-preferring or field-averaging dedup rule could give a modestly different b-value; the point of Section (3) is that dedup removes the raw merge's artificial n-inflation, not that this specific tie-breaking rule is uniquely correct.

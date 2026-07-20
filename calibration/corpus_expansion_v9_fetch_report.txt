@@ -1,0 +1,450 @@
+filename	row_count	status	note
+china_sichuan_2008_recent.csv	492	OK	Wenchuan sequence -- later, non-overlapping window (2008-2026) capturing seismicity that postdates the 8th/9th-pass original window
+china_yunnan_general_recent.csv	75	OK	Yunnan general -- later, non-overlapping window (2020-2026) capturing seismicity that postdates the 8th/9th-pass original window
+china_xinjiang_general_recent.csv	258	OK	Xinjiang/Tian Shan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+india_gujarat_bhuj_2001_recent.csv	65	OK	Bhuj sequence -- later, non-overlapping window (2001-2026) capturing seismicity that postdates the 8th/9th-pass original window
+india_kashmir_2005_recent.csv	235	OK	Kashmir sequence -- later, non-overlapping window (2006-2026) capturing seismicity that postdates the 8th/9th-pass original window
+india_assam_general_recent.csv	64	OK	NE India/Assam general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+pakistan_balochistan_2013_recent.csv	70	OK	Awaran sequence -- later, non-overlapping window (2014-2026) capturing seismicity that postdates the 8th/9th-pass original window
+colombia_andes_general_recent.csv	332	OK	Colombian Andes general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+argentina_sanjuan_general_recent.csv	316	OK	San Juan/Mendoza general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+bolivia_deep_general_recent.csv	306	OK	Bolivia deep-focus general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+guatemala_general_recent.csv	509	OK	Guatemala general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+elsalvador_2001_recent.csv	1547	OK	El Salvador sequence -- later, non-overlapping window (2001-2026) capturing seismicity that postdates the 8th/9th-pass original window
+costarica_general_recent.csv	215	OK	Costa Rica general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+panama_general_recent.csv	151	OK	Panama general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+puertorico_2020_ponce_recent.csv	1697	OK	Ponce/Indios sequence -- later, non-overlapping window (2020-2026) capturing seismicity that postdates the 8th/9th-pass original window
+dominicanrepublic_general_recent.csv	148	OK	Dominican Republic general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+jamaica_general_recent.csv	11	SPARSE (<15)	Jamaica general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+croatia_petrinja_2020_recent.csv	11	SPARSE (<15)	Petrinja sequence -- later, non-overlapping window (2021-2026) capturing seismicity that postdates the 8th/9th-pass original window
+albania_durres_2019_recent.csv	50	OK	Durres sequence -- later, non-overlapping window (2020-2026) capturing seismicity that postdates the 8th/9th-pass original window
+spain_lorca_2011_recent.csv	10	SPARSE (<15)	Lorca sequence -- later, non-overlapping window (2011-2026) capturing seismicity that postdates the 8th/9th-pass original window
+portugal_azores_general_recent.csv	38	OK	Azores general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+tanzania_rift_general_recent.csv	103	OK	Tanzania/western rift general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+drc_rift_general_recent.csv	30	OK	DRC/Lake Kivu rift general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+mozambique_general_recent.csv	5	SPARSE (<15)	Mozambique general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+iraq_halabja_2017_recent.csv	154	OK	Halabja sequence -- later, non-overlapping window (2018-2026) capturing seismicity that postdates the 8th/9th-pass original window
+saudiarabia_harrat_general_recent.csv	0	EMPTY	Harrat Lunayyir general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+lebanon_general_recent.csv	1	SPARSE (<15)	Lebanon general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+russia_sakhalin_general_recent.csv	48	OK	Sakhalin general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+russia_baikal_general_recent.csv	23	OK	Lake Baikal rift general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_hawaii_kilauea_2018_recent.csv	1061	OK	Kilauea 2018 sequence -- later, non-overlapping window (2018-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_california_southnapa_2014_recent.csv	195	OK	South Napa sequence -- later, non-overlapping window (2014-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_cascadia_general_recent.csv	351	OK	Cascadia general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+canada_britishcolumbia_general_recent.csv	106	OK	British Columbia general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+australia_general_recent.csv	132	OK	Australia general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+vanuatu_general_recent.csv	1478	OK	Vanuatu general -- later, non-overlapping window (2020-2026) capturing seismicity that postdates the 8th/9th-pass original window
+solomonislands_general_recent.csv	717	OK	Solomon Islands general -- later, non-overlapping window (2020-2026) capturing seismicity that postdates the 8th/9th-pass original window
+fiji_general_recent.csv	86	OK	Fiji general -- later, non-overlapping window (2020-2026) capturing seismicity that postdates the 8th/9th-pass original window
+samoa_general_recent.csv	70	OK	Samoa general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+centralasia_kyrgyzstan_tajikistan_recent.csv	947	OK	Kyrgyzstan/Tajikistan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+uzbekistan_general_recent.csv	44	OK	Uzbekistan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+mongolia_gobialtai_general_recent.csv	12	SPARSE (<15)	Gobi-Altai/Mongolia general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+china_qinghai_yushu_2010_recent.csv	31	OK	Yushu sequence -- later, non-overlapping window (2010-2026) capturing seismicity that postdates the 8th/9th-pass original window
+china_gansu_general_recent.csv	26	OK	Gansu general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+china_taiwanstrait_general_recent.csv	59	OK	Taiwan Strait general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+china_hebei_general_recent.csv	13	SPARSE (<15)	Hebei/North China Plain general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+china_shanxi_general_recent.csv	10	SPARSE (<15)	Shanxi general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+china_tibet_plateau_general_recent.csv	351	OK	Tibetan plateau general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+india_uttarakhand_general_recent.csv	16	OK	Uttarakhand general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+india_andaman_general_recent.csv	221	OK	Andaman-Nicobar general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+bangladesh_general_recent.csv	36	OK	Bangladesh general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+pakistan_general_recent.csv	279	OK	Pakistan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+nepal_sikkim_general_recent.csv	24	OK	Nepal/Sikkim border general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+colombia_armenia_1999_recent.csv	152	OK	Armenia/Quindio sequence -- later, non-overlapping window (1999-2026) capturing seismicity that postdates the 8th/9th-pass original window
+peru_pisco_2007_recent.csv	419	OK	Pisco sequence -- later, non-overlapping window (2007-2026) capturing seismicity that postdates the 8th/9th-pass original window
+peru_arequipa_2001_recent.csv	866	OK	Arequipa sequence -- later, non-overlapping window (2001-2026) capturing seismicity that postdates the 8th/9th-pass original window
+ecuador_general_recent.csv	287	OK	Ecuador general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+chile_iquique_2014_recent.csv	1232	OK	Iquique sequence -- later, non-overlapping window (2014-2026) capturing seismicity that postdates the 8th/9th-pass original window
+chile_maule_2010_recent.csv	1035	OK	Maule sequence -- later, non-overlapping window (2010-2026) capturing seismicity that postdates the 8th/9th-pass original window
+venezuela_general_recent.csv	161	OK	Venezuela general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+brazil_general_recent.csv	4	SPARSE (<15)	Brazil general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+suriname_guyana_general_recent.csv	0	EMPTY	Suriname/Guyana general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+nicaragua_general_recent.csv	268	OK	Nicaragua general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+cuba_general_recent.csv	25	OK	Cuba general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+trinidadtobago_general_recent.csv	5	SPARSE (<15)	Trinidad and Tobago general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+honduras_general_recent.csv	119	OK	Honduras general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+mexico_oaxaca_general_recent.csv	253	OK	Oaxaca general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+iceland_general_recent.csv	153	OK	Iceland general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+iceland_reykjanes_2021_recent.csv	80	OK	Reykjanes 2021 sequence -- later, non-overlapping window (2021-2026) capturing seismicity that postdates the 8th/9th-pass original window
+norway_general_recent.csv	4	SPARSE (<15)	Norway general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+switzerland_general_recent.csv	12	SPARSE (<15)	Switzerland general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+romania_vrancea_general_recent.csv	26	OK	Vrancea general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+bulgaria_general_recent.csv	7	SPARSE (<15)	Bulgaria general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+turkey_izmit_1999_recent.csv	116	OK	Izmit sequence -- later, non-overlapping window (1999-2026) capturing seismicity that postdates the 8th/9th-pass original window
+turkey_van_2011_recent.csv	125	OK	Van sequence -- later, non-overlapping window (2012-2026) capturing seismicity that postdates the 8th/9th-pass original window
+france_general_recent.csv	21	OK	France general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+germany_general_recent.csv	10	SPARSE (<15)	Germany general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+iran_bam_2003_recent.csv	91	OK	Bam sequence -- later, non-overlapping window (2004-2026) capturing seismicity that postdates the 8th/9th-pass original window
+iran_ahar_varzaghan_2012_recent.csv	33	OK	Ahar-Varzaghan sequence -- later, non-overlapping window (2012-2026) capturing seismicity that postdates the 8th/9th-pass original window
+yemen_general_recent.csv	187	OK	Yemen general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+oman_general_recent.csv	12	SPARSE (<15)	Oman general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+jordan_general_recent.csv	4	SPARSE (<15)	Jordan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+israel_deadsea_general_recent.csv	4	SPARSE (<15)	Dead Sea transform general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+syria_general_recent.csv	197	OK	Syria general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+egypt_general_recent.csv	6	SPARSE (<15)	Egypt general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+ethiopia_general_recent.csv	495	OK	Ethiopia general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+kenya_general_recent.csv	35	OK	Kenya general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+algeria_boumerdes_2003_recent.csv	202	OK	Boumerdes sequence -- later, non-overlapping window (2003-2026) capturing seismicity that postdates the 8th/9th-pass original window
+morocco_alhoceima_2004_recent.csv	496	OK	Al Hoceima 2004 sequence -- later, non-overlapping window (2004-2026) capturing seismicity that postdates the 8th/9th-pass original window
+southafrica_general_recent.csv	38	OK	South Africa general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+malawi_general_recent.csv	10	SPARSE (<15)	Malawi general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+ghana_accra_general_recent.csv	0	EMPTY	Ghana general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+madagascar_general_recent.csv	11	SPARSE (<15)	Madagascar general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+russia_kurilislands_general_recent.csv	813	OK	Kuril Islands general -- later, non-overlapping window (2020-2026) capturing seismicity that postdates the 8th/9th-pass original window
+kazakhstan_general_recent.csv	616	OK	Kazakhstan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+turkmenistan_general_recent.csv	89	OK	Turkmenistan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+russia_caucasus_general_recent.csv	22	OK	Russian Caucasus general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+azerbaijan_general_recent.csv	60	OK	Azerbaijan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_yellowstone_general_recent.csv	91	OK	Yellowstone general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_newmadrid_general_recent.csv	72	OK	New Madrid general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_oklahoma_induced_general_recent.csv	340	OK	Oklahoma induced general -- later, non-overlapping window (2018-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_puertorico_general_recent.csv	275	OK	Puerto Rico general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+canada_quebec_general_recent.csv	27	OK	Quebec general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+mexico_baja_general_recent.csv	53	OK	Baja California general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+greenland_general_recent.csv	158	OK	Greenland general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+newzealand_kaikoura_2016_recent.csv	86	OK	Kaikoura sequence -- later, non-overlapping window (2017-2026) capturing seismicity that postdates the 8th/9th-pass original window
+papuanewguinea_general_recent.csv	1289	OK	Papua New Guinea general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+newcaledonia_general_recent.csv	77	OK	New Caledonia general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+tuvalu_kiribati_general_recent.csv	0	EMPTY	Tuvalu/Kiribati general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+marianaislands_general_recent.csv	601	OK	Mariana Islands general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+guam_general_recent.csv	532	OK	Guam general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+indonesia_sumatra_general_recent.csv	502	OK	Sumatra general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+indonesia_java_general_recent.csv	184	OK	Java general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+southkorea_gyeongju_2016_recent.csv	4	SPARSE (<15)	Gyeongju sequence -- later, non-overlapping window (2016-2026) capturing seismicity that postdates the 8th/9th-pass original window
+northkorea_general_recent.csv	2	SPARSE (<15)	North Korea general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+cyprus_general_recent.csv	34	OK	Cyprus general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+slovenia_general_recent.csv	5	SPARSE (<15)	Slovenia general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+austria_general_recent.csv	2	SPARSE (<15)	Austria general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+poland_general_recent.csv	37	OK	Poland general (incl. mining-induced) -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+srilanka_general_recent.csv	0	EMPTY	Sri Lanka general (very low-rate) -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+myanmar_sagaing_general_recent.csv	291	OK	Sagaing fault, Myanmar general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+laos_general_recent.csv	14	SPARSE (<15)	Laos general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+thailand_general_recent.csv	6	SPARSE (<15)	Thailand general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+vietnam_general_recent.csv	53	OK	Vietnam general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+philippines_luzon_general_recent.csv	382	OK	Luzon, Philippines general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+philippines_mindanao_general_recent.csv	2173	OK	Mindanao, Philippines general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+bhutan_general_recent.csv	10	SPARSE (<15)	Bhutan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+italy_sicily_etna_general_recent.csv	3	SPARSE (<15)	Mt. Etna, Sicily general (volcanic swarm regime) -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_virginia_2011_recent.csv	56	OK	Mineral, Virginia mainshock sequence -- later, non-overlapping window (2011-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_nevada_basinrange_general_recent.csv	376	OK	Nevada Basin and Range general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+usa_utah_wasatch_general_recent.csv	61	OK	Utah Wasatch Front general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+haiti_2010_recent.csv	51	OK	Haiti 2010 mainshock sequence -- later, non-overlapping window (2010-2026) capturing seismicity that postdates the 8th/9th-pass original window
+guadeloupe_martinique_general_recent.csv	41	OK	Guadeloupe/Martinique general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+sudan_general_recent.csv	4	SPARSE (<15)	Sudan general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+botswana_general_recent.csv	11	SPARSE (<15)	Botswana general -- later, non-overlapping window (2022-2026) capturing seismicity that postdates the 8th/9th-pass original window
+china_yunnan_general_early.csv	88	SKIPPED (already present)	Yunnan general -- earlier (pre-2010), non-overlapping window
+china_yunnan_general_early2.csv	159	OK	Yunnan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+china_yunnan_general_early3.csv	146	OK	Yunnan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+china_xinjiang_general_early.csv	398	SKIPPED (already present)	Xinjiang/Tian Shan general -- earlier (pre-2010), non-overlapping window
+china_xinjiang_general_early2.csv	566	OK	Xinjiang/Tian Shan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+china_xinjiang_general_early3.csv	558	OK	Xinjiang/Tian Shan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+india_assam_general_early.csv	113	SKIPPED (already present)	NE India/Assam general -- earlier (pre-2005), non-overlapping window
+india_assam_general_early2.csv	236	OK	NE India/Assam general -- further-earlier window, immediately preceding the _early window (zero overlap)
+india_assam_general_early3.csv	115	OK	NE India/Assam general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+colombia_andes_general_early.csv	476	SKIPPED (already present)	Colombian Andes general -- earlier (pre-2010), non-overlapping window
+colombia_andes_general_early2.csv	776	OK	Colombian Andes general -- further-earlier window, immediately preceding the _early window (zero overlap)
+colombia_andes_general_early3.csv	481	OK	Colombian Andes general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+argentina_sanjuan_general_early.csv	599	SKIPPED (already present)	San Juan/Mendoza general -- earlier (pre-2005), non-overlapping window
+argentina_sanjuan_general_early2.csv	529	OK	San Juan/Mendoza general -- further-earlier window, immediately preceding the _early window (zero overlap)
+argentina_sanjuan_general_early3.csv	261	OK	San Juan/Mendoza general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+bolivia_deep_general_early.csv	324	SKIPPED (already present)	Bolivia deep-focus general -- earlier (pre-2005), non-overlapping window
+bolivia_deep_general_early2.csv	494	OK	Bolivia deep-focus general -- further-earlier window, immediately preceding the _early window (zero overlap)
+bolivia_deep_general_early3.csv	224	OK	Bolivia deep-focus general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+guatemala_general_early.csv	1143	SKIPPED (already present)	Guatemala general -- earlier (pre-2010), non-overlapping window
+guatemala_general_early2.csv	797	OK	Guatemala general -- further-earlier window, immediately preceding the _early window (zero overlap)
+guatemala_general_early3.csv	558	OK	Guatemala general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+costarica_general_early.csv	569	SKIPPED (already present)	Costa Rica general -- earlier (pre-2010), non-overlapping window
+costarica_general_early2.csv	524	OK	Costa Rica general -- further-earlier window, immediately preceding the _early window (zero overlap)
+costarica_general_early3.csv	241	OK	Costa Rica general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+panama_general_early.csv	350	SKIPPED (already present)	Panama general -- earlier (pre-2005), non-overlapping window
+panama_general_early2.csv	248	OK	Panama general -- further-earlier window, immediately preceding the _early window (zero overlap)
+panama_general_early3.csv	302	OK	Panama general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+dominicanrepublic_general_early.csv	129	SKIPPED (already present)	Dominican Republic general -- earlier (pre-2005), non-overlapping window
+dominicanrepublic_general_early2.csv	86	OK	Dominican Republic general -- further-earlier window, immediately preceding the _early window (zero overlap)
+dominicanrepublic_general_early3.csv	52	OK	Dominican Republic general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+jamaica_general_early.csv	8	SKIPPED (already present)	Jamaica general -- earlier (pre-2005), non-overlapping window
+jamaica_general_early2.csv	10	SPARSE (<15)	Jamaica general -- further-earlier window, immediately preceding the _early window (zero overlap)
+jamaica_general_early3.csv	4	SPARSE (<15)	Jamaica general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+portugal_azores_general_early.csv	58	SKIPPED (already present)	Azores general -- earlier (pre-2005), non-overlapping window
+portugal_azores_general_early2.csv	69	OK	Azores general -- further-earlier window, immediately preceding the _early window (zero overlap)
+portugal_azores_general_early3.csv	17	OK	Azores general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+tanzania_rift_general_early.csv	80	SKIPPED (already present)	Tanzania/western rift general -- earlier (pre-2005), non-overlapping window
+tanzania_rift_general_early2.csv	72	OK	Tanzania/western rift general -- further-earlier window, immediately preceding the _early window (zero overlap)
+tanzania_rift_general_early3.csv	31	OK	Tanzania/western rift general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+drc_rift_general_early.csv	60	SKIPPED (already present)	DRC/Lake Kivu rift general -- earlier (pre-2005), non-overlapping window
+drc_rift_general_early2.csv	32	OK	DRC/Lake Kivu rift general -- further-earlier window, immediately preceding the _early window (zero overlap)
+drc_rift_general_early3.csv	20	OK	DRC/Lake Kivu rift general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+mozambique_general_early.csv	10	SKIPPED (already present)	Mozambique general -- earlier (pre-2005), non-overlapping window
+mozambique_general_early2.csv	20	OK	Mozambique general -- further-earlier window, immediately preceding the _early window (zero overlap)
+mozambique_general_early3.csv	3	SPARSE (<15)	Mozambique general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+saudiarabia_harrat_general_early.csv	3	SKIPPED (already present)	Harrat Lunayyir general -- earlier (pre-2005), non-overlapping window
+saudiarabia_harrat_general_early2.csv	3	SPARSE (<15)	Harrat Lunayyir general -- further-earlier window, immediately preceding the _early window (zero overlap)
+saudiarabia_harrat_general_early3.csv	0	EMPTY	Harrat Lunayyir general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+lebanon_general_early.csv	8	SKIPPED (already present)	Lebanon general -- earlier (pre-2005), non-overlapping window
+lebanon_general_early2.csv	13	SPARSE (<15)	Lebanon general -- further-earlier window, immediately preceding the _early window (zero overlap)
+lebanon_general_early3.csv	0	EMPTY	Lebanon general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+russia_sakhalin_general_early.csv	212	SKIPPED (already present)	Sakhalin general -- earlier (pre-2005), non-overlapping window
+russia_sakhalin_general_early2.csv	71	OK	Sakhalin general -- further-earlier window, immediately preceding the _early window (zero overlap)
+russia_sakhalin_general_early3.csv	24	OK	Sakhalin general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+russia_baikal_general_early.csv	97	SKIPPED (already present)	Lake Baikal rift general -- earlier (pre-2005), non-overlapping window
+russia_baikal_general_early2.csv	37	OK	Lake Baikal rift general -- further-earlier window, immediately preceding the _early window (zero overlap)
+russia_baikal_general_early3.csv	18	OK	Lake Baikal rift general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+usa_cascadia_general_early.csv	1355	SKIPPED (already present)	Cascadia general -- earlier (pre-2005), non-overlapping window
+usa_cascadia_general_early2.csv	2591	OK	Cascadia general -- further-earlier window, immediately preceding the _early window (zero overlap)
+usa_cascadia_general_early3.csv	634	OK	Cascadia general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+canada_britishcolumbia_general_early.csv	398	SKIPPED (already present)	British Columbia general -- earlier (pre-2005), non-overlapping window
+canada_britishcolumbia_general_early2.csv	327	OK	British Columbia general -- further-earlier window, immediately preceding the _early window (zero overlap)
+canada_britishcolumbia_general_early3.csv	174	OK	British Columbia general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+australia_general_early.csv	353	SKIPPED (already present)	Australia general -- earlier (pre-2000), non-overlapping window
+australia_general_early2.csv	548	OK	Australia general -- further-earlier window, immediately preceding the _early window (zero overlap)
+australia_general_early3.csv	44	OK	Australia general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+vanuatu_general_early.csv	1789	SKIPPED (already present)	Vanuatu general -- earlier (pre-2010), non-overlapping window
+vanuatu_general_early2.csv	2042	OK	Vanuatu general -- further-earlier window, immediately preceding the _early window (zero overlap)
+vanuatu_general_early3.csv	1432	OK	Vanuatu general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+solomonislands_general_early.csv	1376	SKIPPED (already present)	Solomon Islands general -- earlier (pre-2010), non-overlapping window
+solomonislands_general_early2.csv	1096	OK	Solomon Islands general -- further-earlier window, immediately preceding the _early window (zero overlap)
+solomonislands_general_early3.csv	1214	OK	Solomon Islands general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+fiji_general_early.csv	139	SKIPPED (already present)	Fiji general -- earlier (pre-2010), non-overlapping window
+fiji_general_early2.csv	115	OK	Fiji general -- further-earlier window, immediately preceding the _early window (zero overlap)
+fiji_general_early3.csv	87	OK	Fiji general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+samoa_general_early.csv	27	SKIPPED (already present)	Samoa general -- earlier (pre-2005), non-overlapping window
+samoa_general_early2.csv	51	OK	Samoa general -- further-earlier window, immediately preceding the _early window (zero overlap)
+samoa_general_early3.csv	39	OK	Samoa general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+centralasia_kyrgyzstan_tajikistan_early.csv	1090	SKIPPED (already present)	Kyrgyzstan/Tajikistan general -- earlier (pre-2005), non-overlapping window
+centralasia_kyrgyzstan_tajikistan_early2.csv	1585	OK	Kyrgyzstan/Tajikistan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+centralasia_kyrgyzstan_tajikistan_early3.csv	647	OK	Kyrgyzstan/Tajikistan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+uzbekistan_general_early.csv	81	SKIPPED (already present)	Uzbekistan general -- earlier (pre-2005), non-overlapping window
+uzbekistan_general_early2.csv	179	OK	Uzbekistan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+uzbekistan_general_early3.csv	110	OK	Uzbekistan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+mongolia_gobialtai_general_early.csv	19	SKIPPED (already present)	Gobi-Altai/Mongolia general -- earlier (pre-2000), non-overlapping window
+mongolia_gobialtai_general_early2.csv	24	OK	Gobi-Altai/Mongolia general -- further-earlier window, immediately preceding the _early window (zero overlap)
+mongolia_gobialtai_general_early3.csv	12	SPARSE (<15)	Gobi-Altai/Mongolia general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+china_gansu_general_early.csv	28	SKIPPED (already present)	Gansu general -- earlier (pre-2005), non-overlapping window
+china_gansu_general_early2.csv	53	OK	Gansu general -- further-earlier window, immediately preceding the _early window (zero overlap)
+china_gansu_general_early3.csv	10	SPARSE (<15)	Gansu general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+china_taiwanstrait_general_early.csv	97	OK	Taiwan Strait general -- earlier (pre-2005), non-overlapping window
+china_taiwanstrait_general_early2.csv	38	OK	Taiwan Strait general -- further-earlier window, immediately preceding the _early window (zero overlap)
+china_taiwanstrait_general_early3.csv	11	SPARSE (<15)	Taiwan Strait general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+china_hebei_general_early.csv	19	OK	Hebei/North China Plain general -- earlier (pre-2000), non-overlapping window
+china_hebei_general_early2.csv	111	OK	Hebei/North China Plain general -- further-earlier window, immediately preceding the _early window (zero overlap)
+china_hebei_general_early3.csv	26	OK	Hebei/North China Plain general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+china_shanxi_general_early.csv	16	OK	Shanxi general -- earlier (pre-2000), non-overlapping window
+china_shanxi_general_early2.csv	23	OK	Shanxi general -- further-earlier window, immediately preceding the _early window (zero overlap)
+china_shanxi_general_early3.csv	6	SPARSE (<15)	Shanxi general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+china_tibet_plateau_general_early.csv	437	OK	Tibetan plateau general -- earlier (pre-2005), non-overlapping window
+china_tibet_plateau_general_early2.csv	366	OK	Tibetan plateau general -- further-earlier window, immediately preceding the _early window (zero overlap)
+china_tibet_plateau_general_early3.csv	129	OK	Tibetan plateau general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+india_uttarakhand_general_early.csv	73	SKIPPED (already present)	Uttarakhand general -- earlier (pre-2000), non-overlapping window
+india_uttarakhand_general_early2.csv	35	OK	Uttarakhand general -- further-earlier window, immediately preceding the _early window (zero overlap)
+india_uttarakhand_general_early3.csv	20	OK	Uttarakhand general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+india_andaman_general_early.csv	521	SKIPPED (already present)	Andaman-Nicobar general -- earlier (pre-2005), non-overlapping window
+india_andaman_general_early2.csv	237	OK	Andaman-Nicobar general -- further-earlier window, immediately preceding the _early window (zero overlap)
+india_andaman_general_early3.csv	92	OK	Andaman-Nicobar general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+bangladesh_general_early.csv	60	SKIPPED (already present)	Bangladesh general -- earlier (pre-2005), non-overlapping window
+bangladesh_general_early2.csv	61	OK	Bangladesh general -- further-earlier window, immediately preceding the _early window (zero overlap)
+bangladesh_general_early3.csv	28	OK	Bangladesh general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+pakistan_general_early.csv	577	OK	Pakistan general -- earlier (pre-2005), non-overlapping window
+pakistan_general_early2.csv	1068	OK	Pakistan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+pakistan_general_early3.csv	527	OK	Pakistan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+nepal_sikkim_general_early.csv	27	OK	Nepal/Sikkim border general -- earlier (pre-2005), non-overlapping window
+nepal_sikkim_general_early2.csv	14	SPARSE (<15)	Nepal/Sikkim border general -- further-earlier window, immediately preceding the _early window (zero overlap)
+nepal_sikkim_general_early3.csv	11	SPARSE (<15)	Nepal/Sikkim border general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+ecuador_general_early.csv	367	SKIPPED (already present)	Ecuador general -- earlier (pre-2005), non-overlapping window
+ecuador_general_early2.csv	405	OK	Ecuador general -- further-earlier window, immediately preceding the _early window (zero overlap)
+ecuador_general_early3.csv	200	OK	Ecuador general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+venezuela_general_early.csv	249	OK	Venezuela general -- earlier (pre-2005), non-overlapping window
+venezuela_general_early2.csv	312	OK	Venezuela general -- further-earlier window, immediately preceding the _early window (zero overlap)
+venezuela_general_early3.csv	116	OK	Venezuela general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+brazil_general_early.csv	2	SKIPPED (already present)	Brazil general -- earlier (pre-2000), non-overlapping window
+brazil_general_early2.csv	7	SPARSE (<15)	Brazil general -- further-earlier window, immediately preceding the _early window (zero overlap)
+brazil_general_early3.csv	0	EMPTY	Brazil general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+suriname_guyana_general_early.csv	0	EMPTY	Suriname/Guyana general -- earlier (pre-2000), non-overlapping window
+suriname_guyana_general_early2.csv	0	EMPTY	Suriname/Guyana general -- further-earlier window, immediately preceding the _early window (zero overlap)
+suriname_guyana_general_early3.csv	1	SPARSE (<15)	Suriname/Guyana general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+nicaragua_general_early.csv	617	SKIPPED (already present)	Nicaragua general -- earlier (pre-2005), non-overlapping window
+nicaragua_general_early2.csv	447	OK	Nicaragua general -- further-earlier window, immediately preceding the _early window (zero overlap)
+nicaragua_general_early3.csv	129	OK	Nicaragua general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+cuba_general_early.csv	20	SKIPPED (already present)	Cuba general -- earlier (pre-2005), non-overlapping window
+cuba_general_early2.csv	24	OK	Cuba general -- further-earlier window, immediately preceding the _early window (zero overlap)
+cuba_general_early3.csv	7	SPARSE (<15)	Cuba general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+trinidadtobago_general_early.csv	109	OK	Trinidad and Tobago general -- earlier (pre-2005), non-overlapping window
+trinidadtobago_general_early2.csv	146	OK	Trinidad and Tobago general -- further-earlier window, immediately preceding the _early window (zero overlap)
+trinidadtobago_general_early3.csv	7	SPARSE (<15)	Trinidad and Tobago general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+honduras_general_early.csv	380	OK	Honduras general -- earlier (pre-2005), non-overlapping window
+honduras_general_early2.csv	167	OK	Honduras general -- further-earlier window, immediately preceding the _early window (zero overlap)
+honduras_general_early3.csv	73	OK	Honduras general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+mexico_oaxaca_general_early.csv	859	OK	Oaxaca general -- earlier (pre-2005), non-overlapping window
+mexico_oaxaca_general_early2.csv	334	OK	Oaxaca general -- further-earlier window, immediately preceding the _early window (zero overlap)
+mexico_oaxaca_general_early3.csv	151	OK	Oaxaca general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+iceland_general_early.csv	63	SKIPPED (already present)	Iceland general -- earlier (pre-2005), non-overlapping window
+iceland_general_early2.csv	67	OK	Iceland general -- further-earlier window, immediately preceding the _early window (zero overlap)
+iceland_general_early3.csv	124	OK	Iceland general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+norway_general_early.csv	35	OK	Norway general -- earlier (pre-2000), non-overlapping window
+norway_general_early2.csv	23	OK	Norway general -- further-earlier window, immediately preceding the _early window (zero overlap)
+norway_general_early3.csv	4	SPARSE (<15)	Norway general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+switzerland_general_early.csv	570	SKIPPED (already present)	Switzerland general -- earlier (pre-2000), non-overlapping window
+switzerland_general_early2.csv	411	OK	Switzerland general -- further-earlier window, immediately preceding the _early window (zero overlap)
+switzerland_general_early3.csv	3	SPARSE (<15)	Switzerland general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+romania_vrancea_general_early.csv	100	OK	Vrancea general -- earlier (pre-2000), non-overlapping window
+romania_vrancea_general_early2.csv	115	OK	Vrancea general -- further-earlier window, immediately preceding the _early window (zero overlap)
+romania_vrancea_general_early3.csv	13	SPARSE (<15)	Vrancea general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+bulgaria_general_early.csv	43	OK	Bulgaria general -- earlier (pre-2000), non-overlapping window
+bulgaria_general_early2.csv	60	OK	Bulgaria general -- further-earlier window, immediately preceding the _early window (zero overlap)
+bulgaria_general_early3.csv	9	SPARSE (<15)	Bulgaria general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+france_general_early.csv	743	OK	France general -- earlier (pre-2000), non-overlapping window
+france_general_early2.csv	593	OK	France general -- further-earlier window, immediately preceding the _early window (zero overlap)
+france_general_early3.csv	8	SPARSE (<15)	France general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+germany_general_early.csv	835	OK	Germany general -- earlier (pre-2000), non-overlapping window
+germany_general_early2.csv	711	OK	Germany general -- further-earlier window, immediately preceding the _early window (zero overlap)
+germany_general_early3.csv	13	SPARSE (<15)	Germany general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+yemen_general_early.csv	122	SKIPPED (already present)	Yemen general -- earlier (pre-2005), non-overlapping window
+yemen_general_early2.csv	88	OK	Yemen general -- further-earlier window, immediately preceding the _early window (zero overlap)
+yemen_general_early3.csv	59	OK	Yemen general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+oman_general_early.csv	8	SKIPPED (already present)	Oman general -- earlier (pre-2005), non-overlapping window
+oman_general_early2.csv	6	SPARSE (<15)	Oman general -- further-earlier window, immediately preceding the _early window (zero overlap)
+oman_general_early3.csv	2	SPARSE (<15)	Oman general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+jordan_general_early.csv	76	OK	Jordan general -- earlier (pre-2000), non-overlapping window
+jordan_general_early2.csv	19	OK	Jordan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+jordan_general_early3.csv	1	SPARSE (<15)	Jordan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+israel_deadsea_general_early.csv	21	OK	Dead Sea transform general -- earlier (pre-2000), non-overlapping window
+israel_deadsea_general_early2.csv	13	SPARSE (<15)	Dead Sea transform general -- further-earlier window, immediately preceding the _early window (zero overlap)
+israel_deadsea_general_early3.csv	1	SPARSE (<15)	Dead Sea transform general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+syria_general_early.csv	74	OK	Syria general -- earlier (pre-2005), non-overlapping window
+syria_general_early2.csv	59	OK	Syria general -- further-earlier window, immediately preceding the _early window (zero overlap)
+syria_general_early3.csv	14	SPARSE (<15)	Syria general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+egypt_general_early.csv	206	OK	Egypt general -- earlier (pre-2000), non-overlapping window
+egypt_general_early2.csv	29	OK	Egypt general -- further-earlier window, immediately preceding the _early window (zero overlap)
+egypt_general_early3.csv	6	SPARSE (<15)	Egypt general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+ethiopia_general_early.csv	88	SKIPPED (already present)	Ethiopia general -- earlier (pre-2005), non-overlapping window
+ethiopia_general_early2.csv	139	OK	Ethiopia general -- further-earlier window, immediately preceding the _early window (zero overlap)
+ethiopia_general_early3.csv	81	OK	Ethiopia general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+kenya_general_early.csv	7	SKIPPED (already present)	Kenya general -- earlier (pre-2005), non-overlapping window
+kenya_general_early2.csv	23	OK	Kenya general -- further-earlier window, immediately preceding the _early window (zero overlap)
+kenya_general_early3.csv	9	SPARSE (<15)	Kenya general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+southafrica_general_early.csv	238	OK	South Africa general -- earlier (pre-2000), non-overlapping window
+southafrica_general_early2.csv	128	OK	South Africa general -- further-earlier window, immediately preceding the _early window (zero overlap)
+southafrica_general_early3.csv	24	OK	South Africa general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+malawi_general_early.csv	20	OK	Malawi general -- earlier (pre-2005), non-overlapping window
+malawi_general_early2.csv	39	OK	Malawi general -- further-earlier window, immediately preceding the _early window (zero overlap)
+malawi_general_early3.csv	14	SPARSE (<15)	Malawi general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+ghana_accra_general_early.csv	1	SPARSE (<15)	Ghana general -- earlier (pre-2000), non-overlapping window
+ghana_accra_general_early2.csv	1	SPARSE (<15)	Ghana general -- further-earlier window, immediately preceding the _early window (zero overlap)
+ghana_accra_general_early3.csv	1	SPARSE (<15)	Ghana general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+madagascar_general_early.csv	9	SPARSE (<15)	Madagascar general -- earlier (pre-2000), non-overlapping window
+madagascar_general_early2.csv	7	SPARSE (<15)	Madagascar general -- further-earlier window, immediately preceding the _early window (zero overlap)
+madagascar_general_early3.csv	3	SPARSE (<15)	Madagascar general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+russia_kurilislands_general_early.csv	2060	OK	Kuril Islands general -- earlier (pre-2010), non-overlapping window
+russia_kurilislands_general_early2.csv	2704	OK	Kuril Islands general -- further-earlier window, immediately preceding the _early window (zero overlap)
+russia_kurilislands_general_early3.csv	2077	OK	Kuril Islands general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+kazakhstan_general_early.csv	526	SKIPPED (already present)	Kazakhstan general -- earlier (pre-2005), non-overlapping window
+kazakhstan_general_early2.csv	759	OK	Kazakhstan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+kazakhstan_general_early3.csv	450	OK	Kazakhstan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+turkmenistan_general_early.csv	186	OK	Turkmenistan general -- earlier (pre-2005), non-overlapping window
+turkmenistan_general_early2.csv	267	OK	Turkmenistan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+turkmenistan_general_early3.csv	137	OK	Turkmenistan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+russia_caucasus_general_early.csv	75	OK	Russian Caucasus general -- earlier (pre-2000), non-overlapping window
+russia_caucasus_general_early2.csv	72	OK	Russian Caucasus general -- further-earlier window, immediately preceding the _early window (zero overlap)
+russia_caucasus_general_early3.csv	24	OK	Russian Caucasus general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+azerbaijan_general_early.csv	99	OK	Azerbaijan general -- earlier (pre-2000), non-overlapping window
+azerbaijan_general_early2.csv	96	OK	Azerbaijan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+azerbaijan_general_early3.csv	25	OK	Azerbaijan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+usa_yellowstone_general_early.csv	180	SKIPPED (already present)	Yellowstone general -- earlier (pre-2005), non-overlapping window
+usa_yellowstone_general_early2.csv	184	OK	Yellowstone general -- further-earlier window, immediately preceding the _early window (zero overlap)
+usa_yellowstone_general_early3.csv	101	OK	Yellowstone general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+usa_newmadrid_general_early.csv	124	OK	New Madrid general -- earlier (pre-2000), non-overlapping window
+usa_newmadrid_general_early2.csv	185	OK	New Madrid general -- further-earlier window, immediately preceding the _early window (zero overlap)
+usa_newmadrid_general_early3.csv	27	OK	New Madrid general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+usa_oklahoma_induced_general_early.csv	25	OK	Oklahoma induced general -- earlier (pre-2010), non-overlapping window
+usa_oklahoma_induced_general_early2.csv	14	SPARSE (<15)	Oklahoma induced general -- further-earlier window, immediately preceding the _early window (zero overlap)
+usa_oklahoma_induced_general_early3.csv	5	SPARSE (<15)	Oklahoma induced general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+usa_puertorico_general_early.csv	242	OK	Puerto Rico general -- earlier (pre-2005), non-overlapping window
+usa_puertorico_general_early2.csv	44	OK	Puerto Rico general -- further-earlier window, immediately preceding the _early window (zero overlap)
+usa_puertorico_general_early3.csv	15	OK	Puerto Rico general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+canada_quebec_general_early.csv	35	OK	Quebec general -- earlier (pre-2000), non-overlapping window
+canada_quebec_general_early2.csv	41	OK	Quebec general -- further-earlier window, immediately preceding the _early window (zero overlap)
+canada_quebec_general_early3.csv	1	SPARSE (<15)	Quebec general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+mexico_baja_general_early.csv	99	OK	Baja California general -- earlier (pre-2005), non-overlapping window
+mexico_baja_general_early2.csv	169	OK	Baja California general -- further-earlier window, immediately preceding the _early window (zero overlap)
+mexico_baja_general_early3.csv	232	OK	Baja California general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+greenland_general_early.csv	77	OK	Greenland general -- earlier (pre-2000), non-overlapping window
+greenland_general_early2.csv	93	OK	Greenland general -- further-earlier window, immediately preceding the _early window (zero overlap)
+greenland_general_early3.csv	33	OK	Greenland general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+papuanewguinea_general_early.csv	2296	OK	Papua New Guinea general -- earlier (pre-2005), non-overlapping window
+papuanewguinea_general_early2.csv	2624	OK	Papua New Guinea general -- further-earlier window, immediately preceding the _early window (zero overlap)
+papuanewguinea_general_early3.csv	962	OK	Papua New Guinea general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+newcaledonia_general_early.csv	120	OK	New Caledonia general -- earlier (pre-2005), non-overlapping window
+newcaledonia_general_early2.csv	156	OK	New Caledonia general -- further-earlier window, immediately preceding the _early window (zero overlap)
+newcaledonia_general_early3.csv	84	OK	New Caledonia general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+tuvalu_kiribati_general_early.csv	0	EMPTY	Tuvalu/Kiribati general -- earlier (pre-2000), non-overlapping window
+tuvalu_kiribati_general_early2.csv	204	OK	Tuvalu/Kiribati general -- further-earlier window, immediately preceding the _early window (zero overlap)
+tuvalu_kiribati_general_early3.csv	0	EMPTY	Tuvalu/Kiribati general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+marianaislands_general_early.csv	690	OK	Mariana Islands general -- earlier (pre-2005), non-overlapping window
+marianaislands_general_early2.csv	876	OK	Mariana Islands general -- further-earlier window, immediately preceding the _early window (zero overlap)
+marianaislands_general_early3.csv	341	OK	Mariana Islands general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+guam_general_early.csv	601	OK	Guam general -- earlier (pre-2005), non-overlapping window
+guam_general_early2.csv	516	OK	Guam general -- further-earlier window, immediately preceding the _early window (zero overlap)
+guam_general_early3.csv	172	OK	Guam general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+indonesia_sumatra_general_early.csv	1184	SKIPPED (already present)	Sumatra general -- earlier (pre-2005), non-overlapping window
+indonesia_sumatra_general_early2.csv	798	OK	Sumatra general -- further-earlier window, immediately preceding the _early window (zero overlap)
+indonesia_sumatra_general_early3.csv	352	OK	Sumatra general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+indonesia_java_general_early.csv	319	OK	Java general -- earlier (pre-2005), non-overlapping window
+indonesia_java_general_early2.csv	377	OK	Java general -- further-earlier window, immediately preceding the _early window (zero overlap)
+indonesia_java_general_early3.csv	155	OK	Java general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+northkorea_general_early.csv	10	SPARSE (<15)	North Korea general -- earlier (pre-2005), non-overlapping window
+northkorea_general_early2.csv	8	SPARSE (<15)	North Korea general -- further-earlier window, immediately preceding the _early window (zero overlap)
+northkorea_general_early3.csv	11	SPARSE (<15)	North Korea general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+cyprus_general_early.csv	296	OK	Cyprus general -- earlier (pre-2000), non-overlapping window
+cyprus_general_early2.csv	42	OK	Cyprus general -- further-earlier window, immediately preceding the _early window (zero overlap)
+cyprus_general_early3.csv	1	SPARSE (<15)	Cyprus general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+slovenia_general_early.csv	540	OK	Slovenia general -- earlier (pre-2000), non-overlapping window
+slovenia_general_early2.csv	201	OK	Slovenia general -- further-earlier window, immediately preceding the _early window (zero overlap)
+slovenia_general_early3.csv	7	SPARSE (<15)	Slovenia general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+austria_general_early.csv	382	OK	Austria general -- earlier (pre-2000), non-overlapping window
+austria_general_early2.csv	233	OK	Austria general -- further-earlier window, immediately preceding the _early window (zero overlap)
+austria_general_early3.csv	7	SPARSE (<15)	Austria general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+poland_general_early.csv	1575	OK	Poland general (incl. mining-induced) -- earlier (pre-2000), non-overlapping window
+poland_general_early2.csv	666	OK	Poland general (incl. mining-induced) -- further-earlier window, immediately preceding the _early window (zero overlap)
+poland_general_early3.csv	0	EMPTY	Poland general (incl. mining-induced) -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+srilanka_general_early.csv	0	EMPTY	Sri Lanka general (very low-rate) -- earlier (pre-2000), non-overlapping window
+srilanka_general_early2.csv	0	EMPTY	Sri Lanka general (very low-rate) -- further-earlier window, immediately preceding the _early window (zero overlap)
+srilanka_general_early3.csv	0	EMPTY	Sri Lanka general (very low-rate) -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+myanmar_sagaing_general_early.csv	270	OK	Sagaing fault, Myanmar general -- earlier (pre-2005), non-overlapping window
+myanmar_sagaing_general_early2.csv	310	OK	Sagaing fault, Myanmar general -- further-earlier window, immediately preceding the _early window (zero overlap)
+myanmar_sagaing_general_early3.csv	105	OK	Sagaing fault, Myanmar general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+laos_general_early.csv	21	OK	Laos general -- earlier (pre-2000), non-overlapping window
+laos_general_early2.csv	47	OK	Laos general -- further-earlier window, immediately preceding the _early window (zero overlap)
+laos_general_early3.csv	6	SPARSE (<15)	Laos general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+thailand_general_early.csv	20	OK	Thailand general -- earlier (pre-2000), non-overlapping window
+thailand_general_early2.csv	35	OK	Thailand general -- further-earlier window, immediately preceding the _early window (zero overlap)
+thailand_general_early3.csv	2	SPARSE (<15)	Thailand general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+vietnam_general_early.csv	27	OK	Vietnam general -- earlier (pre-2000), non-overlapping window
+vietnam_general_early2.csv	28	OK	Vietnam general -- further-earlier window, immediately preceding the _early window (zero overlap)
+vietnam_general_early3.csv	2	SPARSE (<15)	Vietnam general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+philippines_luzon_general_early.csv	531	OK	Luzon, Philippines general -- earlier (pre-2005), non-overlapping window
+philippines_luzon_general_early2.csv	823	OK	Luzon, Philippines general -- further-earlier window, immediately preceding the _early window (zero overlap)
+philippines_luzon_general_early3.csv	287	OK	Luzon, Philippines general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+philippines_mindanao_general_early.csv	1820	OK	Mindanao, Philippines general -- earlier (pre-2005), non-overlapping window
+philippines_mindanao_general_early2.csv	1479	OK	Mindanao, Philippines general -- further-earlier window, immediately preceding the _early window (zero overlap)
+philippines_mindanao_general_early3.csv	585	OK	Mindanao, Philippines general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+bhutan_general_early.csv	19	OK	Bhutan general -- earlier (pre-2005), non-overlapping window
+bhutan_general_early2.csv	12	SPARSE (<15)	Bhutan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+bhutan_general_early3.csv	8	SPARSE (<15)	Bhutan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+italy_sicily_etna_general_early.csv	115	OK	Mt. Etna, Sicily general (volcanic swarm regime) -- earlier (pre-2005), non-overlapping window
+italy_sicily_etna_general_early2.csv	55	OK	Mt. Etna, Sicily general (volcanic swarm regime) -- further-earlier window, immediately preceding the _early window (zero overlap)
+italy_sicily_etna_general_early3.csv	3	SPARSE (<15)	Mt. Etna, Sicily general (volcanic swarm regime) -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+usa_nevada_basinrange_general_early.csv	1062	OK	Nevada Basin and Range general -- earlier (pre-2005), non-overlapping window
+usa_nevada_basinrange_general_early2.csv	3001	OK	Nevada Basin and Range general -- further-earlier window, immediately preceding the _early window (zero overlap)
+usa_nevada_basinrange_general_early3.csv	1065	OK	Nevada Basin and Range general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+usa_utah_wasatch_general_early.csv	149	OK	Utah Wasatch Front general -- earlier (pre-2005), non-overlapping window
+usa_utah_wasatch_general_early2.csv	372	OK	Utah Wasatch Front general -- further-earlier window, immediately preceding the _early window (zero overlap)
+usa_utah_wasatch_general_early3.csv	24	OK	Utah Wasatch Front general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+guadeloupe_martinique_general_early.csv	171	OK	Guadeloupe/Martinique general -- earlier (pre-2005), non-overlapping window
+guadeloupe_martinique_general_early2.csv	152	OK	Guadeloupe/Martinique general -- further-earlier window, immediately preceding the _early window (zero overlap)
+guadeloupe_martinique_general_early3.csv	30	OK	Guadeloupe/Martinique general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+sudan_general_early.csv	7	SPARSE (<15)	Sudan general -- earlier (pre-2000), non-overlapping window
+sudan_general_early2.csv	4	SPARSE (<15)	Sudan general -- further-earlier window, immediately preceding the _early window (zero overlap)
+sudan_general_early3.csv	3	SPARSE (<15)	Sudan general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design
+botswana_general_early.csv	56	OK	Botswana general -- earlier (pre-2000), non-overlapping window
+botswana_general_early2.csv	59	OK	Botswana general -- further-earlier window, immediately preceding the _early window (zero overlap)
+botswana_general_early3.csv	20	OK	Botswana general -- second further-earlier window, immediately preceding _early2 (zero overlap); higher risk of thin/no USGS ComCat coverage this far back, by design

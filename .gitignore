@@ -64,21 +64,111 @@ Desktop.ini
 credentials.json
 
 # ===================================================================
-# Project-specific — only the core library + entry-point scripts are
-# published. Internal docs and calibration/verification tooling (which
-# depend on the private, unpublished calibration corpus) are kept local
-# and NOT uploaded to GitHub. The automated test suite (tests/) IS
-# published as of 2026-07-21 (uses only synthetic/bundled data, no
-# dependency on the private corpus).
+# Project-specific — the core library + entry-point scripts are
+# published, as is the automated test suite (tests/, since 2026-07-21;
+# uses only synthetic/bundled data). Internal theory/validation Docs/
+# remain local-only. calibration/ is now PARTIALLY published (since
+# 2026-07-21, reproducibility fix): every corpus-building/calibration/
+# analysis script, both corpus manifests, all score matrices, and every
+# calibration report are public — see calibration/README.md for exactly
+# what's included and what's still withheld (the raw per-record corpus
+# CSVs, pending a redistribution-rights check on third-party sources).
 # ===================================================================
 
 # Internal theory/validation documentation.
 Docs/
 
-# Calibration, corpus-building, and verification tooling (not part of
-# the shipped system — used only to derive/validate weights & thresholds
-# against the private, unpublished 968-dataset corpus).
-calibration/
+# Calibration / corpus-building / verification tooling (2026-07-21,
+# reproducibility fix: a Methodology Article reviewer cannot check
+# false-admit rates, threshold derivation, or weight calibration without
+# these). Published: every generation/calibration/analysis SCRIPT, both
+# corpus manifests (corpus_manifest.csv, adversarial_corpus_manifest.csv
+# — dataset_id/category/label/corruption_type/severity/seed/parent_catalog
+# for all 968+30 datasets), every score matrix (T(D)/sub-test SCORES per
+# dataset_id — not raw catalog records), every calibration/analysis REPORT
+# (bootstrap, EWM, hard-override, theta_auth, threshold, and the group_b/
+# group_c/group_d case-study reports cited throughout Docs/). NOT yet
+# published: the raw earthquake-event-level CSVs the corpus was built
+# from/derived from (real + corrupted_real + fabricated) — deterministically
+# regenerable from the manifest + these scripts, but not re-published
+# verbatim yet pending a licensing check on third-party real-catalog
+# sources (EMSC/ISC/etc. redistribution terms); see calibration/README.md.
+calibration/*
+!calibration/__init__.py
+!calibration/_analysis_common.py
+!calibration/_fast_match_helper.py
+!calibration/analysis_ablation.py
+!calibration/analysis_d1_case_study.py
+!calibration/analysis_d1b_aftershock_forecast.py
+!calibration/analysis_d1d_cross_agency_merge.py
+!calibration/analysis_decision_stability.py
+!calibration/analysis_selective_classification.py
+!calibration/analysis_three_way_matrix.py
+!calibration/benchmark_runtime.py
+!calibration/bootstrap_ewm_stability.py
+!calibration/build_adversarial_corpus.py
+!calibration/build_corpus.py
+!calibration/calibrate_a6_three_state.py
+!calibration/calibrate_hard_override_params.py
+!calibration/calibrate_theta_auth.py
+!calibration/calibrate_thresholds.py
+!calibration/compute_ewm.py
+!calibration/corrupt.py
+!calibration/derive_parent_catalog.py
+!calibration/enrich_moment_tensor_finite_fault_from_usgs.py
+!calibration/enrich_tsunami_mmi_from_usgs.py
+!calibration/fetch_corpus_expansion_v8.py
+!calibration/fetch_corpus_expansion_v9.py
+!calibration/fetch_multisource_chile_iquique.py
+!calibration/make_paper_figures.py
+!calibration/parsers.py
+!calibration/refit_full_corpus.py
+!calibration/run_a6_scoring.py
+!calibration/run_scoring.py
+!calibration/score_adversarial_holdout.py
+!calibration/split_corpus.py
+!calibration/README.md
+!calibration/corpus_manifest.csv
+!calibration/adversarial_corpus_manifest.csv
+!calibration/corpus_expansion_v8_fetch_report.txt
+!calibration/corpus_expansion_v9_fetch_report.txt
+!calibration/bootstrap_stability_report.json
+!calibration/bootstrap_stability_report.md
+!calibration/ewm_report.json
+!calibration/ewm_report.md
+!calibration/hard_override_calibration_report.json
+!calibration/hard_override_calibration_report.md
+!calibration/theta_auth_report.json
+!calibration/theta_auth_report.md
+!calibration/threshold_report.json
+!calibration/threshold_report.md
+!calibration/score_matrix.csv
+!calibration/score_matrix_a6.csv
+!calibration/score_matrix_a6_emsc.csv
+!calibration/score_matrix_a6_isc.csv
+!calibration/score_matrix_a6_multi.csv
+!calibration/score_matrix_a6_weighted-multi.csv
+!calibration/score_matrix_adversarial_holdout.csv
+!calibration/group_b_reports/
+!calibration/group_c_reports/
+!calibration/group_d_reports/
+# ...but not these specific items even though their parent dirs above are
+# now un-ignored: stale/superseded backups, caches, tmp working data, and
+# (in group_d_reports) the one subdirectory that holds raw EMSC/USGS event
+# CSVs pending the licensing check mentioned above.
+calibration/__pycache__/
+calibration/_archive_stale_backups/
+calibration/_tmp_preprocessed/
+calibration/_manifest_parts/
+calibration/debug_diagnostics/
+calibration/_mt_ff_cache.json
+calibration/score_matrix.csv.pre_v0.1.1_backup
+calibration/score_matrix.csv.stale_20260711_0202
+calibration/score_matrix_pre_a3a4a5_fix.csv
+calibration/corpus_manifest.pre_parent_catalog_20260712T061402Z.csv
+calibration/group_d_reports/_partial/
+calibration/group_d_reports/_partial_d1b/
+calibration/group_d_reports/d1d_multisource/
 run_all.sh
 fetch_theta_auth_references.py
 

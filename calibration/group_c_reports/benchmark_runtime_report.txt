@@ -1,0 +1,31 @@
+====================================================================================================
+Group C4: runtime/scalability benchmark
+====================================================================================================
+
+Sizes requested: [1000, 10000, 100000, 1000000]
+
+--- offline_batch / intrinsic_only ---
+  n=    1,000:    0.353s (2,836 records/sec)
+  n=   10,000:    1.926s (5,193 records/sec)
+  n=  100,000:   14.733s (6,788 records/sec)
+  n=1,000,000:  186.081s (5,374 records/sec)
+
+--- offline_batch / a6_enabled ---
+  n=    1,000:   42.258s (24 records/sec)
+  n=   10,000:   45.094s (222 records/sec)
+  n=  100,000:   98.963s (1,010 records/sec)
+  n=1,000,000:  896.764s (1,115 records/sec)
+
+--- online_live / intrinsic_only ---
+  n=    1,000:    0.480s (2,085 records/sec) (of which fault-DB fresh-load: 2.798s)
+  n=   10,000:    2.790s (3,584 records/sec) (of which fault-DB fresh-load: 2.554s)
+  n=  100,000:   20.538s (4,869 records/sec) (of which fault-DB fresh-load: 2.635s)
+  n=1,000,000:  182.581s (5,477 records/sec) (of which fault-DB fresh-load: 2.606s)
+
+--- online_live / a6_enabled ---
+  n=    1,000:   59.243s (17 records/sec) (of which fault-DB fresh-load: 1.440s)
+  n=   10,000:   47.609s (210 records/sec) (of which fault-DB fresh-load: 1.488s)
+  n=  100,000:   92.871s (1,077 records/sec) (of which fault-DB fresh-load: 1.454s)
+  n=1,000,000:  544.017s (1,838 records/sec) (of which fault-DB fresh-load: 1.487s)
+
+Reading guide: compare offline_batch vs online_live at the same n to see the fixed per-request GEM-fault-DB-load overhead (~10MB GeoJSON parse) that a naive live service would pay on every request but a batch/calibration run pays only once. Compare intrinsic_only vs a6_enabled at the same n to see A6's live-network + per-record matching-loop overhead (reference_data.py's `_match_against_reference_arrays` is an unvectorised Python loop -- this benchmark is the disclosed, honest way to see whether that matters at your deployment's expected record counts, rather than asserting it does or doesn't).

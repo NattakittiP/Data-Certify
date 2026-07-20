@@ -1,0 +1,3 @@
+dataset_id,label,n_records,a6_applicable,matched_fraction,n_stratum,mc_ref,mc_ref_is_default,hard_reject_would_fire,elapsed_sec,note
+nz,known_good,20648,True,0.33548387096774196,155,4.5,False,True,5.29,33.5% of 155 reference-complete-stratum records (M>=4.65) matched.
+chile,known_good,132964,True,0.5931394481730052,6705,4.5,False,False,287.92,59.3% of 6705 reference-complete-stratum records (M>=4.50) matched.

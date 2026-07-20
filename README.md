@@ -93,6 +93,33 @@ that bug having been the dominant driver of the pre-existing false-admit
 finding. See `calibration/group_b_reports/three_way_matrix_report.txt` for
 the full breakdown (not published, internal corpus).
 
+**A subsequent full weight/threshold refit against these fixed scores was
+attempted and deliberately rejected.** `calibration/compute_ewm.py` (a
+genuine, live re-derivation) shows the A3/A4/A5 fixes shift what Entropy
+Weight Method would assign A3 within axis A substantially — from its
+current 0.42 down to 0.20, with A1 rising from 0.38 to 0.52 to compensate.
+Feeding that refit weight vector into `calibration/refit_full_corpus.py`'s
+own threshold grid-search produces `theta_admit = 1.0`: under the refit
+weights, several *mild* corrupted-real datasets (coordinate-jitter,
+moderate magnitude-Gutenberg-Richter violations, light missingness) score
+`T(D)` between 0.989 and 0.997 — indistinguishable in practice from genuine
+data — forcing the "zero known-bad clears theta_admit" rule to the ceiling
+to compensate. The refit's headline 0% false-admit rate is a degenerate
+artifact of that ceiling (ADMIT becomes practically unreachable, evidenced
+by only 77.6% decision agreement with current production, driven mostly by
+real `known_good` catalogs losing clean ADMIT status), not a genuine
+improvement in separating good data from bad. This is read as evidence that
+naive EWM — which weights criteria by variance/entropy across the observed
+corpus, not by demonstrated discriminative power against *known*
+corruptions — is not a safe drop-in replacement for the current,
+AHP-anchored weighting here. `AXIS_WEIGHTS`/`WITHIN_A`/`theta_admit`/
+`theta_reject` were therefore deliberately left unchanged following this
+investigation, not merely left unexamined. Separately, note
+`calibration/calibrate_thresholds.py` was found to report hardcoded
+threshold literals from an earlier (2026-07-07, 89-dataset) calibration
+pass rather than deriving them live from the current corpus — its output
+should not be read as an independent confirmation.
+
 ---
 
 ## Architecture
@@ -263,10 +290,15 @@ dataset moved into or out of REJECT), but the headline false-admit rate
 (19/490) and false-reject rate (0/508 on `known_good`) were unchanged in
 aggregate — see "What this system is — and is not" above for the full
 breakdown, including that the false-admit *count* staying flat conceals a
-real 3-in/3-out swap in which specific datasets false-admit. Recalibrating
-`AXIS_WEIGHTS`/`WITHIN_A`/`theta_admit`/`theta_reject` against the
-now-fixed scoring functions has not been done and remains a separate, open
-decision (see "Data & tooling not included in this repository" below).
+real 3-in/3-out swap in which specific datasets false-admit.
+
+**A full weight/threshold refit against the fixed scores was attempted and
+deliberately rejected** — see "What this system is — and is not" above for
+the finding: a naive Entropy Weight Method refit collapses A3's within-axis
+weight and produces a degenerate `theta_admit=1.0`. `AXIS_WEIGHTS`/
+`WITHIN_A`/`theta_admit`/`theta_reject` therefore intentionally remain at
+their pre-fix-calibrated values (see "Data & tooling not included in this
+repository" below for what re-deriving them would take).
 
 - **A3 (aftershock-decay conformity) had no spatial constraint at all.**
   Mainshock-aftershock clustering previously used only a time window and a

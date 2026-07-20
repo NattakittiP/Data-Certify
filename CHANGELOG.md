@@ -134,11 +134,10 @@ public commit.
   gate; whether/how much the gate changes this figure has not yet been
   re-measured against the private corpus.
 - `AXIS_WEIGHTS`/`WITHIN_A`/`theta_admit`/`theta_reject` still reflect
-  calibration done under the old (pre-A3/A4/A5-fix) behavior — the fixes
-  were verified against the corpus (see entry below) but weights/thresholds
-  have not been refit against the corrected scoring functions. Whether
-  that refit would change anything is itself an open question the
-  verification below does not answer.
+  calibration done under the old (pre-A3/A4/A5-fix) behavior. A refit
+  against the corrected scoring functions WAS attempted (see "Investigated
+  and rejected" entry below) and found to produce a worse, degenerate
+  result — current values are being kept deliberately, not by omission.
 - Evidence coverage and the composite score do not yet account for small-N
   statistical power (a high-weight sub-test computed from very few
   applicable records is treated the same as one computed from thousands).
@@ -184,3 +183,43 @@ effect of the code fix itself from any weight recalibration, which has
 
 Full breakdown in `calibration/group_b_reports/three_way_matrix_report.txt`
 (internal corpus, not published).
+
+### Investigated and rejected (2026-07-21) — full weight/threshold refit against fixed scores
+
+A full recalibration of `AXIS_WEIGHTS`/`WITHIN_A`/`theta_admit`/
+`theta_reject` against the A3/A4/A5-fixed score matrix was attempted
+(`calibration/compute_ewm.py` → `calibrate_thresholds.py` →
+`refit_full_corpus.py`) and deliberately **not applied** to
+`data_certify/_constants.py`, for two reasons:
+
+- **`calibrate_thresholds.py` does not actually recompute thresholds from
+  current data.** Its `NEW_THETA_ADMIT`/`NEW_THETA_REJECT` are hardcoded
+  literals frozen from an earlier calibration pass (2026-07-07, 89-dataset
+  corpus). Running it against the current 968-dataset, A3/A4/A5-fixed
+  score matrix only validates those old literals against new data; it does
+  not derive new ones. Its unchanged "0.75 → 0.75" output should not be
+  read as confirmation that no recalibration is needed.
+- **`refit_full_corpus.py`'s live, independent re-derivation produces a
+  degenerate result.** `compute_ewm.py` (which genuinely does recompute
+  from the current corpus) shows the fixed scores would shift A3's
+  within-axis weight from 0.42 down to 0.20 and A1's up from 0.38 to 0.52.
+  Feeding that refit weight vector through `refit_full_corpus.py`'s
+  threshold grid-search forces `theta_admit` to **1.0**: under the refit
+  weights, several mild `corrupted_real` datasets (e.g.
+  `corrupt_real_202506_turkey_magnitude_gr_violation_med` at
+  `T(D)=0.9973`) score between 0.989 and 0.997 — indistinguishable from
+  genuine data — so the "zero known-bad clears theta_admit" rule has
+  nowhere to go but the ceiling. The refit's reported 0% false-admit rate
+  is an artifact of that ceiling (ADMIT becomes practically unreachable —
+  only 77.6% decision agreement with current production, 217/968 datasets
+  disagreeing, the overwhelming majority being real `known_good` catalogs
+  losing clean ADMIT status), not a genuine improvement in known-good/
+  known-bad separation.
+
+Read as a methodology finding, not just a rejected number: pure
+Entropy Weight Method reweights criteria by variance/entropy observed
+across the corpus, which is not the same thing as discriminative power
+against *known* corruptions, and can silently discard the latter when
+optimizing for the former. `AXIS_WEIGHTS`/`WITHIN_A`/`theta_admit`/
+`theta_reject` remain at their current, AHP-anchored values as a result
+of this investigation, not for lack of one.

@@ -32,6 +32,38 @@ public commit.
   record-count blend exactly. Fully backward-compatible with the default
   (no live/local A6 reference) case. Regression tests added
   (`tests/test_decision.py::TestA6EvidenceWeighting`).
+- **A3 (aftershock decay) had no spatial constraint.** Mainshock-aftershock
+  clustering used only a time window and magnitude condition — two
+  unrelated earthquakes anywhere on Earth within the same 30-day window
+  could be merged into one "aftershock sequence." Fixed with a
+  magnitude-dependent spatial radius (Gardner & Knopoff 1974, via van
+  Stiphout, Wiemer & Marzocchi 2012). **Disclosed behavior change**: shifts
+  A3's scored output for wide-area/multi-region datasets; recalibration
+  against the internal corpus is an open item. Regression test added
+  (`tests/test_axis_authenticity.py::TestIntrinsicMode::test_a3_spatial_constraint_excludes_geographically_distant_coincident_events`).
+- **A4 (correlation dimension) computed raw Euclidean distance on (lat, lon)
+  degrees**, distorting east-west vs. north-south spacing away from the
+  equator and breaking entirely across the ±180° antimeridian. Fixed via a
+  new local, antimeridian-unwrapped tangent-plane projection
+  (`stats.project_lonlat_to_local_km`). **Disclosed behavior change**, same
+  caveat as A3 above. While adding this function's own regression tests, a
+  second bug was found and fixed in the same pass: its antimeridian-safe
+  reference longitude was computed as a plain linear median, which itself
+  breaks for point clouds that straddle the antimeridian symmetrically
+  (e.g. two points at 179.999°/−179.999° have a linear median of 0°, on the
+  wrong side of the globe) — fixed with a circular-mean pivot, re-centered
+  via median for outlier robustness. Regression tests added
+  (`tests/test_stats.py::TestProjectLonLatToLocalKm`,
+  `tests/test_axis_authenticity.py::TestIntrinsicMode::test_a4_...` uniform-coordinate case unaffected).
+- **A5 (duplicate detection) missed duplicates straddling the antimeridian**
+  and had a residual worst-case quadratic cost in pathologically dense grid
+  cells. Fixed via modulo-wrapped longitude cell indexing (antimeridian) and
+  a disclosed, bounded safety valve (`MAX_A5_NEIGHBORHOOD_CANDIDATES = 500`,
+  deterministic subsampling, same pattern as `MAX_A3_CLUSTERS`/
+  `correlation_dimension`'s `max_points`) for the dense-bucket case. Also
+  switched grid-bucket removal to avoid an unnecessary list scan. Regression
+  tests added (`tests/test_axis_authenticity.py::TestIntrinsicMode::test_a5_flags_duplicate_pair_straddling_the_antimeridian`,
+  `test_a5_dense_bucket_cap_does_not_crash_and_still_flags_duplicates`).
 
 ### Added
 
@@ -55,7 +87,7 @@ public commit.
   many reference events were available to match against), across every
   `ExternalCatalogReference` implementation (USGS/EMSC/ISC/LocalCSV/
   Multi/WeightedMulti).
-- Automated test suite (`tests/`, 315 tests) is now part of the public
+- Automated test suite (`tests/`, 321 tests) is now part of the public
   repository, along with a GitHub Actions CI workflow
   (`.github/workflows/tests.yml`) running the suite across Python
   3.8–3.12 on every push/PR.
@@ -68,6 +100,14 @@ public commit.
   two-sample Kolmogorov-Smirnov test on a numeric field's distribution, not
   a structural schema-change detector; the underlying computation is
   unchanged.
+- `SubTestResult.effective_weight`'s docstring (`data_certify/results.py`)
+  corrected: it described `effective_weight` as a fixed nominal value
+  "unaffected by per-audit renormalisation" for every sub-test. That is
+  still true for every axis except A — the A6 record-stratum-weighting fix
+  above made A1–A6's `effective_weight` genuinely dynamic (varies per audit
+  based on how many records A6 corroborates), so the docstring no longer
+  matched the code it was documenting. Purely a documentation correction,
+  no behavior change.
 - README: corrected `--reference-csv` vs `--dataset` documentation (the
   former overrides the A6 reference catalog, it does not select the audit
   target); added an explicit caveat that the default single-source
@@ -77,7 +117,8 @@ public commit.
   unresolved calibration finding (19 genuine false-admits out of 22
   `known_bad` datasets scoring `T(D) >= theta_admit` on the internal
   968-dataset calibration corpus, before Stage-1 hard-override rescue —
-  see `data_certify/_constants.py` for the full, unedited history).
+  see `data_certify/_constants.py` for the full, unedited history); added a
+  "Geographic-scoring fixes" section disclosing the A3/A4/A5 fixes above.
 
 ### Known limitations (disclosed, not yet resolved)
 
@@ -92,3 +133,12 @@ public commit.
 - The 19-genuine-false-admit finding above predates the evidence-coverage
   gate; whether/how much the gate changes this figure has not yet been
   re-measured against the private corpus.
+- The A3/A4 geographic-scoring fixes above are genuine changes to
+  already-calibrated scoring functions; the internal calibration corpus has
+  not yet been re-run against them, so `AXIS_WEIGHTS`/`WITHIN_A` and
+  `theta_admit`/`theta_reject` reflect calibration done under the old
+  (pre-fix) A3/A4 behavior until that re-run happens.
+- Evidence coverage and the composite score do not yet account for small-N
+  statistical power (a high-weight sub-test computed from very few
+  applicable records is treated the same as one computed from thousands) —
+  a possible future addition, not yet implemented.

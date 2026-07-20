@@ -32,18 +32,37 @@ class SubTestResult:
     applicable: bool = True
     detail: Dict[str, Any] = field(default_factory=dict)
     note: str = ""
-    # NOMINAL effective weight of this sub-test in the overall T(D) composite,
-    # i.e. axis_weight * within_axis_weight as calibrated (main framework
-    # Section 5, WITHIN_* tables in _constants.py) -- set by
+    # Effective weight of this sub-test in the overall T(D) composite for
+    # THIS audit, i.e. axis_weight * within_axis_weight as calibrated (main
+    # framework Section 5, WITHIN_* tables in _constants.py) -- set by
     # `decision.py::_assign_effective_weights` once the parent AxisResult's
     # axis is known, NOT by the individual score_* functions themselves.
     # None for P1-P3 (Stage-1 hard-gate sub-tests, which are not part of the
     # weighted compensatory sum at all -- see axis_plausibility.py's module
-    # docstring). This is the NOMINAL calibrated weight, unaffected by
-    # per-audit renormalisation when a test is inapplicable (see 3.4/3.5
-    # review discussion) -- it answers "how much does this sub-test matter
-    # by design", not "how much did it end up mattering in this specific
-    # audit run once inapplicable tests were renormalised away".
+    # docstring).
+    #
+    # For every sub-test EXCEPT A1-A6, this is a fixed NOMINAL calibrated
+    # weight, unaffected by per-audit renormalisation when a test is
+    # inapplicable (see 3.4/3.5 review discussion) -- it answers "how much
+    # does this sub-test matter by design", not "how much did it end up
+    # mattering in this specific audit run once inapplicable tests were
+    # renormalised away".
+    #
+    # DOCUMENTATION FIX (2026-07-21, found by external review): for A1-A6
+    # specifically, this is NOT a fixed nominal value -- it now varies
+    # per-audit. A6, when it externally corroborates records, *substitutes*
+    # for A1-A5 on a per-record basis rather than sitting alongside them at
+    # a fixed nominal share (see `decision.py::_assign_effective_weights`'s
+    # docstring for the full rationale), so A6's `effective_weight` (and,
+    # correspondingly, A1-A5's) is allocated across A6 and (A1-A5) in
+    # proportion to how many records each stratum actually covers in THIS
+    # audit -- it can range from 0 (no live/local A6 reference configured,
+    # A1-A5 keep their full nominal share) up to nearly all of axis A's
+    # weight (A6 covers ~all records with strong corroboration). This
+    # answers "how much did this sub-test actually matter in this specific
+    # audit", which for A1-A6 is no longer the same question as "how much
+    # does it matter by design" -- the two only coincide when A6 has no
+    # reference to check against.
     effective_weight: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:

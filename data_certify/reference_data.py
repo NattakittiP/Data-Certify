@@ -604,7 +604,7 @@ USGS_COMCAT_BASE_URL = "https://earthquake.usgs.gov/fdsnws/event/1"
 # during this project's development -- `format=geojson` queries are
 # truncated, not rejected, past this many features).
 USGS_MAX_EVENTS_PER_QUERY = 20000
-_USER_AGENT = "data-certify-reference-implementation/0.1 (Earth Science Informatics submission)"
+_USER_AGENT = "data-certify-reference-implementation/0.1"
 
 # BUGFIX #4 (2026-07-10, found live via calibration/debug_diagnostics/debug_isc_chile_year_gap.py
 # against the real "chile" dataset -- the final, root-cause fix for the

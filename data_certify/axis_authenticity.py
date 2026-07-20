@@ -118,15 +118,51 @@ def _score_a2_gutenberg_richter(dataset: CertifyDataset,
     )
 
 
+def _gardner_knopoff_radius_km(magnitude: float) -> float:
+    """
+    Gardner & Knopoff (1974) magnitude-dependent aftershock-zone radius,
+    L(M) = 10^(0.1238*M + 0.983) km -- the standard empirical fit widely
+    used in seismic declustering (see e.g. van Stiphout, Wiemer & Marzocchi
+    2012, "Theme V" review, Eq. 2, for the same coefficients as used here).
+    Larger mainshocks are expected to produce aftershocks over a
+    correspondingly larger area (e.g. ~40 km at M5.5, ~80 km at M7.0,
+    ~145 km at M8.0) -- used by `_identify_mainshock_aftershock_clusters`
+    below to add the spatial constraint that function's docstring
+    previously disclosed as missing (see BUGFIX note there).
+    """
+    return float(10.0 ** (0.1238 * magnitude + 0.983))
+
+
 def _identify_mainshock_aftershock_clusters(dataset: CertifyDataset,
                                              mainshock_mag_threshold: float = 5.5,
                                              window_days: float = 30.0) -> List[np.ndarray]:
     """
-    Simplified Gardner-Knopoff-style declustering: for each event above
+    Gardner-Knopoff-style declustering: for each event above
     `mainshock_mag_threshold`, treat subsequent smaller events within
-    `window_days` as candidate aftershocks. Not a full spatial-magnitude
-    window implementation -- a documented simplification of Gardner &
-    Knopoff (1974), sufficient to exercise the Omori-Utsu fit (A3).
+    `window_days` AND within a magnitude-dependent spatial radius
+    (`_gardner_knopoff_radius_km`, Gardner & Knopoff 1974) as candidate
+    aftershocks.
+
+    BUGFIX (2026-07-21, found by external review): this function previously
+    used ONLY the time window and magnitude condition, with no spatial
+    constraint at all -- meaning two independent earthquakes on opposite
+    sides of the planet, occurring within the same `window_days` window,
+    could be merged into a single "aftershock sequence" for a regional or
+    global catalog. This directly affects A3, which carries ~29% of A(D)'s
+    nominal weight in the common intrinsic-only case -- a global catalog
+    could show an apparent Omori-Utsu-consistent decay purely from
+    unrelated, independent seismicity coincidentally decaying in rate over
+    time (background seismicity is not stationary), not genuine aftershock
+    physics. Fixed by adding the missing spatial term, using each
+    candidate mainshock's own Gardner-Knopoff radius (so a large mainshock
+    is allowed a correspondingly larger aftershock zone, not a fixed
+    distance for every magnitude).
+
+    NOTE: this changes A3's actual scored output for any dataset spanning
+    a large geographic area (previously time-window-only candidates that
+    are NOT within the spatial radius of their putative mainshock are no
+    longer included) -- a genuine, disclosed behavior change from the
+    prior simplification, not merely an additive diagnostic.
 
     PERFORMANCE NOTE (calibration-corpus bug-hunt, discovered scoring
     Dataset/earthquake1.csv -- NOAA/ISC-GEM's "significant earthquakes"
@@ -154,6 +190,8 @@ def _identify_mainshock_aftershock_clusters(dataset: CertifyDataset,
     order = np.argsort(days)
     mags = dataset.magnitude[order]
     d_sorted = days[order]
+    lat_sorted = dataset.latitude[order]
+    lon_sorted = dataset.longitude[order]
 
     clusters = []
     mainshock_idx = np.where(np.isfinite(mags) & (mags >= mainshock_mag_threshold))[0]
@@ -161,6 +199,8 @@ def _identify_mainshock_aftershock_clusters(dataset: CertifyDataset,
         t0 = d_sorted[idx]
         if not np.isfinite(t0):
             continue
+        if not (np.isfinite(lat_sorted[idx]) and np.isfinite(lon_sorted[idx])):
+            continue  # no coordinates for the candidate mainshock -- cannot apply the spatial term at all
         # Binary-search the (t0, t0+window_days] slice instead of an
         # O(n) full-array boolean scan (see perf note above). d_sorted
         # is ascending, so side="right" on t0 gives the first index with
@@ -174,7 +214,22 @@ def _identify_mainshock_aftershock_clusters(dataset: CertifyDataset,
             continue
         window_days_arr = d_sorted[lo:hi]
         window_mags = mags[lo:hi]
-        after_mask = window_mags < mags[idx]
+        window_lat = lat_sorted[lo:hi]
+        window_lon = lon_sorted[lo:hi]
+
+        # SPATIAL TERM (2026-07-21 bugfix -- see docstring above): only
+        # candidates within this mainshock's own Gardner-Knopoff radius
+        # count as aftershocks. NaN candidate coordinates are excluded
+        # (haversine propagates NaN -> the distance check below correctly
+        # drops them), not silently treated as "at distance 0".
+        radius_km = _gardner_knopoff_radius_km(mags[idx])
+        dist_km = stats.haversine_km_matrix(
+            np.array([lat_sorted[idx]]), np.array([lon_sorted[idx]]),
+            window_lat, window_lon,
+        )[0]
+        spatial_mask = np.isfinite(dist_km) & (dist_km <= radius_km)
+
+        after_mask = (window_mags < mags[idx]) & spatial_mask
         if int(np.sum(after_mask)) >= 5:
             clusters.append(window_days_arr[after_mask] - t0)
     return clusters
@@ -256,13 +311,28 @@ def _score_a4_fractal_dimension(dataset: CertifyDataset,
     the unambiguous failure direction -- Dc trending toward the embedding
     dimension (2.0), the signature of spatially near-uniform (fabricated)
     coordinates rather than fault-controlled real seismicity.
+
+    BUGFIX (2026-07-21, found by external review): previously passed raw
+    (latitude, longitude) IN DEGREES directly into `correlation_dimension`,
+    which computes plain Euclidean pairwise distance -- wrong for
+    geographic coordinates (longitude's km-per-degree shrinks toward the
+    poles, and the +/-180 antimeridian is a discontinuity in raw degrees
+    despite being geographically contiguous). Fixed by projecting to a
+    local, small-to-regional-scale equirectangular approximation in km
+    first (`stats.project_lonlat_to_local_km`) -- see that function's
+    docstring for the full rationale. This changes A4's actual scored Dc
+    for any dataset spanning a wide area, near the poles, or straddling
+    the dateline (e.g. Fiji/Tonga/Aleutians) -- a genuine, disclosed
+    behavior change, not merely an additive diagnostic. Any externally
+    supplied `reference_dc` must be computed the same way (under this
+    same km-projection) to remain a valid comparison point.
     """
     valid = np.isfinite(dataset.latitude) & np.isfinite(dataset.longitude)
     if np.sum(valid) < 50:
         return SubTestResult(name="A4", score=float("nan"), applicable=False,
                               note="Fewer than 50 valid (lat, lon) pairs for correlation-dimension estimation.")
 
-    points = np.column_stack([dataset.latitude[valid], dataset.longitude[valid]])
+    points = stats.project_lonlat_to_local_km(dataset.latitude[valid], dataset.longitude[valid])
     dc = stats.correlation_dimension(points)
     if math.isnan(dc):
         return SubTestResult(name="A4", score=float("nan"), applicable=False,
@@ -285,10 +355,14 @@ def _score_a4_fractal_dimension(dataset: CertifyDataset,
                           note=note)
 
 
+MAX_A5_NEIGHBORHOOD_CANDIDATES: int = 500
+
+
 def _score_a5_duplicates(dataset: CertifyDataset,
                           time_eps_sec: float = 5.0,
                           dist_eps_km: float = 2.0,
-                          mag_eps: float = 0.05) -> SubTestResult:
+                          mag_eps: float = 0.05,
+                          max_neighborhood_candidates: int = MAX_A5_NEIGHBORHOOD_CANDIDATES) -> SubTestResult:
     """
     A5: Duplicate / near-duplicate detection via exact hash + epsilon-ball
     clustering in normalised (time, lat, lon, magnitude) space (Deep-Dive
@@ -320,6 +394,42 @@ def _score_a5_duplicates(dataset: CertifyDataset,
     region -- is a disclosed geometric approximation good enough for a
     duplicate-detection PRE-FILTER (the actual accept/reject distance
     check below still uses the exact haversine formula).
+
+    BUGFIX (2026-07-21, found by external review -- longitude wraparound):
+    the spatial grid's cell index previously used
+    `floor(lon / lon_cell_deg)` on raw signed longitude with NO
+    wraparound handling, so two points a few hundred metres apart across
+    the +/-180 degree antimeridian (e.g. Fiji, Tonga, the Aleutians, or
+    any New Zealand/Pacific-region catalog straddling the dateline) landed
+    in grid cells at opposite ends of the index range and were NEVER
+    compared by the 3x3-neighbourhood scan -- even though the actual
+    accept/reject check already correctly used the exact haversine
+    formula. Fixed by computing the longitude cell index modulo the total
+    number of cells spanning the full 360-degree circle, and wrapping the
+    +/-1 neighbour offset the same way, so the highest- and lowest-index
+    longitude cells are correctly treated as adjacent.
+
+    PERFORMANCE NOTE (dense-bucket worst case, same review pass): even
+    with the spatial grid above, a pathological cluster of many (thousands+)
+    records ALL mutually within time_eps/dist_eps/mag_eps of each other
+    still costs O(k^2) in the worst case -- the 3x3-neighbourhood candidate
+    list itself has k members, and each of the k records must be checked
+    against it to exactly determine every duplicate pair. This is not
+    fixable for free: exactly identifying every pair within an epsilon-ball
+    in a genuinely dense cluster inherently requires an amount of work
+    related to how many actual matching pairs exist. As with A3's
+    `MAX_A3_CLUSTERS` and `correlation_dimension`'s `max_points`, this is
+    therefore BOUNDED rather than solved: if a single record's
+    3x3-neighbourhood candidate list exceeds `max_neighborhood_candidates`,
+    only a deterministic random subsample (fixed seed) of that size is
+    exhaustively checked against it, capping the worst-case cost at
+    O(n * max_neighborhood_candidates) instead of O(n^2). A dataset that
+    trips this cap already has overwhelming evidence of a batch-import/
+    duplication defect (hundreds+ of records sharing the same ~2km/5s/
+    0.05-magnitude cell) -- this is a disclosed approximation of the exact
+    duplicate_fraction ONLY in that already-anomalous regime, not a change
+    to ordinary-catalog behaviour (no bundled or realistic test dataset
+    approaches this cap).
     """
     n = dataset.n
     if n < 2:
@@ -347,11 +457,22 @@ def _score_a5_duplicates(dataset: CertifyDataset,
     cos_min = max(math.cos(math.radians(min(max_abs_lat, 89.9))), 1e-6)
     lat_cell_deg = max(dist_eps_km / 111.0, 1e-9)
     lon_cell_deg = max(dist_eps_km / (111.0 * cos_min), 1e-9)
+    # Total number of longitude cells spanning the full 360-degree circle,
+    # used to wrap the cell index at the +/-180 antimeridian seam (see
+    # BUGFIX note above) rather than letting it run off the end.
+    n_lon_cells = max(1, int(math.ceil(360.0 / lon_cell_deg)))
+
+    def _lon_cell_index(lon: float) -> int:
+        # Normalise to [0, 360) first so a raw longitude near -180 and one
+        # near +180 map to cell indices that are numerically adjacent (or
+        # wrap around via the modulo below) instead of landing at opposite
+        # ends of the index range.
+        return int((lon % 360.0) // lon_cell_deg) % n_lon_cells
 
     def _cell(lat: float, lon: float):
         if not (np.isfinite(lat) and np.isfinite(lon)):
             return None
-        return (int(np.floor(lat / lat_cell_deg)), int(np.floor(lon / lon_cell_deg)))
+        return (int(np.floor(lat / lat_cell_deg)), _lon_cell_index(lon))
 
     grid: Dict[Any, List[int]] = {}
 
@@ -370,6 +491,8 @@ def _score_a5_duplicates(dataset: CertifyDataset,
             except ValueError:
                 pass
 
+    subsample_rng = np.random.RandomState(42)
+
     # Sliding window over the time-sorted array, cross-referenced against
     # the spatial grid: only records within BOTH time_eps_days AND a
     # neighbouring grid cell are ever compared (see docstring for why
@@ -385,17 +508,30 @@ def _score_a5_duplicates(dataset: CertifyDataset,
         c_i = _cell(lat_sorted[i], lon_sorted[i])
         if c_i is not None:
             cy, cx = c_i
+            candidates: List[int] = []
             for dy in (-1, 0, 1):
                 for dx in (-1, 0, 1):
-                    for j in grid.get((cy + dy, cx + dx), []):
-                        dist = stats.haversine_km(lat_sorted[i], lon_sorted[i], lat_sorted[j], lon_sorted[j])
-                        if not np.isfinite(dist) or dist > dist_eps_km:
-                            continue
-                        if not np.isfinite(mag_sorted[i]) or not np.isfinite(mag_sorted[j]):
-                            continue
-                        if abs(mag_sorted[i] - mag_sorted[j]) <= mag_eps:
-                            is_duplicate[i] = True
-                            is_duplicate[j] = True
+                    # Wrap the longitude neighbour offset modulo n_lon_cells
+                    # (see BUGFIX note above) so the cell just past +180
+                    # correctly wraps to the cell just past -180.
+                    wrapped_cx = (cx + dx) % n_lon_cells
+                    candidates.extend(grid.get((cy + dy, wrapped_cx), []))
+            # Dense-bucket safety valve (see PERFORMANCE NOTE above): bound
+            # the worst-case O(k^2) blowup for a pathologically dense
+            # cluster, exactly like MAX_A3_CLUSTERS/max_points elsewhere.
+            if len(candidates) > max_neighborhood_candidates:
+                keep = subsample_rng.choice(
+                    len(candidates), size=max_neighborhood_candidates, replace=False)
+                candidates = [candidates[k] for k in keep]
+            for j in candidates:
+                dist = stats.haversine_km(lat_sorted[i], lon_sorted[i], lat_sorted[j], lon_sorted[j])
+                if not np.isfinite(dist) or dist > dist_eps_km:
+                    continue
+                if not np.isfinite(mag_sorted[i]) or not np.isfinite(mag_sorted[j]):
+                    continue
+                if abs(mag_sorted[i] - mag_sorted[j]) <= mag_eps:
+                    is_duplicate[i] = True
+                    is_duplicate[j] = True
         _add_to_grid(i)
 
     dup_fraction = float(np.sum(is_duplicate) / n)

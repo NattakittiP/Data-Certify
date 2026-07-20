@@ -222,6 +222,52 @@ to match against — a query that returns 0 reference events looks identical
 to "nothing corroborates this dataset" in `matched_fraction` alone, but is a
 very different situation).
 
+### Geographic-scoring fixes (2026-07-21, external review) — disclosed behavior change
+
+Three sub-tests had geographic bugs that are now fixed as the new default
+behavior. These are genuine, deliberate changes to already-calibrated scoring
+functions — real multi-region or dateline-spanning catalogs can score
+differently under A3/A4 than they did before this fix, and re-validating
+against the internal calibration corpus is still an open item (see "Known
+limitations" below).
+
+- **A3 (aftershock-decay conformity) had no spatial constraint at all.**
+  Mainshock-aftershock clustering previously used only a time window and a
+  magnitude condition — two independent earthquakes on opposite sides of the
+  planet, coincidentally within the same 30-day window, could be merged into
+  one "aftershock sequence." Fixed by adding a magnitude-dependent spatial
+  radius (Gardner & Knopoff 1974, `L(M) = 10^(0.1238*M + 0.983)` km, per van
+  Stiphout, Wiemer & Marzocchi 2012), so only candidates within the
+  mainshock's own radius count. Affects any dataset spanning a wide
+  geographic area; a small/regional catalog is largely unaffected since its
+  events were already within a plausible aftershock radius of each other.
+- **A4 (correlation dimension) computed raw Euclidean distance on (lat, lon)
+  in degrees.** This is wrong in two ways: a degree of longitude shrinks
+  toward the poles (proportional to `cos(latitude)`), and it breaks entirely
+  across the ±180° antimeridian (179.9° and −179.9° are ~11 km apart in
+  reality, ~359.8 degrees apart as raw numbers). Fixed by projecting to a
+  local, antimeridian-unwrapped tangent-plane coordinate system in km
+  (`stats.project_lonlat_to_local_km`) before computing correlation
+  dimension. This is a local/regional-scale approximation, not a
+  globally-exact projection — adequate for a relative clustering-geometry
+  statistic, not intended for catalogs spanning many thousands of km.
+  `haversine_km`/`haversine_km_matrix` (used elsewhere, e.g. A5/A6/P8) are
+  unaffected and remain exact.
+- **A5 (duplicate detection) missed duplicates straddling the antimeridian,**
+  and had a residual worst-case quadratic cost in pathologically dense
+  buckets. The spatial pre-filter grid indexed longitude with no wraparound,
+  so two near-duplicate records a few hundred metres apart across the
+  dateline (e.g. Fiji, Tonga, the Aleutians, or NZ/Pacific catalogs) landed
+  in cells at opposite ends of the index range and were never compared —
+  fixed via modulo-wrapped cell indexing. Separately, an all-pairs check
+  inside a single dense grid cell is inherently O(k²) for a genuinely dense
+  cluster (no exact algorithm avoids this); a disclosed, bounded safety
+  valve (`MAX_A5_NEIGHBORHOOD_CANDIDATES = 500`, subsampled deterministically
+  like `MAX_A3_CLUSTERS`/`correlation_dimension`'s `max_points`) caps the
+  worst case, at the cost of a documented approximation only in that already
+  -anomalous regime (hundreds+ of records sharing one ~2km/5s/0.05-magnitude
+  cell — not ordinary catalog behavior).
+
 ---
 
 ## Repository layout

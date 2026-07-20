@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from data_certify.axis_authenticity import (
     score_authenticity, _score_a3_omori_utsu, _score_a5_duplicates,
+    _identify_mainshock_aftershock_clusters,
 )
 from data_certify.reference_data import (
     LocalCSVCatalogReference, NullExternalCatalog, MultiSourceExternalCatalogReference,
@@ -74,6 +75,101 @@ class TestIntrinsicMode:
         a5 = result.sub_results["A5"]
         assert a5.applicable
         assert a5.detail["n_flagged"] >= 2
+
+    def test_a3_spatial_constraint_excludes_geographically_distant_coincident_events(self):
+        """
+        Regression test for the 2026-07-21 A3 bugfix: before the spatial
+        term was added, ANY smaller event within the time window counted as
+        a candidate aftershock, regardless of location. Builds one M6.0
+        mainshock with 5 genuine, spatially-close aftershocks (~1km away,
+        well inside the ~53km Gardner-Knopoff radius for M6.0) PLUS 4
+        unrelated smaller events landing in the SAME time window but
+        ~5,500km away, and asserts only the 5 near events are counted as
+        aftershocks -- not all 9.
+        """
+        n = 10
+        base_time = np.datetime64("2021-01-01T00:00:00", "ns")
+        day = np.timedelta64(1, "D")
+        origin_time = np.array([base_time] * n).astype("datetime64[ns]")
+        lat = np.zeros(n)
+        lon = np.zeros(n)
+        mag = np.zeros(n)
+
+        # Mainshock.
+        lat[0], lon[0], mag[0] = 0.0, 0.0, 6.0
+
+        # 5 genuine, spatially-close aftershocks.
+        for i in range(1, 6):
+            origin_time[i] = base_time + int(i) * day
+            lat[i], lon[i], mag[i] = 0.01, 0.01, 4.0
+
+        # 4 unrelated events, same time window, ~5,500km away -- well
+        # outside the mainshock's Gardner-Knopoff radius.
+        for i in range(6, 10):
+            origin_time[i] = base_time + int(i - 5) * day
+            lat[i], lon[i], mag[i] = 50.0, 50.0, 4.0
+
+        ds = make_dataset(n=n, origin_time=origin_time, latitude=lat, longitude=lon, magnitude=mag)
+        clusters = _identify_mainshock_aftershock_clusters(ds)
+        assert len(clusters) == 1
+        assert len(clusters[0]) == 5, (
+            f"expected only the 5 spatially-close events to be counted as "
+            f"aftershocks, got {len(clusters[0])} -- the 4 geographically "
+            f"distant events may be leaking through the spatial constraint."
+        )
+
+    def test_a5_flags_duplicate_pair_straddling_the_antimeridian(self):
+        """
+        Regression test for the 2026-07-21 A5 bugfix: the spatial grid's
+        cell index previously used raw signed longitude with no wraparound,
+        so two near-duplicate records straddling the +/-180 degree
+        antimeridian (e.g. Fiji/Tonga/Aleutians/NZ-Pacific catalogs) landed
+        in grid cells at opposite ends of the index range and were never
+        compared, even though they are only metres apart in reality.
+        """
+        n = 50
+        ds = make_dataset(n=n)
+        # Move one pair to straddle the antimeridian, a few hundred metres apart.
+        ds.latitude[0] = -18.0
+        ds.longitude[0] = 179.999
+        ds.latitude[1] = -18.0
+        ds.longitude[1] = -179.999
+        ds.origin_time[1] = ds.origin_time[0] + np.timedelta64(1, "s")
+        ds.magnitude[1] = ds.magnitude[0]
+        result = _score_a5_duplicates(ds)
+        assert result.applicable
+        assert result.detail["n_flagged"] >= 2, (
+            "the antimeridian-straddling near-duplicate pair was not "
+            "flagged -- the longitude-wraparound fix may be broken."
+        )
+
+    def test_a5_dense_bucket_cap_does_not_crash_and_still_flags_duplicates(self):
+        """
+        Sanity check for the dense-bucket safety valve (MAX_A5_NEIGHBORHOOD_
+        CANDIDATES): a pathologically dense cluster (many more records than
+        the cap sharing one time/place) should not error out, should
+        complete quickly, and should still flag at least some duplicates
+        via the subsampled candidate check.
+        """
+        n = 800
+        base_time = np.datetime64("2022-06-01T00:00:00", "ns")
+        # All records share the exact same timestamp/location/magnitude, so
+        # every one of them falls into the same sliding time-window AND the
+        # same spatial-grid cell -- the pathological dense-bucket case the
+        # cap exists for.
+        ds = make_dataset(
+            n=n,
+            origin_time=np.full(n, base_time).astype("datetime64[ns]"),
+            latitude=np.full(n, 10.0),
+            longitude=np.full(n, 20.0),
+            magnitude=np.full(n, 5.0),
+        )
+        t0 = time.time()
+        result = _score_a5_duplicates(ds, max_neighborhood_candidates=50)
+        elapsed = time.time() - t0
+        assert elapsed < 5.0, f"dense-bucket case took {elapsed:.2f}s -- the safety-valve cap may not be applying."
+        assert result.applicable
+        assert result.detail["n_flagged"] > n * 0.5
 
 
 class TestExternalMode:

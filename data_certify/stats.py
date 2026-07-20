@@ -942,6 +942,116 @@ def haversine_km_matrix(lats: np.ndarray, lons: np.ndarray,
     return EARTH_RADIUS_KM * c
 
 
+def project_lonlat_to_local_km(lat: np.ndarray, lon: np.ndarray) -> np.ndarray:
+    """
+    Project (lat, lon) in degrees to a local, small-to-regional-scale
+    equirectangular (tangent-plane) approximation in km.
+
+    BUGFIX (2026-07-21, found by external review): `correlation_dimension`
+    (used by A4) is a generic Euclidean-distance algorithm over an
+    arbitrary point cloud -- it has no notion of "these are geographic
+    coordinates". Feeding it raw (lat, lon) IN DEGREES, as A4 previously
+    did, means Euclidean distance is computed directly on degree values,
+    which is wrong in two ways any real seismic catalog can hit:
+
+      1. a degree of longitude covers ~111 km at the equator but shrinks
+         toward zero approaching the poles (proportional to cos(latitude))
+         -- so raw-degree Euclidean distance systematically distorts
+         east-west vs. north-south spacing away from the equator;
+      2. the +/-180 degree antimeridian discontinuity: two points at
+         179.9 and -179.9 degrees longitude are ~11 km apart on the real
+         sphere, but ~359.8 degrees apart in raw coordinates -- exactly
+         backwards. This directly affects catalogs around the Pacific
+         dateline (Fiji, Tonga, the Aleutians, New Zealand-region data
+         that happens to span it), where A4's correlation-dimension
+         estimate would previously be measurably distorted.
+
+    This function fixes both by (a) unwrapping longitude relative to the
+    dataset's own median longitude, so antimeridian-adjacent points land
+    close together instead of ~360 degrees apart, then (b) projecting to
+    a local tangent plane in km using the dataset's own median (lat, lon)
+    as the reference point (median chosen over mean for robustness against
+    a handful of outlier records skewing the reference).
+
+    This is a LOCAL, small-to-regional-scale approximation (distances
+    accurate close to the reference point, degrading with distance from
+    it due to Earth's curvature) -- adequate for a RELATIVE clustering-
+    geometry statistic like correlation dimension, not intended as a
+    globally-exact equal-area projection for catalogs spanning many
+    thousands of km. `haversine_km`/`haversine_km_matrix` remain the
+    correct choice wherever an exact great-circle distance is needed
+    (A5, A6, P8).
+
+    BUGFIX (2026-07-21, found while writing this function's own regression
+    tests): the reference longitude was originally the plain (linear)
+    median of the raw signed longitude values. That is WRONG for exactly
+    the antimeridian-straddling point clouds this function exists to
+    handle: e.g. two points at 179.999 and -179.999 degrees (about 220m
+    apart in reality) have a linear median of 0.0 degrees -- the pivot
+    lands on the FAR side of the globe from the data, and unwrapping
+    relative to it does nothing (both points stay put, ~40,000km apart
+    in the projection). More generally, any dataset whose longitudes are
+    bimodally split across the +/-180 seam (a real NZ/Fiji/Tonga/Aleutian
+    catalog easily can be) produces an arbitrary, data-dependent linear
+    median with no relationship to the point cloud's actual geographic
+    center. Fixed with a two-pass approach: first compute a circular mean
+    of longitude (via the mean (sin, cos) vector, atan2'd back to degrees)
+    -- a standard directional-statistics technique that is antimeridian-
+    safe by construction, since it treats longitude as an angle, not a
+    line -- and unwrap every point relative to that. The unwrapped values
+    are then on one contiguous, seam-free linear scale, so taking their
+    (linear) median recovers the original design's robustness against a
+    handful of outlier records skewing the reference, without reintroducing
+    the antimeridian failure.
+
+    Args:
+        lat, lon: Degree arrays, same shape. NaN propagates to NaN in the
+            output (never silently dropped or treated as 0) -- a NaN in
+            EITHER coordinate makes BOTH output components NaN for that
+            record, since a partial (x, y) pair is not a valid point.
+
+    Returns:
+        (N, 2) array of (x_km, y_km) local-projected coordinates.
+    """
+    lat = np.asarray(lat, dtype=float)
+    lon = np.asarray(lon, dtype=float)
+    valid = np.isfinite(lat) & np.isfinite(lon)
+
+    if np.any(valid):
+        lat_ref = float(np.median(lat[valid]))
+        # Pass 1: an antimeridian-safe pivot via circular mean (see BUGFIX
+        # note above), used only to unwrap onto one contiguous scale.
+        lon_rad_valid = np.radians(lon[valid])
+        circ_mean_lon = math.degrees(math.atan2(
+            float(np.mean(np.sin(lon_rad_valid))),
+            float(np.mean(np.cos(lon_rad_valid))),
+        ))
+        lon_unwrapped_pivot = ((lon[valid] - circ_mean_lon + 180.0) % 360.0) - 180.0 + circ_mean_lon
+        # Pass 2: the median of the now-contiguous (seam-free) unwrapped
+        # values is a robust, outlier-resistant final reference.
+        lon_ref = float(np.median(lon_unwrapped_pivot))
+    else:
+        lat_ref = 0.0
+        lon_ref = 0.0
+
+    # Unwrap longitude relative to lon_ref so antimeridian-adjacent points
+    # (e.g. 179.9 and -179.9 degrees) land close together in projected
+    # space rather than ~360 degrees apart.
+    lon_unwrapped = ((lon - lon_ref + 180.0) % 360.0) - 180.0 + lon_ref
+
+    cos_lat_ref = math.cos(math.radians(lat_ref))
+    x_km = EARTH_RADIUS_KM * np.radians(lon_unwrapped - lon_ref) * cos_lat_ref
+    y_km = EARTH_RADIUS_KM * np.radians(lat - lat_ref)
+    # A NaN in either input coordinate must invalidate BOTH output
+    # components -- x_km only depends on lon and y_km only depends on lat,
+    # so without this either could stay silently finite while the point as
+    # a whole is not usable (see Args note above).
+    bad = ~(np.isfinite(lat) & np.isfinite(lon))
+    x_km = np.where(bad, np.nan, x_km)
+    y_km = np.where(bad, np.nan, y_km)
+    return np.column_stack([x_km, y_km])
+
+
 # =============================================================================
 # Chi-square survival function -- scipy-free regularized incomplete gamma
 # (C1's Little (1988) MCAR test needs a chi-square p-value; this project has

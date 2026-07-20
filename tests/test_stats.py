@@ -266,3 +266,54 @@ class TestHaversine:
 
     def test_nan_input_gives_nan(self):
         assert math.isnan(stats.haversine_km(float("nan"), 0, 0, 0))
+
+
+class TestProjectLonLatToLocalKm:
+    """
+    Regression tests for the 2026-07-21 A4 bugfix: `correlation_dimension`
+    previously received raw (lat, lon) in DEGREES, so Euclidean distance was
+    computed directly on degree values -- wrong both near the poles (a
+    degree of longitude shrinks by cos(latitude)) and across the +/-180
+    antimeridian (179.9 and -179.9 degrees are ~11km apart on the real
+    sphere but ~359.8 degrees apart in raw coordinates). These tests check
+    `project_lonlat_to_local_km` directly, independent of A4's scoring.
+    """
+
+    def test_antimeridian_adjacent_points_project_close_together(self):
+        # Two points ~11km apart in reality (straddling the dateline),
+        # ~1,700km apart on the equator if the antimeridian wrap were
+        # ignored (0.002 degrees jump treated as a ~359.998-degree jump).
+        lat = np.array([0.0, 0.0])
+        lon = np.array([179.999, -179.999])
+        pts = stats.project_lonlat_to_local_km(lat, lon)
+        dist = float(np.hypot(*(pts[0] - pts[1])))
+        expected = stats.haversine_km(0.0, 179.999, 0.0, -179.999)
+        assert dist < 20.0, (
+            f"antimeridian-adjacent points projected {dist:.1f}km apart -- "
+            f"expected ~{expected:.2f}km (the unwrapping fix appears broken)."
+        )
+        assert dist == pytest.approx(expected, rel=0.05)
+
+    def test_high_latitude_longitude_spacing_is_shrunk_by_cosine(self):
+        # At 80 degrees latitude, 1 degree of longitude spans far fewer km
+        # than at the equator (shrunk by cos(80deg) ~= 0.174). A raw-degree
+        # Euclidean distance would treat these two separations as equal.
+        lat_eq = np.array([0.0, 0.0])
+        lon_eq = np.array([0.0, 1.0])
+        lat_hi = np.array([80.0, 80.0])
+        lon_hi = np.array([0.0, 1.0])
+        d_eq = np.hypot(*(stats.project_lonlat_to_local_km(lat_eq, lon_eq)[0]
+                           - stats.project_lonlat_to_local_km(lat_eq, lon_eq)[1]))
+        d_hi = np.hypot(*(stats.project_lonlat_to_local_km(lat_hi, lon_hi)[0]
+                           - stats.project_lonlat_to_local_km(lat_hi, lon_hi)[1]))
+        assert d_hi < d_eq * 0.3, (
+            "1 degree of longitude at 80N should project to a much smaller "
+            "km distance than at the equator -- cos(latitude) scaling "
+            "appears missing."
+        )
+
+    def test_nan_coordinates_propagate_to_nan(self):
+        lat = np.array([0.0, float("nan")])
+        lon = np.array([0.0, 1.0])
+        pts = stats.project_lonlat_to_local_km(lat, lon)
+        assert math.isnan(pts[1, 0]) and math.isnan(pts[1, 1])

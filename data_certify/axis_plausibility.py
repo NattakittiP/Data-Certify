@@ -110,7 +110,7 @@ def p3_violation_mask(dataset: CertifyDataset) -> np.ndarray:
 # M7.5, offshore/onshore location. This implementation's single joint
 # mag>=6.5 AND depth<=100km check is a defensible, primary-source-grounded
 # simplification of that system, not a literal reproduction of it.
-# RE-VERIFIED (2026-07-07, Earth Science Informatics submission prep): independently re-fetched
+# RE-VERIFIED (2026-07-07, external submission prep): independently re-fetched
 # the primary source (pubs.usgs.gov/publication/70010016, PDF at
 # library.lanl.gov/tsunami/ts272.pdf) and re-confirmed both numbers against
 # it directly -- no change to either constant.
@@ -121,7 +121,7 @@ P4_DEPTH_CEILING_KM = 100.0
 # "log10(SRL) = a + b*M" (SRL = surface rupture length in km). Verified
 # directly against the original paper (coefficient, standard error in
 # parentheses, sigma = regression standard deviation, N = event count):
-# RE-VERIFIED (2026-07-07, Earth Science Informatics submission prep): independently re-fetched
+# RE-VERIFIED (2026-07-07, external submission prep): independently re-fetched
 # the primary-source PDF and checked all four rows digit-for-digit against
 # the paper's own Table 2A text -- exact match, no change.
 #   All  (any mechanism): a=-3.22(0.27), b=0.69(0.04), sigma=0.22, N=77

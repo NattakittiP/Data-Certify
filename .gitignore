@@ -65,23 +65,22 @@ credentials.json
 
 # ===================================================================
 # Project-specific — only the core library + entry-point scripts are
-# published. Internal docs, calibration/verification tooling, the test
-# suite, and all raw data are kept local and NOT uploaded to GitHub.
+# published. Internal docs and calibration/verification tooling (which
+# depend on the private, unpublished calibration corpus) are kept local
+# and NOT uploaded to GitHub. The automated test suite (tests/) IS
+# published as of 2026-07-21 (uses only synthetic/bundled data, no
+# dependency on the private corpus).
 # ===================================================================
 
 # Internal theory/validation documentation.
 Docs/
 
 # Calibration, corpus-building, and verification tooling (not part of
-# the shipped system — used only to derive/validate weights & thresholds).
+# the shipped system — used only to derive/validate weights & thresholds
+# against the private, unpublished 968-dataset corpus).
 calibration/
 run_all.sh
 fetch_theta_auth_references.py
-
-# Test suite (kept local; not published).
-tests/
-pytest.ini
-.pytest_cache/
 
 # Raw / derived seismic-catalog data — not published, EXCEPT the two
 # small real-catalog demo datasets (nz, chile) that the README Quick

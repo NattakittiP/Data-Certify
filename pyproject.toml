@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "License :: Other/Proprietary License",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
@@ -31,7 +32,14 @@ classifiers = [
 # pandas is needed only by prepare_dataset.py's CSV parsing/column-mapping
 # (the core audit package itself stays numpy-only).
 prepare = ["pandas>=1.3"]
-all     = ["pandas>=1.3"]
+# Dev/test extra: pytest for the automated regression suite (tests/).
+# The core data_certify package itself never imports pytest or scipy --
+# see stats.py's module docstring on the numpy-only design constraint.
+test    = ["pytest>=7.0"]
+all     = ["pandas>=1.3", "pytest>=7.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [project.scripts]
 data-certify-audit = "run_audit:main"

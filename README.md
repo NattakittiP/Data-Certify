@@ -47,6 +47,26 @@ not demonstrate that the system exhaustively classifies every fabrication as
 REJECT. "ADMIT" should be read as "cleared, no mandatory-review flag raised,"
 not as "verified genuine."
 
+**That result is not the whole picture — a known, disclosed false-admit
+finding exists on the internal calibration corpus.** Across the internal
+968-dataset calibration corpus (real + corrupted + fabricated catalogs, not
+public — see "Data & tooling not included" below), 22 `known_bad` datasets
+scored `T(D) >= theta_admit` before any Stage-1 hard-override check. Of
+those, 3 are independently caught by the hard-override gate regardless of
+`T(D)` (depth-implausible corruptions, where P2 fires unconditionally),
+leaving **19 genuine two-stage-decision false-admits**. Notably, every one
+of these 22 is a *corrupted derivative of a real catalog* — not one of the
+corpus's `fabricated_level1`–`level9` synthetic datasets scored anywhere
+near `theta_admit` (the highest tops out at 0.7293, still below the 0.75
+boundary) — so this is a distinct failure mode from the held-out-fabrication
+result above: a "finite-N weakness of individual sub-tests" against
+corrupted-real-data edge cases, not a fabrication-detection gap. As of this
+writing, resolving this finding (e.g. revising `theta_admit`, or adding a
+dedicated minimum-sample-size policy independent of the evidence-coverage
+gate below) remains an **open decision, not yet made** — see
+`data_certify/_constants.py`'s calibration-pass commentary for the full,
+unedited history of this finding across successive corpus-expansion passes.
+
 ---
 
 ## Architecture
@@ -81,14 +101,33 @@ answer.
 **Sub-test weight is not evenly distributed.** "24 sub-tests" should not be
 read as "24 roughly-equal votes" — within each axis, a small number of
 sub-tests carry most of that axis's own weight (e.g. within A(D), A1+A3+A4
-alone account for most of the axis's internal weighting; see `WITHIN_A` /
-`WITHIN_P` / `WITHIN_C` / `WITHIN_I` in `_constants.py`). Every
-`SubTestResult` now reports an `effective_weight` field —
-`axis_weight * within_axis_weight`, the sub-test's actual nominal share of
-`T(D)` — visible in `--verbose` CLI output and in the JSON export, so this
-concentration is directly inspectable rather than something you'd have to
-reconstruct by hand. `effective_weight` is `null`/`None` for P1–P3 (Stage-1
-hard gates, which sit outside the weighted sum entirely, not "zero-weight").
+alone account for most of the axis's internal weighting in the common
+intrinsic-only case; see `WITHIN_A` / `WITHIN_P` / `WITHIN_C` / `WITHIN_I` in
+`_constants.py`). Every `SubTestResult` now reports an `effective_weight`
+field — its actual nominal share of `T(D)` in this specific audit — visible
+in `--verbose` CLI output and in the JSON export, so this concentration is
+directly inspectable rather than something you'd have to reconstruct by
+hand. `effective_weight` is `null`/`None` only for P1–P3 (Stage-1 hard gates,
+which sit outside the weighted sum entirely, not "zero-weight").
+
+For P/C/I this is simply `axis_weight * within_axis_weight`. **A(D) is the
+one exception**, because A6 does not sit *alongside* A1–A5 at a fixed nominal
+share the way, say, P4 sits alongside P5–P9 — when A6 applies, it
+*substitutes* for A1–A5 on a **per-record basis** (see "A6: three-state
+external cross-validation" below). `effective_weight` reflects this:
+`AXIS_WEIGHTS["A"]` is split between A6 and (A1–A5) in proportion to how many
+records each stratum actually covers in *this* audit, e.g. if A6 externally
+corroborates 90% of a dataset's records, A6 gets ~90% of A(D)'s nominal
+weight and A1–A5 correspondingly split the remaining ~10% — collapsing
+exactly to the original fixed `WITHIN_A` shares when A6 never applies at all
+(the common default case, no live/local reference configured). An earlier
+version of this feature did not do this reallocation — it gave A6
+`effective_weight=None` (treating it like a pure hard gate) while leaving
+A1–A5 at their full fixed share regardless of how many records A6 actually
+covered, which silently miscounted strong A6 corroboration as "missing
+evidence" under the coverage gate below. Fixed 2026-07-21; see
+`data_certify/decision.py::_assign_effective_weights_axis_a` for the full
+before/after and a worked reproduction.
 
 ### Two-stage decision architecture
 

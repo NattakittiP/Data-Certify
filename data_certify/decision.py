@@ -49,36 +49,127 @@ from .schema import CertifyDataset
 # deliberately left with effective_weight=None rather than 0.0, since 0.0
 # would misleadingly suggest "counts for nothing" rather than "operates
 # outside the weighted sum entirely, as an unconditional veto" (review
-# point 3.4, "effective weight concentration").
+# point 3.4, "effective weight concentration"). A6 is deliberately NOT in
+# this simple per-axis table -- see `_assign_effective_weights_axis_a`
+# below for why it needs its own, record-count-proportional treatment.
 _WITHIN_BY_AXIS: Dict[str, Dict[str, float]] = {
     "A": WITHIN_A, "P": WITHIN_P, "C": WITHIN_C, "I": WITHIN_I,
 }
 
 
-def _assign_effective_weights(axis_results: Dict[str, AxisResult]) -> None:
+def _assign_effective_weights_axis_a(
+    axis_result: AxisResult, axis_weight: float, n_records: int,
+) -> None:
+    """
+    Assigns `effective_weight` across A(D)'s sub-tests (A1-A6).
+
+    BUGFIX (2026-07-21, found by external review): A(D) is NOT a simple
+    fixed-share blend of A1-A6 the way P/C/I are blends of their own
+    sub-tests. A6, when it applies, SUBSTITUTES for A1-A5 on a PER-RECORD
+    stratum basis -- `score_authenticity()` in axis_authenticity.py
+    computes A(D) as a record-count-weighted blend:
+
+        A(D) = (n_a6_stratum * A6_score + n_intrinsic * intrinsic_score)
+               / (n_a6_stratum + n_intrinsic)
+
+    (or A(D) = A6_score alone when A6 covers the entire dataset, i.e.
+    n_intrinsic == 0). The first version of `_assign_effective_weights`
+    did not know this: it treated A6 like a pure Stage-1 hard gate
+    (effective_weight=None, since A6 is absent from WITHIN_A -- WITHIN_A
+    only ever covered A1-A5), while A1-A5 kept their FULL fixed nominal
+    weight (axis_weight * WITHIN_A[name]) regardless of how many records
+    A6 actually covered. The practical consequence, confirmed with a
+    reproduction (500-record synthetic catalog, A6 externally corroborates
+    486/500 records at matched_fraction=1.0, A(D)=0.972, T(D)=0.925 --
+    comfortably above theta_admit=0.75): the evidence-coverage gate (3.5)
+    counted essentially all of A1-A5's ~69% nominal axis weight as
+    "missing evidence", capping evidence_coverage near 31-46% and
+    incorrectly downgrading a strongly, externally-verified ADMIT down to
+    CONDITIONAL -- exactly backwards, since strong A6 corroboration is
+    itself very strong authenticity evidence, not an absence of it.
+
+    Fix: allocate axis_weight across A6 and (A1-A5) in proportion to how
+    many records each stratum actually covers -- i.e. EXACTLY the same
+    record-count blend `score_authenticity()` already uses to combine
+    their SCORES into A(D), now also applied to their WEIGHTS:
+
+        w_A6,eff = axis_weight * (n_a6_stratum / n_records)
+        w_Ai,eff = axis_weight * (n_intrinsic  / n_records) * WITHIN_A[Ai]   (Ai in A1..A5)
+
+    When A6 does not apply at all (offline/infeasible/nothing reached a
+    corroborated-or-confirmed-contradicted verdict -- the common default
+    case), n_a6_stratum=0 and this reduces EXACTLY to the original,
+    pre-3.4 A1-A5 weighting (axis_weight * WITHIN_A[Ai]) -- fully
+    backward-compatible with every audit that never engages A6. When A6
+    covers the whole dataset, n_intrinsic=0 and A1-A5 correctly get
+    effective_weight=0.0 -- a real, intentional zero ("this audit's A(D)
+    has zero designed weight resting on A1-A5"), NOT None/"hard gate":
+    A6 in its corroborating role is a normal, compensable sub-test, not a
+    Stage-1 veto (only A6's separate "externally contradicted" state is a
+    hard gate, handled entirely by hard_override.py, untouched by this).
+    """
+    a6_sub = axis_result.sub_results.get("A6")
+    n_a6_stratum = 0
+    if a6_sub is not None and a6_sub.applicable:
+        n_a6_stratum = int(a6_sub.detail.get("n_effective", 0) or 0)
+    n_a6_stratum = max(0, min(n_a6_stratum, n_records))  # defensive clamp
+    n_intrinsic = max(0, n_records - n_a6_stratum)
+
+    if n_records > 0:
+        frac_a6 = n_a6_stratum / n_records
+        frac_intrinsic = n_intrinsic / n_records
+    else:
+        frac_a6 = frac_intrinsic = 0.0
+
+    if a6_sub is not None:
+        a6_sub.effective_weight = axis_weight * frac_a6
+
+    for sub_name in ("A1", "A2", "A3", "A4", "A5"):
+        sub = axis_result.sub_results.get(sub_name)
+        if sub is None:
+            continue
+        within_weight = WITHIN_A.get(sub_name)
+        sub.effective_weight = (
+            None if within_weight is None
+            else axis_weight * frac_intrinsic * within_weight
+        )
+
+
+def _assign_effective_weights(axis_results: Dict[str, AxisResult], n_records: int) -> None:
     """
     Mutates each SubTestResult in `axis_results` in place, setting its
     `effective_weight` field to the NOMINAL (as-calibrated) contribution
-    that sub-test makes to T(D): AXIS_WEIGHTS[axis] * WITHIN_<axis>[name].
+    that sub-test makes to T(D).
+
+    For P, C, and I this is the simple AXIS_WEIGHTS[axis] * WITHIN_<axis>[name]
+    product. For A, see `_assign_effective_weights_axis_a` -- A6's
+    record-stratum-substitution design means it needs record-count-
+    proportional treatment instead of a fixed share.
 
     This directly surfaces the "effective weight concentration" point
     raised in the 2026-07 external review (Section 3.4): the framework's
     24 sub-tests are NOT equally weighted -- e.g. A1+A3+A4 alone account
-    for ~68% of T(D)'s nominal weight, and +P5 for ~81%. Previously this
-    was only discoverable by manually multiplying AXIS_WEIGHTS by the
-    relevant WITHIN_* table; it is now reported directly on every audit
-    result (CLI --verbose output and JSON export alike) so a reader does
-    not have to reconstruct it from source.
+    for ~68% of T(D)'s nominal weight in the common intrinsic-only case
+    (no live A6 corroboration), and +P5 for ~81%. Previously this was only
+    discoverable by manually multiplying AXIS_WEIGHTS by the relevant
+    WITHIN_* table; it is now reported directly on every audit result
+    (CLI --verbose output and JSON export alike) so a reader does not have
+    to reconstruct it from source.
 
     Deliberately does NOT change T(D), the axis scores, or any
     renormalisation behaviour -- this is purely additive, diagnostic
     metadata attached to already-computed SubTestResult objects.
     """
     for axis_name, axis_result in axis_results.items():
-        within = _WITHIN_BY_AXIS.get(axis_name, {})
         axis_weight = AXIS_WEIGHTS.get(axis_name)
         if axis_weight is None:
             continue
+
+        if axis_name == "A":
+            _assign_effective_weights_axis_a(axis_result, axis_weight, n_records)
+            continue
+
+        within = _WITHIN_BY_AXIS.get(axis_name, {})
         for sub_name, sub in axis_result.sub_results.items():
             within_weight = within.get(sub_name)
             if within_weight is None:
@@ -131,7 +222,7 @@ def _compute_evidence_coverage(
     for axis_result in axis_results.values():
         for sub_name, sub in axis_result.sub_results.items():
             if sub.effective_weight is None:
-                continue  # hard gate (P1-P3) or A6 -- outside the compensatory sum entirely
+                continue  # hard gate (P1-P3 only, as of the 2026-07-21 A6 fix) -- outside the compensatory sum entirely
             total_weight += sub.effective_weight
             is_covered = sub.applicable and not (
                 isinstance(sub.score, float) and math.isnan(sub.score)
@@ -397,7 +488,7 @@ class DataCertifyAuditor:
         i_result = score_instrumentation(dataset)
 
         axis_results = {"A": a_result, "P": p_result, "C": c_result, "I": i_result}
-        _assign_effective_weights(axis_results)
+        _assign_effective_weights(axis_results, dataset.n)
         evidence_coverage, missing_evidence = _compute_evidence_coverage(axis_results)
 
         a6_sub = a_result.sub_results.get("A6")

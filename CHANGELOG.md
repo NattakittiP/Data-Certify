@@ -2,6 +2,59 @@
 
 All notable changes to DATA-CERTIFY are documented in this file.
 
+## [0.1.2] — 2026-07-21 (calibration-tooling publish + reproducibility fix)
+
+Corrects the same class of problem `v0.1.1` itself was cut to fix: by the
+time `v0.1.1` was tagged, two more commits had already landed on `main`
+(the calibration-tooling publish below, and a documentation-accuracy
+follow-up), so the `v0.1.1` tag pointed at a commit that predated them —
+the exact "tag doesn't match its own changelog" mismatch documented for
+`v0.1.0` below. `v0.1.2` is cut specifically so the tag, the package
+version, and this changelog entry all point at the same, current commit.
+
+### Added
+
+- **Published `calibration/`**, in response to an external review: a
+  Methodology Article reviewer cannot check false-admit rates, threshold
+  derivation, or weight calibration without access to the calibration
+  tooling, and "available upon reasonable request" is not sufficient on
+  its own. Now public: every corpus-building/calibration/analysis script
+  (`corrupt.py`, `build_corpus.py`, `run_scoring.py`, `compute_ewm.py`,
+  `calibrate_thresholds.py`, `calibrate_hard_override_params.py`,
+  `calibrate_theta_auth.py`, `refit_full_corpus.py`,
+  `score_adversarial_holdout.py`, `analysis_*.py`, `make_paper_figures.py`,
+  and others); both corpus manifests (`corpus_manifest.csv`,
+  `adversarial_corpus_manifest.csv` — dataset identity, category, label,
+  corruption type/severity, seed, parent catalog, for all 968+30
+  datasets); every score matrix (`score_matrix*.csv` — computed `T(D)`/
+  sub-test scores per dataset, not raw catalog records); and every
+  calibration/analysis report (`bootstrap_stability_report.*`,
+  `ewm_report.*`, `hard_override_calibration_report.*`,
+  `theta_auth_report.*`, `threshold_report.*`, `group_b_reports/`,
+  `group_c_reports/`, `group_d_reports/`). See `calibration/README.md` for
+  the complete list and the reasoning behind what's included.
+- **Not yet published**: the raw, per-record earthquake-event CSVs the
+  corpus's `real`/`corrupted_real` entries were built from/derived from.
+  These are deterministically regenerable from the published manifest and
+  scripts (same seeds, same corruption parameters applied to the same
+  named real source), but are withheld verbatim pending a check of the
+  redistribution terms of the original third-party sources (USGS ComCat is
+  U.S. public domain; other sources have not yet been individually
+  checked). Same reasoning applied to exclude
+  `group_d_reports/d1d_multisource/` (raw EMSC/USGS records used in the
+  cross-agency merge case study). This is disclosed as a temporary,
+  specific gap, not a permanent one.
+
+### Fixed
+
+- Several `README.md`/`CHANGELOG.md`/`Docs/` passages still said
+  calibration scripts, reports, and the test suite were private or
+  unpublished, predating the publish above (and, for the test suite,
+  predating `v0.1.0`). Corrected throughout to match current reality.
+  `README.md`'s claim that the GEM Global Active Faults Database is "not
+  included in this repository at all" was also stale — it has been bundled
+  at `Dataset/GAF-DB/` since `v0.1.1`'s CI fixes — and is corrected here too.
+
 ## [0.1.1] — 2026-07-21 (CI fixes appended same day, after first push)
 
 Two real, previously-undiagnosed CI failures were found from the actual
@@ -165,39 +218,6 @@ diagnostics) using the real corpus, run by the maintainer:
   same reason documented in "Investigated and rejected" below: the refit's
   headline 0% false-admit rate is a ceiling artifact (ADMIT becomes
   practically unreachable), not a genuine improvement.
-
-### Added (2026-07-21, later the same day — reproducibility fix)
-
-- **Published `calibration/`**, in response to an external review: a
-  Methodology Article reviewer cannot check false-admit rates, threshold
-  derivation, or weight calibration without access to the calibration
-  tooling, and "available upon reasonable request" is not sufficient on
-  its own. Now public: every corpus-building/calibration/analysis script
-  (`corrupt.py`, `build_corpus.py`, `run_scoring.py`, `compute_ewm.py`,
-  `calibrate_thresholds.py`, `calibrate_hard_override_params.py`,
-  `calibrate_theta_auth.py`, `refit_full_corpus.py`,
-  `score_adversarial_holdout.py`, `analysis_*.py`, `make_paper_figures.py`,
-  and others); both corpus manifests (`corpus_manifest.csv`,
-  `adversarial_corpus_manifest.csv` — dataset identity, category, label,
-  corruption type/severity, seed, parent catalog, for all 968+30
-  datasets); every score matrix (`score_matrix*.csv` — computed `T(D)`/
-  sub-test scores per dataset, not raw catalog records); and every
-  calibration/analysis report (`bootstrap_stability_report.*`,
-  `ewm_report.*`, `hard_override_calibration_report.*`,
-  `theta_auth_report.*`, `threshold_report.*`, `group_b_reports/`,
-  `group_c_reports/`, `group_d_reports/`). See `calibration/README.md` for
-  the complete list and the reasoning behind what's included.
-- **Not yet published**: the raw, per-record earthquake-event CSVs the
-  corpus's `real`/`corrupted_real` entries were built from/derived from.
-  These are deterministically regenerable from the published manifest and
-  scripts (same seeds, same corruption parameters applied to the same
-  named real source), but are withheld verbatim pending a check of the
-  redistribution terms of the original third-party sources (USGS ComCat is
-  U.S. public domain; other sources have not yet been individually
-  checked). Same reasoning applied to exclude
-  `group_d_reports/d1d_multisource/` (raw EMSC/USGS records used in the
-  cross-agency merge case study). This is disclosed as a temporary,
-  specific gap, not a permanent one.
 
 ## [0.1.0] — 2026-07-21
 

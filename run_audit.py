@@ -85,6 +85,7 @@ from data_certify import (
     LocalCSVCatalogReference, MultiSourceExternalCatalogReference, NullExternalCatalog,
     USGSComCatReference, WeightedMultiSourceExternalCatalogReference, default_gem_geojson_path,
 )
+from data_certify._constants import MIN_APPLICABLE_SUBTESTS_FOR_ADMIT, MIN_N_RECORDS_FOR_ADMIT
 from data_certify.schema import load_dataset_csv
 
 DATASETS_DIR = ROOT / "datasets"
@@ -146,6 +147,9 @@ def print_audit_summary(result) -> None:
         print(f"    Sample sufficiency: {result.sample_sufficiency:.1%} of covered evidence's "
               f"nominal weight rests on a sub-test sample size meeting its disclosed "
               f"MIN_RELIABLE_N floor (see --verbose for per-sub-test n_used detail).")
+    if result.n_applicable_subtests is not None:
+        print(f"    Applicable sub-tests: {result.n_applicable_subtests} of a possible 20 "
+              f"(unweighted count).")
 
     print(f"\n  {BOLD}Decision{NC}")
     if result.decision == CertifyDecision.ADMIT:
@@ -324,6 +328,8 @@ def audit_dataset(
     timeout_sec: Optional[float] = None,
     min_evidence_coverage: float = 0.5,
     min_sample_sufficiency: float = 0.5,
+    min_n_records_for_admit: int = MIN_N_RECORDS_FOR_ADMIT,
+    min_applicable_subtests_for_admit: int = MIN_APPLICABLE_SUBTESTS_FOR_ADMIT,
 ) -> Dict[str, Any]:
     dataset_name = dataset_path.name
     banner(f"Dataset: {dataset_name}")
@@ -353,6 +359,8 @@ def audit_dataset(
         reference=reference, fault_db=fault_db,
         min_evidence_coverage=min_evidence_coverage,
         min_sample_sufficiency=min_sample_sufficiency,
+        min_n_records_for_admit=min_n_records_for_admit,
+        min_applicable_subtests_for_admit=min_applicable_subtests_for_admit,
     )
     result = auditor.audit(dataset)
 
@@ -419,6 +427,26 @@ def main() -> None:
                              "from --min-evidence-coverage (which only checks a sub-test ran, not "
                              "whether it ran on enough data). A pragmatic, disclosed default -- NOT "
                              "itself empirically calibrated. Set to 0.0 to disable this gate.")
+    parser.add_argument("--min-n-records-for-admit", type=int, default=MIN_N_RECORDS_FOR_ADMIT,
+                        help=f"ADMIT-eligibility record-count floor (default: "
+                             f"{MIN_N_RECORDS_FOR_ADMIT}; 2026-07-21, response to a "
+                             f"paper-readiness review of the 19/490 false-admit finding): "
+                             f"ADMIT is never reachable below this many total records, "
+                             f"regardless of T(D) or the two gates above -- capped to "
+                             f"CONDITIONAL instead. A raw record count, unlike "
+                             f"--min-evidence-coverage/--min-sample-sufficiency, so it cannot "
+                             f"be defeated by a future weight recalibration. Set to 0 to "
+                             f"disable. See MIN_N_RECORDS_FOR_ADMIT in "
+                             f"data_certify/_constants.py for the full empirical basis and "
+                             f"disclosed residual this does not close.")
+    parser.add_argument("--min-applicable-subtests-for-admit", type=int,
+                        default=MIN_APPLICABLE_SUBTESTS_FOR_ADMIT,
+                        help=f"Companion count-based ADMIT-eligibility floor (default: "
+                             f"{MIN_APPLICABLE_SUBTESTS_FOR_ADMIT}): ADMIT is never reachable "
+                             f"below this many applicable, computable non-hard-gate sub-tests "
+                             f"(out of a possible 20), independent of how much nominal weight "
+                             f"they carry. Set to 0 to disable. See "
+                             f"MIN_APPLICABLE_SUBTESTS_FOR_ADMIT in data_certify/_constants.py.")
     parser.add_argument("--reference-csv", type=str, default=None,
                         help="Canonical-schema CSV to use as the A6 external reference catalog "
                              "(takes priority over the live-API default and --offline).")
@@ -546,6 +574,8 @@ def main() -> None:
                 timeout_sec=args.timeout,
                 min_evidence_coverage=args.min_evidence_coverage,
                 min_sample_sufficiency=args.min_sample_sufficiency,
+                min_n_records_for_admit=args.min_n_records_for_admit,
+                min_applicable_subtests_for_admit=args.min_applicable_subtests_for_admit,
             )
             results.append(r)
         except Exception as exc:

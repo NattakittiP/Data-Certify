@@ -83,7 +83,13 @@ from data_certify.axis_authenticity import score_authenticity
 from data_certify.axis_plausibility import score_plausibility
 from data_certify.axis_completeness import score_completeness
 from data_certify.axis_instrumentation import score_instrumentation
-from data_certify.decision import CertifyDecision
+from data_certify.decision import (
+    CertifyDecision,
+    _assign_effective_weights,
+    _compute_evidence_coverage,
+    _compute_n_applicable_subtests,
+    _compute_sample_sufficiency,
+)
 from data_certify.hard_override import check_hard_override
 from data_certify._constants import (
     WITHIN_A, WITHIN_P, WITHIN_C, WITHIN_I, AXIS_WEIGHTS, THETA_ADMIT, THETA_REJECT,
@@ -139,9 +145,21 @@ def score_one(dataset_id: str) -> dict:
             sub = axis_result.sub_results.get(crit)
             row[crit] = sub.score if (sub is not None and sub.applicable) else float("nan")
 
-    try:
-        axis_results = {"A": a_result, "P": p_result, "C": c_result, "I": i_result}
+    # GATE-AWARENESS FIX (2026-07-21) -- see the identical block/comment in
+    # run_scoring.py's score_one(): computes the same diagnostics
+    # DataCertifyAuditor.audit() computes, from the axis_results already
+    # scored above, so score_matrix_adversarial_holdout.csv carries
+    # everything needed to reproduce the REAL gated production decision.
+    axis_results = {"A": a_result, "P": p_result, "C": c_result, "I": i_result}
+    _assign_effective_weights(axis_results, ds.n)
+    evidence_coverage, _ = _compute_evidence_coverage(axis_results)
+    sample_sufficiency, _ = _compute_sample_sufficiency(axis_results)
+    n_applicable_subtests = _compute_n_applicable_subtests(axis_results)
+    row["evidence_coverage"] = evidence_coverage
+    row["sample_sufficiency"] = sample_sufficiency
+    row["n_applicable_subtests"] = n_applicable_subtests
 
+    try:
         a6_sub = a_result.sub_results.get("A6")
         a6_matched_fraction = None
         a6_n_stratum = None
@@ -255,10 +273,23 @@ def main() -> None:
     import _analysis_common as ac  # noqa: E402
 
     t_d = ac.composite_score(final, ac.AXIS_WEIGHTS, ac.WITHIN)
-    decision = ac.assign_decision(t_d, final["hard_override_fired"])
+    # GATE-AWARENESS FIX (2026-07-21): use the real, fully-gated production
+    # decision (assign_decision_gated()) rather than Stage-1+2-threshold-only
+    # logic, for consistency with analysis_three_way_matrix.py -- this
+    # script's own score_one() now writes the evidence_coverage/
+    # sample_sufficiency/n_applicable_subtests columns assign_decision_gated()
+    # needs. Falls back to the ungated function with a warning if this file
+    # was generated before that fix (should not happen for a fresh run of
+    # this same script, but guards a stale pre-fix CSV read via --fresh=False).
+    try:
+        decision = ac.assign_decision_gated(final, t_d)
+    except KeyError as e:
+        print(f"WARNING: {e}", file=sys.stderr)
+        decision = ac.assign_decision(t_d, final["hard_override_fired"])
 
     print("\n=== Group B1 summary: 30 held-out adversarial datasets ===")
-    print(f"Decision counts (live current weights, respecting hard-override):")
+    print(f"Decision counts (live current weights, real gated production decision, "
+          f"respecting hard-override):")
     for d in ("ADMIT", "CONDITIONAL", "REJECT"):
         k = int((decision == d).sum())
         n = len(decision)

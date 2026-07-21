@@ -29,7 +29,8 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from ._constants import (
-    AXIS_WEIGHTS, MIN_RELIABLE_N, THETA_ADMIT, THETA_REJECT,
+    AXIS_WEIGHTS, MIN_APPLICABLE_SUBTESTS_FOR_ADMIT, MIN_N_RECORDS_FOR_ADMIT,
+    MIN_RELIABLE_N, THETA_ADMIT, THETA_REJECT,
     WITHIN_A, WITHIN_C, WITHIN_I, WITHIN_P,
 )
 from .axis_authenticity import score_authenticity
@@ -312,6 +313,38 @@ def _compute_sample_sufficiency(
     return sufficient_weight / total_weight, insufficient
 
 
+def _compute_n_applicable_subtests(axis_results: Dict[str, AxisResult]) -> int:
+    """
+    Diagnostic "applicable sub-test count" metric (2026-07-21, added
+    alongside MIN_N_RECORDS_FOR_ADMIT/MIN_APPLICABLE_SUBTESTS_FOR_ADMIT in
+    _constants.py -- see that constant's own comment for the full
+    empirical basis): a plain COUNT of the non-hard-gate sub-tests (out of
+    a possible 20: A1-A5, P4-P9, C1-C4, I1-I5, with A6 occupying the
+    A1-A5 slot on a per-record basis when it substitutes for them) that
+    were applicable and produced a computable score in THIS audit.
+
+    Deliberately NOT weighted by effective_weight the way
+    `_compute_evidence_coverage`/`_compute_sample_sufficiency` are -- this
+    metric exists specifically to be robust to a FUTURE AXIS_WEIGHTS/
+    WITHIN_* recalibration concentrating weight onto very few sub-tests,
+    which would let a dataset backed by just one or two high-weight
+    sub-tests still clear a weight-FRACTION gate (evidence_coverage) even
+    though only one or two independent lines of evidence actually ran. A
+    raw count has no such coupling.
+    """
+    n_appl = 0
+    for axis_result in axis_results.values():
+        for sub in axis_result.sub_results.values():
+            if sub.effective_weight is None:
+                continue  # hard gate (P1-P3) -- outside the compensatory sum entirely
+            is_covered = sub.applicable and not (
+                isinstance(sub.score, float) and math.isnan(sub.score)
+            )
+            if is_covered:
+                n_appl += 1
+    return n_appl
+
+
 class CertifyDecision(str, Enum):
     """
     ADMIT       -- T(D) >= theta_admit and no hard override fired. Certified
@@ -350,6 +383,11 @@ class CertifyResult:
     # merely whether they ran at all. None under the same conditions as
     # evidence_coverage (no covered sub-test carries a defined weight).
     sample_sufficiency: Optional[float] = None
+    # Diagnostic applicable-sub-test COUNT (2026-07-21, distinct from the
+    # two weight-fraction diagnostics above) -- see
+    # `_compute_n_applicable_subtests`'s docstring. None under the same
+    # n==0 degenerate condition as the other two diagnostics.
+    n_applicable_subtests: Optional[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -359,6 +397,7 @@ class CertifyResult:
             "trust_score": self.trust_score,
             "evidence_coverage": self.evidence_coverage,
             "sample_sufficiency": self.sample_sufficiency,
+            "n_applicable_subtests": self.n_applicable_subtests,
             "hard_override": self.hard_override.to_dict(),
             "axis_results": {k: v.to_dict() for k, v in self.axis_results.items()},
             "weights_used": self.weights_used,
@@ -389,6 +428,9 @@ class CertifyResult:
             lines.append(f"  Sample sufficiency = {self.sample_sufficiency:.1%} of covered "
                          f"evidence's nominal weight rests on a sub-test sample size meeting "
                          f"its disclosed MIN_RELIABLE_N floor.")
+        if self.n_applicable_subtests is not None:
+            lines.append(f"  Applicable sub-tests = {self.n_applicable_subtests} "
+                         f"(unweighted count, out of a possible 20).")
         lines.append("")
         lines.append("  Per-axis scores:")
         for axis_name in ("A", "P", "C", "I"):
@@ -537,6 +579,39 @@ class DataCertifyAuditor:
                        axis A (A1-A5) only, since `MIN_RELIABLE_N` has no
                        entries yet for P/C/I sub-tests -- a disclosed
                        scope limit, not a claim of full coverage.
+        min_n_records_for_admit: Hard ADMIT-eligibility floor (2026-07-21,
+                       response to a paper-readiness review of the
+                       19/490 false-admit finding -- see
+                       MIN_N_RECORDS_FOR_ADMIT's own comment in
+                       _constants.py for the full empirical basis):
+                       ADMIT is never reachable for a dataset with fewer
+                       than this many total records, regardless of T(D),
+                       evidence_coverage, or sample_sufficiency -- capped
+                       down to CONDITIONAL instead. Unlike the two
+                       weight-fraction gates above, this is a raw record
+                       count, so it cannot be defeated by a future
+                       AXIS_WEIGHTS/WITHIN_* recalibration that happens to
+                       concentrate weight on a small number of sub-tests
+                       a small catalog can still satisfy. Never upgrades a
+                       decision and never overrides a Stage-1 hard
+                       override, same as the two gates above; set to 0 to
+                       disable.
+        min_applicable_subtests_for_admit: Companion count-based gate --
+                       ADMIT is never reachable for an audit backed by
+                       fewer than this many independently applicable,
+                       computable non-hard-gate sub-tests (out of a
+                       possible 20; see
+                       `_compute_n_applicable_subtests`'s docstring),
+                       regardless of how much nominal WEIGHT those few
+                       tests happen to carry. On the internal 968-dataset
+                       corpus this currently has zero marginal bite beyond
+                       min_n_records_for_admit alone (every dataset that
+                       clears the record-count floor already clears this
+                       one too) -- kept as a disclosed, forward-looking
+                       robustness measure rather than for a demonstrated
+                       corpus-level effect today. Same never-upgrades/
+                       never-overrides-hard-override behavior; set to 0 to
+                       disable.
     """
 
     def __init__(
@@ -548,6 +623,8 @@ class DataCertifyAuditor:
         reference_dc: Optional[float] = None,
         min_evidence_coverage: float = 0.5,
         min_sample_sufficiency: float = 0.5,
+        min_n_records_for_admit: int = MIN_N_RECORDS_FOR_ADMIT,
+        min_applicable_subtests_for_admit: int = MIN_APPLICABLE_SUBTESTS_FOR_ADMIT,
     ) -> None:
         if theta_reject > theta_admit:
             raise ValueError(
@@ -564,6 +641,16 @@ class DataCertifyAuditor:
                 f"DataCertifyAuditor: min_sample_sufficiency={min_sample_sufficiency} "
                 f"must be in [0, 1]."
             )
+        if min_n_records_for_admit < 0:
+            raise ValueError(
+                f"DataCertifyAuditor: min_n_records_for_admit={min_n_records_for_admit} "
+                f"must be >= 0."
+            )
+        if min_applicable_subtests_for_admit < 0:
+            raise ValueError(
+                f"DataCertifyAuditor: min_applicable_subtests_for_admit="
+                f"{min_applicable_subtests_for_admit} must be >= 0."
+            )
         self.theta_admit = theta_admit
         self.theta_reject = theta_reject
         self.reference = reference
@@ -571,6 +658,8 @@ class DataCertifyAuditor:
         self.reference_dc = reference_dc
         self.min_evidence_coverage = min_evidence_coverage
         self.min_sample_sufficiency = min_sample_sufficiency
+        self.min_n_records_for_admit = min_n_records_for_admit
+        self.min_applicable_subtests_for_admit = min_applicable_subtests_for_admit
 
     def audit(self, dataset: CertifyDataset) -> CertifyResult:
         """Run the full two-stage DATA-CERTIFY audit protocol on `dataset`."""
@@ -608,6 +697,7 @@ class DataCertifyAuditor:
         _assign_effective_weights(axis_results, dataset.n)
         evidence_coverage, missing_evidence = _compute_evidence_coverage(axis_results)
         sample_sufficiency, insufficient_samples = _compute_sample_sufficiency(axis_results)
+        n_applicable_subtests = _compute_n_applicable_subtests(axis_results)
 
         a6_sub = a_result.sub_results.get("A6")
         a6_matched_fraction = None
@@ -649,6 +739,7 @@ class DataCertifyAuditor:
                 n_records=dataset.n,
                 evidence_coverage=evidence_coverage,
                 sample_sufficiency=sample_sufficiency,
+                n_applicable_subtests=n_applicable_subtests,
             )
 
         # -- Stage 2: compensatory composite score ------------------------
@@ -735,6 +826,43 @@ class DataCertifyAuditor:
             )
             decision = CertifyDecision.CONDITIONAL
 
+        # -- Additive ADMIT-eligibility floors (2026-07-21, response to a
+        # paper-readiness review of the 19/490 (3.9%) false-admit finding)
+        # -- structurally identical to the two gates above (only ever caps
+        # ADMIT down to CONDITIONAL; independent of, and applied in
+        # addition to, both): unlike evidence_coverage/sample_sufficiency
+        # (weight-FRACTION metrics coupled to AXIS_WEIGHTS/WITHIN_*), these
+        # are raw, weight-independent COUNTS -- see
+        # MIN_N_RECORDS_FOR_ADMIT/MIN_APPLICABLE_SUBTESTS_FOR_ADMIT's own
+        # comment in _constants.py for the full empirical basis and the
+        # documented residual this does NOT close (a genuinely different,
+        # ~0.8% false-admit rate from mild corruptions defeating an
+        # already well-powered, fully-covered battery, not a small-sample
+        # problem this floor is designed to catch).
+        if decision == CertifyDecision.ADMIT and dataset.n < self.min_n_records_for_admit:
+            caveats.append(
+                f"ADMIT-eligibility record-count floor: T(D)={trust_score:.4f} cleared "
+                f"theta_admit={self.theta_admit}, but this audit rests on only "
+                f"{dataset.n} records (min_n_records_for_admit="
+                f"{self.min_n_records_for_admit}) -- capped down to CONDITIONAL rather "
+                f"than ADMIT. A small catalog can pass several sub-tests vacuously or "
+                f"near-vacuously even when genuinely corrupted; see "
+                f"MIN_N_RECORDS_FOR_ADMIT's disclosure in data_certify/_constants.py."
+            )
+            decision = CertifyDecision.CONDITIONAL
+        if (decision == CertifyDecision.ADMIT
+                and n_applicable_subtests < self.min_applicable_subtests_for_admit):
+            caveats.append(
+                f"ADMIT-eligibility sub-test-count floor: T(D)={trust_score:.4f} cleared "
+                f"theta_admit={self.theta_admit}, but only {n_applicable_subtests} of a "
+                f"possible 20 non-hard-gate sub-tests were applicable and computable in "
+                f"this audit (min_applicable_subtests_for_admit="
+                f"{self.min_applicable_subtests_for_admit}) -- capped down to CONDITIONAL "
+                f"rather than ADMIT, independent of how much nominal weight those few "
+                f"tests happen to carry."
+            )
+            decision = CertifyDecision.CONDITIONAL
+
         return CertifyResult(
             decision=decision,
             trust_score=trust_score,
@@ -748,6 +876,7 @@ class DataCertifyAuditor:
             n_records=dataset.n,
             evidence_coverage=evidence_coverage,
             sample_sufficiency=sample_sufficiency,
+            n_applicable_subtests=n_applicable_subtests,
         )
 
     def estimate_uncertainty(

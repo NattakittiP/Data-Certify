@@ -1,16 +1,16 @@
 scenario,policy,n_false_admit,n_false_reject,n_conditional,total_cost,cost_per_dataset
-"C_FA=1, C_FR=1, C_review=0 (naive equal-cost, no review friction)",full_two_stage (production),19,0,864,19.0,0.01903807615230461
-"C_FA=1, C_FR=1, C_review=0 (naive equal-cost, no review friction)",weighted_sum_only,22,0,887,22.0,0.022044088176352707
+"C_FA=1, C_FR=1, C_review=0 (naive equal-cost, no review friction)",full_two_stage (production),3,0,936,3.0,0.003006012024048096
+"C_FA=1, C_FR=1, C_review=0 (naive equal-cost, no review friction)",weighted_sum_only,3,0,962,3.0,0.003006012024048096
 "C_FA=1, C_FR=1, C_review=0 (naive equal-cost, no review friction)",hard_override_only,464,0,0,464.0,0.4649298597194389
-"C_FA=5, C_FR=1, C_review=0.1",full_two_stage (production),19,0,864,181.4,0.18176352705410823
-"C_FA=5, C_FR=1, C_review=0.1",weighted_sum_only,22,0,887,198.7,0.19909819639278556
+"C_FA=5, C_FR=1, C_review=0.1",full_two_stage (production),3,0,936,108.60000000000001,0.10881763527054109
+"C_FA=5, C_FR=1, C_review=0.1",weighted_sum_only,3,0,962,111.2,0.11142284569138276
 "C_FA=5, C_FR=1, C_review=0.1",hard_override_only,464,0,0,2320.0,2.3246492985971945
-"C_FA=10, C_FR=1, C_review=0.2",full_two_stage (production),19,0,864,362.8,0.36352705410821645
-"C_FA=10, C_FR=1, C_review=0.2",weighted_sum_only,22,0,887,397.4,0.3981963927855711
+"C_FA=10, C_FR=1, C_review=0.2",full_two_stage (production),3,0,936,217.20000000000002,0.21763527054108217
+"C_FA=10, C_FR=1, C_review=0.2",weighted_sum_only,3,0,962,222.4,0.22284569138276553
 "C_FA=10, C_FR=1, C_review=0.2",hard_override_only,464,0,0,4640.0,4.649298597194389
-"C_FA=20, C_FR=1, C_review=0.3",full_two_stage (production),19,0,864,639.2,0.6404809619238477
-"C_FA=20, C_FR=1, C_review=0.3",weighted_sum_only,22,0,887,706.0999999999999,0.7075150300601202
+"C_FA=20, C_FR=1, C_review=0.3",full_two_stage (production),3,0,936,340.8,0.3414829659318637
+"C_FA=20, C_FR=1, C_review=0.3",weighted_sum_only,3,0,962,348.59999999999997,0.3492985971943887
 "C_FA=20, C_FR=1, C_review=0.3",hard_override_only,464,0,0,9280.0,9.298597194388778
-"C_FA=50, C_FR=1, C_review=0.5",full_two_stage (production),19,0,864,1382.0,1.3847695390781563
-"C_FA=50, C_FR=1, C_review=0.5",weighted_sum_only,22,0,887,1543.5,1.5465931863727456
+"C_FA=50, C_FR=1, C_review=0.5",full_two_stage (production),3,0,936,618.0,0.6192384769539078
+"C_FA=50, C_FR=1, C_review=0.5",weighted_sum_only,3,0,962,631.0,0.6322645290581163
 "C_FA=50, C_FR=1, C_review=0.5",hard_override_only,464,0,0,23200.0,23.246492985971944

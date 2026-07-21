@@ -52,6 +52,24 @@ impossibility gates are not weight-fitted parameters and are out of scope
 for this specific sensitivity analysis (a separate, disclosed limitation,
 not an oversight).
 
+GATE-AWARENESS SCOPE NOTE (2026-07-21): both `baseline_decision` and every
+perturbed-draw decision below use Stage-1+2 THRESHOLD LOGIC ONLY (never
+the min_evidence_coverage/min_sample_sufficiency/min_n_records_for_admit/
+min_applicable_subtests_for_admit safety gates and ADMIT-eligibility
+floors that real production applies on top). This is a DELIBERATE scope
+limit, not an oversight left over from the same staleness issue fixed
+elsewhere in calibration/ this date (see CHANGELOG.md's 2026-07-21
+entries): evidence_coverage/sample_sufficiency in score_matrix.csv are
+fixed values computed under the CURRENT production weight basis, and
+2000 of this script's own draws each use a DIFFERENT, randomly perturbed
+weight vector -- applying a fixed-weight-basis gate against a
+different-weight-basis T(D) has no coherent interpretation (see
+_analysis_common.assign_decision_gated()'s docstring). This script
+therefore answers "how stable is the raw Stage-1+2 threshold rule to
+weight/threshold perturbation," not "how stable is the final, fully-gated
+production decision" -- a related but distinct question, left as a
+disclosed limitation rather than attempted here.
+
 Usage:
     python3 calibration/analysis_decision_stability.py [--n-draws N] [--seed S] [--theta-perturb-width W]
 
@@ -179,6 +197,15 @@ def main() -> None:
     report.append(f"Weight perturbation: uniform within each weight's bootstrap 95% CI (n_boot={n_boot_source} source), renormalized per draw.")
     report.append(f"Threshold perturbation: THETA_ADMIT={ac.THETA_ADMIT}+/-{args.theta_perturb_width}, THETA_REJECT={ac.THETA_REJECT}+/-{args.theta_perturb_width} (disclosed arbitrary probe, not an estimated uncertainty -- see module docstring).")
     report.append("Hard-override (Stage 1, P1-P3/A6) is NOT perturbed -- out of scope for this analysis.")
+    report.append(
+        "GATE-AWARENESS SCOPE NOTE (2026-07-21): decisions throughout this report use "
+        "Stage-1+2 THRESHOLD LOGIC ONLY, not the min_evidence_coverage/"
+        "min_sample_sufficiency/min_n_records_for_admit/min_applicable_subtests_for_admit "
+        "safety gates real production also applies -- a deliberate scope limit (gating a "
+        "fixed-weight-basis metric against per-draw PERTURBED weight vectors has no "
+        "coherent interpretation here), not an oversight. See module docstring and "
+        "CHANGELOG.md's 2026-07-21 entries."
+    )
     report.append("")
 
     report.append("--- Overall stability ---")

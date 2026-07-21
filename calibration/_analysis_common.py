@@ -31,6 +31,7 @@ and this module sets no process-level RNG state itself.
 """
 from __future__ import annotations
 
+import inspect
 import math
 import sys
 from pathlib import Path
@@ -56,7 +57,27 @@ from data_certify._constants import (  # noqa: E402
     WITHIN_I_AHP_PRIOR,
     THETA_ADMIT,
     THETA_REJECT,
+    MIN_N_RECORDS_FOR_ADMIT,
+    MIN_APPLICABLE_SUBTESTS_FOR_ADMIT,
 )
+
+# Production defaults for the two weight-fraction safety gates
+# (min_evidence_coverage, min_sample_sufficiency) -- these are
+# DataCertifyAuditor.__init__'s own default ARGUMENT values, not
+# data_certify._constants module-level constants (unlike theta_admit/
+# theta_reject/MIN_N_RECORDS_FOR_ADMIT/MIN_APPLICABLE_SUBTESTS_FOR_ADMIT,
+# which the auditor imports from _constants.py and so cannot drift).
+# Hand-copied here, mirroring the disclosed pattern this project already
+# uses for AXIS_WEIGHTS_EWM_ONLY below (a value not exposed as an
+# importable constant). Because a hand-copied number CAN silently drift if
+# decision.py's defaults are ever changed without updating this file too,
+# `_self_check()` at the bottom of this module verifies these two against
+# `inspect.signature(DataCertifyAuditor.__init__)` on every import and
+# raises immediately if they no longer match -- the same
+# fail-loud-on-import philosophy already used for AXIS_WEIGHTS_EWM_ONLY's
+# n_obs/staleness checks elsewhere in this project's calibration scripts.
+PRODUCTION_MIN_EVIDENCE_COVERAGE = 0.5
+PRODUCTION_MIN_SAMPLE_SUFFICIENCY = 0.5
 
 CALIBRATION_DIR = Path(__file__).resolve().parent
 SCORE_MATRIX_PATH = CALIBRATION_DIR / "score_matrix.csv"
@@ -347,6 +368,103 @@ def assign_decision(
     return decision
 
 
+def assign_decision_gated(
+    df: pd.DataFrame,
+    t_d: pd.Series,
+    theta_admit: float = THETA_ADMIT,
+    theta_reject: float = THETA_REJECT,
+    respect_hard_override: bool = True,
+    min_evidence_coverage: float = PRODUCTION_MIN_EVIDENCE_COVERAGE,
+    min_sample_sufficiency: float = PRODUCTION_MIN_SAMPLE_SUFFICIENCY,
+    min_n_records_for_admit: int = MIN_N_RECORDS_FOR_ADMIT,
+    min_applicable_subtests_for_admit: int = MIN_APPLICABLE_SUBTESTS_FOR_ADMIT,
+) -> pd.Series:
+    """
+    Gate-aware decision assignment (2026-07-21, added in response to a
+    paper-readiness review finding that `assign_decision()` above -- used
+    by every Group-B report, including the previously-disclosed 19/490
+    (3.9%) false-admit headline number -- reproduces ONLY Stage 1 (hard
+    override) + Stage 2 (theta_admit/theta_reject) threshold logic. Real
+    users of `DataCertifyAuditor.audit()` additionally get two weight-
+    fraction safety gates (min_evidence_coverage, min_sample_sufficiency)
+    and, as of this same date, two count-based ADMIT-eligibility floors
+    (min_n_records_for_admit, min_applicable_subtests_for_admit) -- see
+    decision.py's `DataCertifyAuditor.__init__` docstring for each gate's
+    full rationale, and CHANGELOG.md's 2026-07-21 "ADMIT-eligibility gate +
+    gate-aware re-audit" entry for the discovery and the corrected numbers.
+
+    This function reproduces the REAL, fully-gated production decision
+    path exactly, so that any report built on it is not vulnerable to the
+    same staleness `assign_decision()` alone was found to have. Every gate
+    is applied in the SAME ORDER decision.py's `DataCertifyAuditor.audit()`
+    applies them (evidence_coverage, then sample_sufficiency, then the
+    record-count floor, then the sub-test-count floor), and, matching
+    decision.py's own additive design exactly, each gate ONLY ever caps an
+    ADMIT down to CONDITIONAL -- a dataset already CONDITIONAL or REJECT
+    under `assign_decision()` is returned completely unchanged, and no gate
+    here can ever override the Stage-1 hard override (that is handled by
+    `assign_decision()` itself, called internally, before any gate below
+    runs).
+
+    `respect_hard_override=False` (2026-07-21 addition, mirrors
+    `assign_decision()`'s own parameter) supports the "weighted_sum_only"
+    mechanism-ablation arm used by `analysis_ablation.py`/
+    `analysis_selective_classification.py`: the four gates below are part
+    of Stage 2's own post-processing (independent of whether Stage 1's
+    hard override is being consulted at all), so it remains coherent to
+    apply them while asking "how much does Stage 2 alone, INCLUDING its
+    own safety gates, achieve without Stage 1."
+
+    Requires `df` to carry `evidence_coverage`, `sample_sufficiency`,
+    `n_records`, and `n_applicable_subtests` columns -- written by
+    `calibration/run_scoring.py` / `calibration/score_adversarial_
+    holdout.py`'s 2026-07-21 gate-awareness fix. Raises KeyError with an
+    actionable message if any are missing (e.g. an un-regenerated,
+    pre-fix `score_matrix.csv`), rather than silently falling back to the
+    ungated behavior -- a silent fallback here would exactly reproduce the
+    staleness bug this function exists to fix.
+    """
+    missing_cols = [
+        c for c in ("evidence_coverage", "sample_sufficiency", "n_records", "n_applicable_subtests")
+        if c not in df.columns
+    ]
+    if missing_cols:
+        raise KeyError(
+            f"assign_decision_gated() requires column(s) {missing_cols} in df, which "
+            f"{'is' if len(missing_cols) == 1 else 'are'} missing. This means "
+            "score_matrix.csv (and/or score_matrix_adversarial_holdout.csv) predates "
+            "the 2026-07-21 gate-awareness fix -- re-run calibration/run_scoring.py "
+            "and calibration/score_adversarial_holdout.py to regenerate them with these "
+            "columns before calling this function. (assign_decision() above remains "
+            "available and requires no such columns, but only reproduces Stage 1+2 "
+            "threshold logic, not the real, fully-gated production decision -- see this "
+            "function's own docstring.)"
+        )
+
+    decision = assign_decision(
+        t_d, df["hard_override_fired"], theta_admit=theta_admit, theta_reject=theta_reject,
+        respect_hard_override=respect_hard_override,
+    ).copy()
+
+    ec = df["evidence_coverage"]
+    is_admit = decision == "ADMIT"
+    decision[is_admit & ec.notna() & (ec < min_evidence_coverage)] = "CONDITIONAL"
+
+    ss = df["sample_sufficiency"]
+    is_admit = decision == "ADMIT"
+    decision[is_admit & ss.notna() & (ss < min_sample_sufficiency)] = "CONDITIONAL"
+
+    n_rec = df["n_records"]
+    is_admit = decision == "ADMIT"
+    decision[is_admit & n_rec.notna() & (n_rec < min_n_records_for_admit)] = "CONDITIONAL"
+
+    n_appl = df["n_applicable_subtests"]
+    is_admit = decision == "ADMIT"
+    decision[is_admit & n_appl.notna() & (n_appl < min_applicable_subtests_for_admit)] = "CONDITIONAL"
+
+    return decision
+
+
 def wilson_ci(k: int, n: int, z: float = 1.96) -> Tuple[float, float]:
     """Two-sided Wilson score confidence interval for a binomial proportion
     (Wilson, E.B. 1927, 'Probable Inference, the Law of Succession, and
@@ -377,6 +495,42 @@ def fmt_rate_ci(k: int, n: int) -> str:
     p = k / n
     lo, hi = wilson_ci(k, n)
     return f"{p:.4f} ({k}/{n}) [95% CI: {lo:.4f}-{hi:.4f}]"
+
+
+def _unit_test_gate_defaults_match_production() -> None:
+    """Guards PRODUCTION_MIN_EVIDENCE_COVERAGE/PRODUCTION_MIN_SAMPLE_SUFFICIENCY
+    (hand-copied above, since they are DataCertifyAuditor.__init__'s own
+    default ARGUMENT values, not importable data_certify._constants module
+    constants) against silent drift: inspects the REAL, live
+    DataCertifyAuditor.__init__ signature and raises immediately if either
+    hand-copied number no longer matches. Runs automatically on import,
+    same fail-loud-on-import philosophy as `_self_check()` below -- if
+    this fails, `assign_decision_gated()` is silently gating against the
+    WRONG thresholds and every report built on it must not be trusted
+    until this file's two constants are updated to match."""
+    from data_certify.decision import DataCertifyAuditor  # local import: avoid a hard
+    # dependency on decision.py's internal default machinery at module-load
+    # time for every other function in this file that does not need it.
+
+    sig = inspect.signature(DataCertifyAuditor.__init__)
+    real_ec = sig.parameters["min_evidence_coverage"].default
+    real_ss = sig.parameters["min_sample_sufficiency"].default
+    if real_ec != PRODUCTION_MIN_EVIDENCE_COVERAGE:
+        raise AssertionError(
+            f"_analysis_common.PRODUCTION_MIN_EVIDENCE_COVERAGE="
+            f"{PRODUCTION_MIN_EVIDENCE_COVERAGE} no longer matches "
+            f"DataCertifyAuditor.__init__'s real default min_evidence_coverage="
+            f"{real_ec} -- update this file's hand-copied constant to match "
+            f"before trusting assign_decision_gated() or any report built on it."
+        )
+    if real_ss != PRODUCTION_MIN_SAMPLE_SUFFICIENCY:
+        raise AssertionError(
+            f"_analysis_common.PRODUCTION_MIN_SAMPLE_SUFFICIENCY="
+            f"{PRODUCTION_MIN_SAMPLE_SUFFICIENCY} no longer matches "
+            f"DataCertifyAuditor.__init__'s real default min_sample_sufficiency="
+            f"{real_ss} -- update this file's hand-copied constant to match "
+            f"before trusting assign_decision_gated() or any report built on it."
+        )
 
 
 def _unit_test_composite_score() -> None:
@@ -477,6 +631,7 @@ def _self_check() -> None:
           trusting anything downstream.
     """
     _unit_test_composite_score()
+    _unit_test_gate_defaults_match_production()
 
     if not SCORE_MATRIX_PATH.exists():
         return

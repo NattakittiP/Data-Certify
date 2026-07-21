@@ -5,7 +5,17 @@ Group B2: Three-way decision confusion matrix
 
 T(D) and decision computed LIVE via current production weights (WEIGHT_VARIANTS['blended_current']), not read from score_matrix.csv's cached columns -- see _analysis_common.py's LEGACY_STALE_COLUMNS note.
 
---- Overall matrix: group x decision (Wilson 95% CI) ---
+GATE-AWARENESS (2026-07-21): 'decision' below is the REAL, fully-gated production decision (Stage 1 hard override + Stage 2 thresholds + min_evidence_coverage/min_sample_sufficiency safety gates + min_n_records_for_admit/min_applicable_subtests_for_admit ADMIT-eligibility floors -- exactly what DataCertifyAuditor.audit() actually returns). 'decision_ungated' is the ORIGINAL Stage-1+2-threshold-only logic this report used exclusively before this date, kept for direct before/after comparison, NOT as an equally-valid alternative reading -- 'decision' is the one that matches real production behavior. See CHANGELOG.md's 2026-07-21 entry.
+
+--- Overall matrix: group x decision (Wilson 95% CI) -- GATED (real production) ---
+group                      n                        ADMIT                  CONDITIONAL                       REJECT                hard_override
+------------------------------------------------------------------------------------------------------------------------------------------------
+known_good               508 0.0630 (32/508) [95% CI: 0.0450-0.0876] 0.9370 (476/508) [95% CI: 0.9124-0.9550] 0.0000 (0/508) [95% CI: 0.0000-0.0075] 0.0000 (0/508) [95% CI: 0.0000-0.0075]
+corrupted_real           173 0.0173 (3/173) [95% CI: 0.0059-0.0497] 0.8266 (143/173) [95% CI: 0.7632-0.8757] 0.1561 (27/173) [95% CI: 0.1095-0.2176] 0.1503 (26/173) [95% CI: 0.1047-0.2111]
+fabricated               287 0.0000 (0/287) [95% CI: 0.0000-0.0132] 1.0000 (287/287) [95% CI: 0.9868-1.0000] 0.0000 (0/287) [95% CI: 0.0000-0.0132] 0.0000 (0/287) [95% CI: 0.0000-0.0132]
+held_out_adversarial      30 0.0000 (0/30) [95% CI: 0.0000-0.1135] 1.0000 (30/30) [95% CI: 0.8865-1.0000] 0.0000 (0/30) [95% CI: 0.0000-0.1135] 0.0000 (0/30) [95% CI: 0.0000-0.1135]
+
+--- Same matrix, UNGATED (Stage-1+2 threshold logic only -- the ORIGINAL logic this report used exclusively before 2026-07-21; kept for comparison, NOT representative of real DataCertifyAuditor.audit() behavior) ---
 group                      n                        ADMIT                  CONDITIONAL                       REJECT                hard_override
 ------------------------------------------------------------------------------------------------------------------------------------------------
 known_good               508 0.1929 (98/508) [95% CI: 0.1610-0.2295] 0.8071 (410/508) [95% CI: 0.7705-0.8390] 0.0000 (0/508) [95% CI: 0.0000-0.0075] 0.0000 (0/508) [95% CI: 0.0000-0.0075]
@@ -13,41 +23,47 @@ corrupted_real           173 0.1098 (19/173) [95% CI: 0.0714-0.1652] 0.7341 (127
 fabricated               287 0.0000 (0/287) [95% CI: 0.0000-0.0132] 1.0000 (287/287) [95% CI: 0.9868-1.0000] 0.0000 (0/287) [95% CI: 0.0000-0.0132] 0.0000 (0/287) [95% CI: 0.0000-0.0132]
 held_out_adversarial      30 0.0000 (0/30) [95% CI: 0.0000-0.1135] 1.0000 (30/30) [95% CI: 0.8865-1.0000] 0.0000 (0/30) [95% CI: 0.0000-0.1135] 0.0000 (0/30) [95% CI: 0.0000-0.1135]
 
---- Headline rates ---
+--- Headline rates (GATED -- real production behavior) ---
 False-reject rate on known_good (n=508): 0.0000 (0/508) [95% CI: 0.0000-0.0075]
-False-admit rate on known_bad, pooled corrupted+fabricated+held_out_adversarial (n=490): 0.0388 (19/490) [95% CI: 0.0250-0.0598]
+False-admit rate on known_bad, pooled corrupted+fabricated+held_out_adversarial (n=490): 0.0061 (3/490) [95% CI: 0.0021-0.0178]
+known_good ADMIT rate (n=508): 0.0630 (32/508) [95% CI: 0.0450-0.0876]
 NOT-rejected rate (ADMIT or CONDITIONAL) on known_bad (n=490): 0.9449 (463/490) [95% CI: 0.9210-0.9619]
 Note: CONDITIONAL is a 'flag for manual review' outcome, not an autonomous acceptance -- the false-admit rate above (ADMIT only) is the safety-critical number; the NOT-rejected rate is a looser upper bound useful for gauging analyst review burden.
 
---- corrupted_real, broken down by corruption_type ---
+--- Same headline rates, UNGATED (Stage-1+2 threshold logic only -- for comparison; NOT what a real DataCertifyAuditor.audit() user experiences) ---
+False-reject rate on known_good (n=508): 0.0000 (0/508) [95% CI: 0.0000-0.0075]
+False-admit rate on known_bad (n=490): 0.0388 (19/490) [95% CI: 0.0250-0.0598]
+known_good ADMIT rate (n=508): 0.1929 (98/508) [95% CI: 0.1610-0.2295]
+
+--- corrupted_real, broken down by corruption_type (GATED decision) ---
        corruption_type  n  ADMIT_k  ADMIT_rate  CONDITIONAL_k  CONDITIONAL_rate  REJECT_k  REJECT_rate
-     coordinate_jitter 30        5    0.166667             25          0.833333         0     0.000000
-     depth_implausible 27        1    0.037037              0          0.000000        26     0.962963
-     inject_duplicates 29        1    0.034483             27          0.931034         1     0.034483
-    inject_missingness 29        2    0.068966             27          0.931034         0     0.000000
-magnitude_gr_violation 30        7    0.233333             23          0.766667         0     0.000000
-   timestamp_collision 28        3    0.107143             25          0.892857         0     0.000000
+     coordinate_jitter 30        1    0.033333             29          0.966667         0     0.000000
+     depth_implausible 27        0    0.000000              1          0.037037        26     0.962963
+     inject_duplicates 29        0    0.000000             28          0.965517         1     0.034483
+    inject_missingness 29        1    0.034483             28          0.965517         0     0.000000
+magnitude_gr_violation 30        1    0.033333             29          0.966667         0     0.000000
+   timestamp_collision 28        0    0.000000             28          1.000000         0     0.000000
 
---- corrupted_real, broken down by severity ---
+--- corrupted_real, broken down by severity (GATED decision) ---
 severity  n  ADMIT_k  ADMIT_rate  CONDITIONAL_k  CONDITIONAL_rate  REJECT_k  REJECT_rate
-     low 57        7      0.1228             49            0.8596         1       0.0175
-     med 61        8      0.1311             29            0.4754        24       0.3934
-    high 55        4      0.0727             49            0.8909         2       0.0364
+     low 57        2      0.0351             54            0.9474         1       0.0175
+     med 61        1      0.0164             36            0.5902        24       0.3934
+    high 55        0      0.0000             53            0.9636         2       0.0364
 
---- fabricated, broken down by fabrication style (DERIVED from corpus_manifest.csv's free-text `notes` column via substring match on 'naive'/'sophisticated' -- NOT a structured field; treat as indicative, not authoritative) ---
+--- fabricated, broken down by fabrication style (GATED decision; DERIVED from corpus_manifest.csv's free-text `notes` column via substring match on 'naive'/'sophisticated' -- NOT a structured field; treat as indicative, not authoritative) ---
 fabrication_style   n  ADMIT_k  ADMIT_rate  CONDITIONAL_k  CONDITIONAL_rate  REJECT_k  REJECT_rate
             naive  38        0         0.0             38               1.0         0          0.0
 other/unspecified 240        0         0.0            240               1.0         0          0.0
     sophisticated   9        0         0.0              9               1.0         0          0.0
 
---- All groups, broken down by n_records bucket ---
+--- All groups, broken down by n_records bucket (GATED decision) ---
                group n_records_bucket   n  ADMIT_k  ADMIT_rate  CONDITIONAL_k  CONDITIONAL_rate  REJECT_k  REJECT_rate
-          known_good             1-49 115       66      0.5739             49            0.4261         0       0.0000
-          known_good           50-199 161       11      0.0683            150            0.9317         0       0.0000
-          known_good          200-999 169       20      0.1183            149            0.8817         0       0.0000
+          known_good             1-49 115        0      0.0000            115            1.0000         0       0.0000
+          known_good           50-199 161       12      0.0745            149            0.9255         0       0.0000
+          known_good          200-999 169       19      0.1124            150            0.8876         0       0.0000
           known_good        1000-9999  57        1      0.0175             56            0.9825         0       0.0000
           known_good           10000+   6        0      0.0000              6            1.0000         0       0.0000
-      corrupted_real             1-49  35       16      0.4571             13            0.3714         6       0.1714
+      corrupted_real             1-49  35        0      0.0000             29            0.8286         6       0.1714
       corrupted_real           50-199  41        2      0.0488             30            0.7317         9       0.2195
       corrupted_real          200-999  57        1      0.0175             50            0.8772         6       0.1053
       corrupted_real        1000-9999  28        0      0.0000             24            0.8571         4       0.1429

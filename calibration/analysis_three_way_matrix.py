@@ -19,6 +19,23 @@ per this project's LEGACY_STALE_COLUMNS convention (see
 _analysis_common.py's module-level comment for why those columns can be
 stale even when the code is correct).
 
+GATE-AWARENESS FIX (2026-07-21): this report previously used ONLY
+_analysis_common.assign_decision() (Stage 1 hard override + Stage 2
+theta_admit/theta_reject threshold logic), which does NOT reproduce what a
+real user of DataCertifyAuditor.audit() experiences -- production also
+applies two weight-fraction safety gates (min_evidence_coverage,
+min_sample_sufficiency) and, as of this same date, two count-based
+ADMIT-eligibility floors (min_n_records_for_admit,
+min_applicable_subtests_for_admit). The false-admit rate this report had
+previously disclosed as 19/490 (3.9%) was measured under threshold logic
+alone, not the real, fully-gated decision path. This report now computes
+BOTH: `decision_ungated` (the original Stage-1+2-only logic, kept for
+transparency/history) and `decision` (the REAL, fully-gated production
+decision, via _analysis_common.assign_decision_gated()) -- every headline
+rate below is now reported under BOTH, side by side, so this staleness
+gap cannot recur silently. See CHANGELOG.md's 2026-07-21
+"ADMIT-eligibility gate + gate-aware re-audit" entry for the full story.
+
 Prerequisite: run calibration/score_adversarial_holdout.py first if you
 want the held_out_adversarial group included (recommended -- this is the
 group that most directly covers the held-out/adversarial verification
@@ -84,14 +101,14 @@ def fabrication_style(notes: str) -> str:
     return "other/unspecified"
 
 
-def build_matrix(df: pd.DataFrame, group_col: str = "group") -> pd.DataFrame:
+def build_matrix(df: pd.DataFrame, group_col: str = "group", decision_col: str = "decision") -> pd.DataFrame:
     rows = []
     for g in [x for x in GROUPS_ORDER if x in df[group_col].unique()]:
         sub = df[df[group_col] == g]
         n = len(sub)
         row = {"group": g, "n": n}
         for d in DECISIONS_ORDER:
-            k = int((sub["decision"] == d).sum())
+            k = int((sub[decision_col] == d).sum())
             row[f"{d}_k"] = k
             row[f"{d}_rate"] = k / n if n else float("nan")
             lo, hi = ac.wilson_ci(k, n)
@@ -127,7 +144,14 @@ def main() -> None:
     t_d = ac.composite_score(df, ac.AXIS_WEIGHTS, ac.WITHIN)
     df = df.copy()
     df["T_D"] = t_d
-    df["decision"] = ac.assign_decision(t_d, df["hard_override_fired"])
+    df["decision_ungated"] = ac.assign_decision(t_d, df["hard_override_fired"])
+    try:
+        df["decision"] = ac.assign_decision_gated(df, t_d)
+        gated_available = True
+    except KeyError as e:
+        print(f"WARNING: {e}", file=sys.stderr)
+        df["decision"] = df["decision_ungated"]
+        gated_available = False
 
     report_lines = []
     report_lines.append("=" * 100)
@@ -139,6 +163,29 @@ def main() -> None:
                          f"(WEIGHT_VARIANTS['blended_current']), not read from score_matrix.csv's "
                          f"cached columns -- see _analysis_common.py's LEGACY_STALE_COLUMNS note.")
     report_lines.append("")
+    if gated_available:
+        report_lines.append(
+            "GATE-AWARENESS (2026-07-21): 'decision' below is the REAL, fully-gated "
+            "production decision (Stage 1 hard override + Stage 2 thresholds + "
+            "min_evidence_coverage/min_sample_sufficiency safety gates + "
+            "min_n_records_for_admit/min_applicable_subtests_for_admit ADMIT-eligibility "
+            "floors -- exactly what DataCertifyAuditor.audit() actually returns). "
+            "'decision_ungated' is the ORIGINAL Stage-1+2-threshold-only logic this report "
+            "used exclusively before this date, kept for direct before/after comparison, "
+            "NOT as an equally-valid alternative reading -- 'decision' is the one that "
+            "matches real production behavior. See CHANGELOG.md's 2026-07-21 entry."
+        )
+    else:
+        report_lines.append(
+            "*** WARNING: score_matrix.csv predates the 2026-07-21 gate-awareness fix "
+            "(missing evidence_coverage/sample_sufficiency/n_applicable_subtests columns) "
+            "-- 'decision' below falls back to Stage-1+2-threshold-only logic, identical "
+            "to 'decision_ungated'. Re-run calibration/run_scoring.py (and "
+            "calibration/score_adversarial_holdout.py) to regenerate score_matrix.csv "
+            "with the columns needed for a real gate-aware report before trusting the "
+            "numbers below as representative of production behavior. ***"
+        )
+    report_lines.append("")
     if not include_adv:
         report_lines.append(
             "*** NOTE: score_matrix_adversarial_holdout.csv not found -- the "
@@ -148,12 +195,26 @@ def main() -> None:
         )
         report_lines.append("")
 
-    # ---- Main matrix ----
-    main_mat = build_matrix(df)
-    report_lines.append("--- Overall matrix: group x decision (Wilson 95% CI) ---")
+    # ---- Main matrix (gated -- the real production decision) ----
+    main_mat = build_matrix(df, decision_col="decision")
+    report_lines.append("--- Overall matrix: group x decision (Wilson 95% CI) -- GATED (real production) ---")
     report_lines.append(fmt_matrix_text(main_mat))
     report_lines.append("")
     main_mat.to_csv(OUT_DIR / "three_way_matrix_main.csv", index=False)
+
+    # ---- Same matrix under the ORIGINAL ungated (Stage-1+2-only) logic, for
+    # direct before/after comparison -- this is the exact table this report
+    # used to publish as its ONLY matrix; kept so the size of the gate's
+    # effect is visible in the report itself, not just in CHANGELOG.md. ----
+    main_mat_ungated = build_matrix(df, decision_col="decision_ungated")
+    report_lines.append(
+        "--- Same matrix, UNGATED (Stage-1+2 threshold logic only -- the ORIGINAL "
+        "logic this report used exclusively before 2026-07-21; kept for comparison, "
+        "NOT representative of real DataCertifyAuditor.audit() behavior) ---"
+    )
+    report_lines.append(fmt_matrix_text(main_mat_ungated))
+    report_lines.append("")
+    main_mat_ungated.to_csv(OUT_DIR / "three_way_matrix_main_ungated.csv", index=False)
 
     # ---- Headline false-admit / false-reject rates ----
     known_good = df[df["group"] == "known_good"]
@@ -164,8 +225,13 @@ def main() -> None:
     k_false_admit = int((known_bad["decision"] == "ADMIT").sum())
     n_known_bad = len(known_bad)
     k_false_conditional_or_admit = int((known_bad["decision"] != "REJECT").sum())
+    k_known_good_admit = int((known_good["decision"] == "ADMIT").sum())
 
-    report_lines.append("--- Headline rates ---")
+    k_false_admit_ungated = int((known_bad["decision_ungated"] == "ADMIT").sum())
+    k_false_reject_ungated = int((known_good["decision_ungated"] == "REJECT").sum())
+    k_known_good_admit_ungated = int((known_good["decision_ungated"] == "ADMIT").sum())
+
+    report_lines.append("--- Headline rates (GATED -- real production behavior) ---")
     report_lines.append(
         f"False-reject rate on known_good (n={n_known_good}): "
         f"{ac.fmt_rate_ci(k_false_reject, n_known_good)}"
@@ -176,6 +242,10 @@ def main() -> None:
         f"{ac.fmt_rate_ci(k_false_admit, n_known_bad)}"
     )
     report_lines.append(
+        f"known_good ADMIT rate (n={n_known_good}): "
+        f"{ac.fmt_rate_ci(k_known_good_admit, n_known_good)}"
+    )
+    report_lines.append(
         f"NOT-rejected rate (ADMIT or CONDITIONAL) on known_bad (n={n_known_bad}): "
         f"{ac.fmt_rate_ci(k_false_conditional_or_admit, n_known_bad)}"
     )
@@ -184,6 +254,24 @@ def main() -> None:
         "autonomous acceptance -- the false-admit rate above (ADMIT only) is "
         "the safety-critical number; the NOT-rejected rate is a looser upper "
         "bound useful for gauging analyst review burden."
+    )
+    report_lines.append("")
+    report_lines.append(
+        "--- Same headline rates, UNGATED (Stage-1+2 threshold logic only -- "
+        "for comparison; NOT what a real DataCertifyAuditor.audit() user "
+        "experiences) ---"
+    )
+    report_lines.append(
+        f"False-reject rate on known_good (n={n_known_good}): "
+        f"{ac.fmt_rate_ci(k_false_reject_ungated, n_known_good)}"
+    )
+    report_lines.append(
+        f"False-admit rate on known_bad (n={n_known_bad}): "
+        f"{ac.fmt_rate_ci(k_false_admit_ungated, n_known_bad)}"
+    )
+    report_lines.append(
+        f"known_good ADMIT rate (n={n_known_good}): "
+        f"{ac.fmt_rate_ci(k_known_good_admit_ungated, n_known_good)}"
     )
     report_lines.append("")
 
@@ -205,7 +293,7 @@ def main() -> None:
     by_ctype = pd.DataFrame(by_ctype_rows)
     by_ctype.to_csv(OUT_DIR / "three_way_matrix_by_corruption_type.csv", index=False)
 
-    report_lines.append("--- corrupted_real, broken down by corruption_type ---")
+    report_lines.append("--- corrupted_real, broken down by corruption_type (GATED decision) ---")
     report_lines.append(by_ctype.to_string(index=False))
     report_lines.append("")
 
@@ -223,7 +311,7 @@ def main() -> None:
             row[f"{d}_rate"] = round(k / n, 4) if n else float("nan")
         by_severity_rows.append(row)
     by_severity = pd.DataFrame(by_severity_rows)
-    report_lines.append("--- corrupted_real, broken down by severity ---")
+    report_lines.append("--- corrupted_real, broken down by severity (GATED decision) ---")
     report_lines.append(by_severity.to_string(index=False))
     report_lines.append("")
 
@@ -242,7 +330,7 @@ def main() -> None:
         by_style_rows.append(row)
     by_style = pd.DataFrame(by_style_rows)
     report_lines.append(
-        "--- fabricated, broken down by fabrication style (DERIVED from "
+        "--- fabricated, broken down by fabrication style (GATED decision; DERIVED from "
         "corpus_manifest.csv's free-text `notes` column via substring match "
         "on 'naive'/'sophisticated' -- NOT a structured field; treat as "
         "indicative, not authoritative) ---"
@@ -269,7 +357,7 @@ def main() -> None:
     by_bucket = pd.DataFrame(by_bucket_rows)
     by_bucket.to_csv(OUT_DIR / "three_way_matrix_by_n_records_bucket.csv", index=False)
 
-    report_lines.append("--- All groups, broken down by n_records bucket ---")
+    report_lines.append("--- All groups, broken down by n_records bucket (GATED decision) ---")
     report_lines.append(by_bucket.to_string(index=False))
     report_lines.append("")
 

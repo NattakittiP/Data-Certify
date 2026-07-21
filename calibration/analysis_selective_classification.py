@@ -123,7 +123,15 @@ def main() -> None:
     include_adv = ac.ADVERSARIAL_SCORE_MATRIX_PATH.exists()
 
     t_d = ac.composite_score(df, ac.AXIS_WEIGHTS, ac.WITHIN)
-    decision = ac.assign_decision(t_d, df["hard_override_fired"])
+    # GATE-AWARENESS FIX (2026-07-21): use the REAL, fully-gated production
+    # decision -- this variable is reused below as BOTH the "current
+    # production operating point" AND the "full_two_stage (production)"
+    # utility-analysis policy, so fixing it here fixes both at once. Coherent
+    # here specifically because ac.AXIS_WEIGHTS/ac.WITHIN IS the production
+    # weight basis that evidence_coverage/sample_sufficiency were computed
+    # under (see assign_decision_gated()'s docstring for why this does NOT
+    # generalize to an arbitrary weight vector).
+    decision = ac.assign_decision_gated(df, t_d)
 
     report = []
     report.append("=" * 100)
@@ -144,7 +152,18 @@ def main() -> None:
     report.append("")
 
     # ---- Current production operating point, overall + by group ----
-    report.append("--- Current production operating point (blended_current weights, thresholds as-is) ---")
+    report.append(
+        "GATE-AWARENESS (2026-07-21): 'decision' throughout this report is now "
+        "the REAL, fully-gated production decision (Stage 1+2 thresholds + "
+        "min_evidence_coverage/min_sample_sufficiency safety gates + "
+        "min_n_records_for_admit/min_applicable_subtests_for_admit "
+        "ADMIT-eligibility floors) -- NOT the Stage-1+2-threshold-only logic "
+        "this report used before this date (which reported false_admit=19 in "
+        "the operating point below; the real, gated figure is 3). See "
+        "CHANGELOG.md's 2026-07-21 entries."
+    )
+    report.append("")
+    report.append("--- Current production operating point (blended_current weights, thresholds as-is, GATED) ---")
     op = compute_operating_point(df, decision)
     report.append(f"Coverage: {op['coverage']:.4f} ({op['n_covered']}/{op['n']})")
     report.append(f"Selective risk (errors within covered subset): {ac.fmt_rate_ci(op['n_errors_covered'], op['n_covered'])}")
@@ -217,7 +236,7 @@ def main() -> None:
     policies = {}
     policies["full_two_stage (production)"] = decision
     ws_only_t = ac.composite_score(df, ac.AXIS_WEIGHTS, ac.WITHIN)
-    policies["weighted_sum_only"] = ac.assign_decision(ws_only_t, df["hard_override_fired"], respect_hard_override=False)
+    policies["weighted_sum_only"] = ac.assign_decision_gated(df, ws_only_t, respect_hard_override=False)
     policies["hard_override_only"] = pd.Series(np.where(hof, "REJECT", "ADMIT"), index=df.index)
 
     known_good = df["group"] == "known_good"

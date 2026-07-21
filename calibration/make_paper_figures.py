@@ -339,12 +339,36 @@ def figure5_a6_case_study():
 def figure6_weight_ablation():
     import pandas as pd
 
+    # GATE-AWARENESS (2026-07-21): ablation_weight_variants.csv's 'blended_current'
+    # row now stores the REAL, gated production false_admit_rate (0.61%, 3/490),
+    # while every other row (ahp_only, ewm_only, equal_weight, single-axis arms)
+    # is still ungated (Stage-1+2 threshold logic only) -- gating only applies
+    # coherently to the production weight basis (see PostHoc_Validation_Analyses_
+    # Summary.md Section 3.1 for why). Plotting the gated value directly against
+    # the seven ungated bars would misleadingly overstate the production weight
+    # VECTOR's advantage (part of the gap is the extra gating machinery, not the
+    # weight vector). This figure therefore plots blended_current's UNGATED rate
+    # (3.88%, 19/490 -- the number actually comparable to the other seven bars on
+    # equal footing) and separately annotates the gated production figure on the
+    # same bar so neither number is hidden. See CHANGELOG.md's 2026-07-21 entries.
+    BLENDED_CURRENT_UNGATED_RATE = 19 / 490  # 0.038776..., matches three_way_matrix_report.txt's ungated headline
+    BLENDED_CURRENT_UNGATED_K = 19
+    BLENDED_CURRENT_GATED_RATE = 3 / 490  # 0.006122..., matches the real, gated production figure
+    BLENDED_CURRENT_GATED_K = 3
+
     path = os.path.join(REPO_ROOT, "calibration", "group_b_reports", "ablation_weight_variants.csv")
     df = pd.read_csv(path)
 
     order = ["blended_current", "ahp_only", "ewm_only", "equal_weight",
              "a_only", "p_only", "c_only", "i_only"]
     df = df.set_index("variant").loc[order].reset_index()
+
+    # Overwrite blended_current's rate/count with the ungated figure for this
+    # equal-footing ablation comparison (see disclosure above); the gated figure
+    # is added back in as a separate annotation on that bar below.
+    blended_idx = df.index[df["variant"] == "blended_current"][0]
+    df.loc[blended_idx, "false_admit_rate"] = BLENDED_CURRENT_UNGATED_RATE
+    df.loc[blended_idx, "false_admit_k"] = BLENDED_CURRENT_UNGATED_K
 
     display_names = {
         "blended_current": "blended\n(production)",
@@ -372,13 +396,24 @@ def figure6_weight_ablation():
     fig, ax = plt.subplots(figsize=(11.5, 6.5))
     ax.bar(x, rates_pct, color=colors, edgecolor="black", linewidth=0.9, width=0.65, zorder=3)
 
-    for xi, rate, k in zip(x, rates_pct, df["false_admit_k"]):
+    for xi, rate, k, v in zip(x, rates_pct, df["false_admit_k"], df["variant"]):
         ax.text(xi, rate + 1.3, f"{rate:.2f}%\n(n={int(k)})", ha="center", va="bottom",
                 fontsize=8.6, zorder=4)
+        if v == "blended_current":
+            # Gate-parity annotation (2026-07-21): the bar height above is the
+            # UNGATED rate (comparable to the other seven bars); the real,
+            # gated production behavior is annotated separately here so it is
+            # never silently dropped.
+            ax.text(xi, rate + 4.2,
+                    f"gated (real production):\n{BLENDED_CURRENT_GATED_RATE * 100:.2f}% "
+                    f"({BLENDED_CURRENT_GATED_K}/490)",
+                    ha="center", va="bottom", fontsize=7.6, color="#1a1a1a",
+                    style="italic", zorder=4,
+                    bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#666666", lw=0.6))
 
     # Disclose the false-reject trade-off for the two variants where it is
     # nonzero (a_only, i_only) -- all other variants are exactly 0% false-reject.
-    fr_notes = {"a_only": 3.54, "i_only": 0.59}
+    fr_notes = {"a_only": 3.15, "i_only": 0.59}
     for xi, v in zip(x, df["variant"]):
         if v in fr_notes:
             ax.text(xi, -0.058, f"+{fr_notes[v]:.2f}% false-reject", ha="center", va="top",
@@ -388,9 +423,10 @@ def figure6_weight_ablation():
     ax.set_xticks(x)
     ax.set_xticklabels([display_names[v] for v in df["variant"]], fontsize=9.5)
     ax.set_ylabel("false-admit rate on known-bad data (%)", fontsize=10.5)
-    ax.set_ylim(0, max(rates_pct) * 1.22)
+    ax.set_ylim(0, max(rates_pct) * 1.32)
     ax.set_title(
-        "The blended AHP x EWM weight vector strictly dominates every alternative.\n"
+        "The blended AHP x EWM weight vector strictly dominates every alternative\n"
+        "(bars: ungated, equal-footing comparison; blended's real gated production rate is annotated separately).\n"
         "No simpler weighting scheme matches it without a false-admit cost.",
         fontsize=12.5, weight="bold", pad=14,
     )
@@ -466,20 +502,28 @@ def figure7_gap9_downstream_impact():
 # Figure -- Decision-utility cost curve across cost-ratio scenarios (Group B5.3)
 # ---------------------------------------------------------------------------
 def figure8_decision_utility_cost():
+    # GATE-AWARENESS (2026-07-21): these five-scenario cost values are read from
+    # calibration/group_b_reports/selective_classification_report.txt, regenerated
+    # under the REAL, gated production decision (full_two_stage/weighted_sum_only
+    # both gated; hard_override_only has no composite score and is numerically
+    # unaffected by gating). The pre-2026-07-21 version of this figure used
+    # ungated values (cost_full starting at 0.0190 for the 1:1:0 scenario); the
+    # gated values are lower throughout because the false-admit count feeding
+    # this cost model drops from 19-22 to 3. See CHANGELOG.md's 2026-07-21 entries.
     scenarios = ["1 : 1 : 0", "5 : 1 : 0.1", "10 : 1 : 0.2", "20 : 1 : 0.3", "50 : 1 : 0.5"]
     x = list(range(len(scenarios)))
-    cost_full = [0.01903807615230461, 0.18176352705410823, 0.36352705410821645,
-                 0.6404809619238477, 1.3847695390781563]
-    cost_ws = [0.022044088176352707, 0.19909819639278556, 0.3981963927855711,
-               0.7075150300601202, 1.5465931863727456]
+    cost_full = [0.003006012024048096, 0.10881764529058116, 0.21763527054108216,
+                 0.34148296593186374, 0.6192384769539079]
+    cost_ws = [0.003006012024048096, 0.11142284569138277, 0.222845691382766,
+               0.3492985971943888, 0.6322645290581162]
     cost_ho = [0.4649298597194389, 2.3246492985971945, 4.649298597194389,
                9.298597194388778, 23.246492985971944]
 
     fig, ax = plt.subplots(figsize=(10.5, 6.3))
     ax.plot(x, cost_full, marker="o", color=COLOR_KNOWN_GOOD, linewidth=2.5, markersize=8,
-            label="full two-stage (production)", zorder=4)
+            label="full two-stage (production, GATED)", zorder=4)
     ax.plot(x, cost_ws, marker="s", color="#9a9a9a", linewidth=2.1, markersize=6.8,
-            linestyle="--", label="weighted-sum only (no hard-override)", zorder=3)
+            linestyle="--", label="weighted-sum only (no hard-override, GATED)", zorder=3)
     ax.plot(x, cost_ho, marker="^", color=COLOR_KNOWN_BAD, linewidth=2.1, markersize=6.8,
             linestyle=":", label="hard-override only (no composite score)", zorder=3)
 
@@ -490,7 +534,7 @@ def figure8_decision_utility_cost():
     ax.set_ylabel("mean cost per dataset (log scale)", fontsize=10.5)
     ax.set_title(
         "The full two-stage architecture is cost-optimal in every tested scenario,\n"
-        "including the naive equal-cost case",
+        "including the naive equal-cost case (gated: real production decision)",
         fontsize=12.3, weight="bold", pad=13,
     )
     ax.legend(loc="upper left", fontsize=9.2, frameon=True, borderaxespad=0.5)

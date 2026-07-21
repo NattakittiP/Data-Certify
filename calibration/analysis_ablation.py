@@ -72,12 +72,29 @@ A6_EMSC_PATH = CALIBRATION_DIR / "score_matrix_a6_emsc.csv"           # EMSC-alo
 A6_ISC_PATH = CALIBRATION_DIR / "score_matrix_a6_isc.csv"             # ISC-alone spot check
 
 
-def eval_arm(df: pd.DataFrame, axis_weights, within_weights, respect_hard_override: bool = True) -> dict:
+def eval_arm(df: pd.DataFrame, axis_weights, within_weights, respect_hard_override: bool = True,
+             gated: bool = False) -> dict:
     """Compute the full set of headline metrics for one weight/mechanism
     arm, given a corpus DataFrame that already has hard_override_fired and
-    group columns."""
+    group columns.
+
+    GATE-AWARENESS (2026-07-21): `gated=True` applies the real production
+    safety gates/ADMIT-eligibility floors (assign_decision_gated()) on top
+    of the threshold decision -- ONLY coherent when `axis_weights`/
+    `within_weights` are the CURRENT production weights (blended_current),
+    since evidence_coverage/sample_sufficiency in df are fixed, precomputed
+    values resting on THAT specific weight basis (see score_matrix.csv).
+    Applying them against a T(D) computed under a DIFFERENT weight vector
+    (ahp_only, ewm_only, equal_weight, any single-axis arm) would mix two
+    incompatible weight bases with no coherent interpretation -- so `gated`
+    defaults to False and must only be set True by a caller that has
+    confirmed axis_weights/within_weights ARE ac.AXIS_WEIGHTS/ac.WITHIN.
+    """
     t_d = ac.composite_score(df, axis_weights, within_weights)
-    decision = ac.assign_decision(t_d, df["hard_override_fired"], respect_hard_override=respect_hard_override)
+    if gated:
+        decision = ac.assign_decision_gated(df, t_d, respect_hard_override=respect_hard_override)
+    else:
+        decision = ac.assign_decision(t_d, df["hard_override_fired"], respect_hard_override=respect_hard_override)
 
     known_good = df["group"] == "known_good"
     known_bad = df["group"].isin(["corrupted_real", "fabricated", "held_out_adversarial"])
@@ -128,11 +145,32 @@ def main() -> None:
     report.append("(1) WEIGHT-VECTOR ABLATION")
     report.append("Full two-stage architecture (hard-override respected) under each weight vector.")
     report.append("-" * 100)
+    report.append(
+        "GATE-AWARENESS (2026-07-21): the 'blended_current' row (the actual "
+        "production weight vector) uses the REAL, fully-gated production "
+        "decision (Stage 1+2 thresholds + min_evidence_coverage/"
+        "min_sample_sufficiency safety gates + min_n_records_for_admit/"
+        "min_applicable_subtests_for_admit ADMIT-eligibility floors) -- its "
+        "false_admit_rate is 3/490 (0.61%), NOT the 19/490 (3.88%) this report "
+        "showed before this date. Every OTHER row (ahp_only, ewm_only, "
+        "equal_weight, the four single-axis arms) uses Stage-1+2-threshold-only "
+        "logic, NOT the gated decision -- evidence_coverage/sample_sufficiency "
+        "are fixed values computed under the CURRENT production weight basis, "
+        "so gating a T(D) computed under a DIFFERENT weight vector would mix "
+        "two incompatible weight bases with no coherent interpretation. This "
+        "means blended_current's false_admit_rate is not directly comparable "
+        "to the other rows' on an apples-to-apples gating basis -- it is "
+        "lower partly because production applies MORE machinery than the "
+        "other rows model at all, not only because its weight vector is "
+        "better. See CHANGELOG.md's 2026-07-21 entries."
+    )
+    report.append("")
     wv_rows = []
     for name, spec in ac.WEIGHT_VARIANTS.items():
-        m = eval_arm(df, spec["axis"], spec["within"], respect_hard_override=True)
+        is_production = (name == "blended_current")
+        m = eval_arm(df, spec["axis"], spec["within"], respect_hard_override=True, gated=is_production)
         m["variant"] = name
-        m["label"] = spec["label"]
+        m["label"] = spec["label"] + ("  [GATED -- real production]" if is_production else "  [ungated -- threshold logic only]")
         wv_rows.append(m)
     wv_df = pd.DataFrame(wv_rows)
     cols = ["variant", "label", "false_reject_rate", "false_reject_k", "false_admit_rate",
@@ -159,19 +197,30 @@ def main() -> None:
     report.append("-" * 100)
     report.append("(2) MECHANISM ABLATION (blended_current weights throughout)")
     report.append("-" * 100)
+    report.append(
+        "GATE-AWARENESS (2026-07-21): 'full_two_stage' and 'weighted_sum_only' "
+        "both use blended_current (the real production weight basis), so both "
+        "now use the REAL, fully-gated decision (assign_decision_gated()) -- "
+        "'weighted_sum_only' with respect_hard_override=False, meaning Stage 1 "
+        "is skipped but Stage 2's own safety gates still apply (they are part "
+        "of Stage 2's post-processing, not Stage 1). 'hard_override_only' has "
+        "no composite score at all and is unaffected (gates are Stage-2 "
+        "machinery; this arm removes Stage 2 entirely by construction)."
+    )
+    report.append("")
 
     mech_rows = []
 
-    # Full two-stage (both mechanisms active)
-    m = eval_arm(df, ac.AXIS_WEIGHTS, ac.WITHIN, respect_hard_override=True)
+    # Full two-stage (both mechanisms active) -- REAL production, gated
+    m = eval_arm(df, ac.AXIS_WEIGHTS, ac.WITHIN, respect_hard_override=True, gated=True)
     m["arm"] = "full_two_stage"
-    m["description"] = "Hard-override gate (Stage 1) + composite score (Stage 2), as in production"
+    m["description"] = "Hard-override gate (Stage 1) + composite score + safety gates (Stage 2), as in production [GATED]"
     mech_rows.append(m)
 
-    # Weighted-sum only, no hard override
-    m = eval_arm(df, ac.AXIS_WEIGHTS, ac.WITHIN, respect_hard_override=False)
+    # Weighted-sum only, no hard override -- still gated (Stage 2's own gates)
+    m = eval_arm(df, ac.AXIS_WEIGHTS, ac.WITHIN, respect_hard_override=False, gated=True)
     m["arm"] = "weighted_sum_only"
-    m["description"] = "Composite score only -- hard-override gate never consulted"
+    m["description"] = "Composite score + Stage-2 safety gates -- hard-override gate never consulted [GATED]"
     mech_rows.append(m)
 
     # Hard-override only, no composite score (binary REJECT-if-fired else ADMIT)

@@ -2,6 +2,295 @@
 
 All notable changes to DATA-CERTIFY are documented in this file.
 
+## [Unreleased] — 2026-07-21 (calibration analysis-pipeline gate-parity fix, follow-up)
+
+Follow-up to the "ADMIT-eligibility gate + gate-aware re-audit" entry
+immediately below: that entry diagnosed the root cause (the paper's
+analysis pipeline never applied the two pre-existing safety gates, nor
+the two new ADMIT-eligibility floors) and fixed the ONE report most
+directly responsible for the disclosed 19/490 headline number
+(`calibration/analysis_three_way_matrix.py`). This entry finishes the job
+across the REST of the Group-B analysis pipeline, so no script in
+`calibration/` can silently reproduce the stale, gate-free 19/490 (3.9%)
+figure going forward.
+
+### Added
+
+- **`calibration/_analysis_common.assign_decision_gated()`**: a new
+  function reproducing the REAL, fully-gated production decision path
+  (Stage 1 hard override + Stage 2 theta thresholds + min_evidence_coverage/
+  min_sample_sufficiency safety gates + min_n_records_for_admit/
+  min_applicable_subtests_for_admit ADMIT-eligibility floors) exactly as
+  `DataCertifyAuditor.audit()` applies them, in the same order, with the
+  same never-upgrades/never-overrides-hard-override semantics. Requires
+  `evidence_coverage`/`sample_sufficiency`/`n_records`/
+  `n_applicable_subtests` columns in the input DataFrame (raises `KeyError`
+  with an actionable message, rather than silently falling back to the
+  ungated behavior, if a caller passes a pre-fix `score_matrix.csv`).
+  Supports `respect_hard_override=False` for the "weighted_sum_only"
+  mechanism-ablation arm. A new `_unit_test_gate_defaults_match_production()`
+  self-check (runs automatically on import) guards the two hand-copied
+  `PRODUCTION_MIN_EVIDENCE_COVERAGE`/`PRODUCTION_MIN_SAMPLE_SUFFICIENCY`
+  constants against `DataCertifyAuditor.__init__`'s real defaults via
+  `inspect.signature`, raising immediately if they ever drift out of sync.
+  The original `assign_decision()` is UNCHANGED and remains available for
+  callers that legitimately need Stage-1+2-only logic (see below).
+- **`calibration/run_scoring.py` / `calibration/score_adversarial_holdout.py`**:
+  `score_one()` in both now also computes and writes `evidence_coverage`,
+  `sample_sufficiency`, and `n_applicable_subtests` per dataset (via the
+  same `_assign_effective_weights`/`_compute_evidence_coverage`/
+  `_compute_sample_sufficiency`/`_compute_n_applicable_subtests` functions
+  `decision.py` itself uses), computed from the axis_results already scored
+  -- no re-scoring, no change to either script's existing
+  performance-critical design (raw per-criterion scores are still recorded
+  even when hard-override fires, needed for EWM). `calibration/score_matrix.csv`
+  and `calibration/score_matrix_adversarial_holdout.csv` were regenerated
+  with these three new columns for all 968 + 30 datasets (verified: every
+  regenerated value matches an independent live `DataCertifyAuditor.audit()`
+  re-run on a spot-checked sample, to floating-point precision).
+
+### Fixed
+
+- **`calibration/analysis_three_way_matrix.py`** (the script generating
+  `calibration/group_b_reports/three_way_matrix_report.txt`, source of the
+  originally-disclosed 19/490 figure): now reports BOTH the real, gated
+  decision (`decision`, via `assign_decision_gated()`) AND the original
+  Stage-1+2-only decision (`decision_ungated`), clearly labeled side by
+  side in every matrix/headline/breakdown, so the size of the gates'
+  effect is visible in the report itself rather than only in this
+  changelog. Regenerated: false-admit 3/490 (0.61%, 95% CI [0.21%,1.78%])
+  gated vs. 19/490 (3.88%) ungated; known_good ADMIT 32/508 (6.30%) gated
+  vs. 98/508 (19.29%) ungated; known_good false-reject 0/508 unchanged.
+- **`calibration/analysis_selective_classification.py`** (Group B5): its
+  single `decision` variable -- reused for the "current production
+  operating point," the per-group breakdown, the risk-coverage curve's
+  reference decision, and the "full_two_stage (production)"/
+  "weighted_sum_only" utility-analysis policies -- now uses
+  `assign_decision_gated()` (respecting hard override for the production
+  policy, `respect_hard_override=False` for weighted_sum_only). This
+  report previously stated `false_admit=19` in its "current production
+  operating point" section with no gate caveat at all; regenerated, it now
+  correctly shows `false_admit=3`.
+- **`calibration/analysis_ablation.py`** (Group B3): `eval_arm()` gained a
+  `gated` parameter. The weight-vector ablation's `blended_current` row
+  (the actual production weight vector, previously shown with
+  `false_admit_rate=19/490` and no caveat) now uses the gated decision;
+  every OTHER weight-vector row (ahp_only, ewm_only, equal_weight, the four
+  single-axis arms) deliberately remains ungated, with an explicit report
+  note explaining why gating them would be scientifically incoherent
+  (evidence_coverage/sample_sufficiency are fixed values computed under the
+  CURRENT production weight basis -- applying them against a T(D) computed
+  under a DIFFERENT weight vector mixes two incompatible bases). The
+  mechanism ablation's `full_two_stage` and `weighted_sum_only` arms (both
+  already on the production weight basis) are now also gated;
+  `hard_override_only` is correctly left untouched (it has no composite
+  score at all, so Stage 2's gates do not apply to it by construction).
+
+### Scope note (not a fix -- a disclosed, deliberate limitation)
+
+- **`calibration/analysis_decision_stability.py`** (Group B4, Monte Carlo
+  weight/threshold sensitivity analysis) was NOT changed to use
+  `assign_decision_gated()`, and this is intentional: 2000 of its own
+  draws each use a DIFFERENT, randomly-perturbed weight vector, and
+  `evidence_coverage`/`sample_sufficiency` are fixed values computed only
+  under the CURRENT production weight basis -- gating a per-draw T(D)
+  against a fixed-weight-basis metric has no coherent interpretation the
+  same way the ablation script's non-`blended_current` rows do not. A
+  scope-note disclosure was added to both the module docstring and the
+  report's own text making this explicit: this script answers "how stable
+  is the raw Stage-1+2 threshold rule under perturbation," not "how stable
+  is the final gated production decision" -- a related but different, and
+  currently unanswered, question.
+
+### Verification
+
+Three independent verification passes were run before this fix was
+considered complete (per the same standard as the gate implementation
+itself): (1) a from-scratch, independent recomputation of every headline
+number (false-admit rate, Wilson CI, PPV/NPV, the 4 residual false-admit
+cases, current max known_bad T(D)) directly from `score_matrix.csv` and
+the manifests, with no formula or arithmetic discrepancies found; (2) a
+line-by-line code review of every changed file (gate ordering/composition,
+NaN/None handling, A6 weight-blending arithmetic, the boolean-mask
+recomputation risk in `assign_decision_gated()`, correct placement of the
+new diagnostic-computation block relative to the hard-override try/except)
+plus a full test-suite run (332/332 passing) and a live spot-check proving
+the evidence-coverage gate is a real, functioning cap and not a no-op; (3)
+a repo-wide consistency sweep confirming CHANGELOG.md/README.md/
+`_constants.py`'s numbers agree with each other and with the regenerated
+reports, which surfaced the two stale reports (`ablation_report.txt`,
+`selective_classification_report.txt`) fixed above.
+
+## [Unreleased] — 2026-07-21 (ADMIT-eligibility gate + gate-aware re-audit)
+
+Prompted by a paper-readiness review of the disclosed 19/490 (3.9%)
+false-admit finding: is 3.9% acceptable, under what use case, what is its
+confidence interval, how does it move with prevalence, why is
+theta_admit=0.75 the right cut, and should small/thin catalogs be
+categorically barred from ADMIT? Investigating these questions surfaced a
+finding that changes the headline number itself, before any new gate was
+even added.
+
+### Found
+
+- **The published 19/490 (3.9%) false-admit rate does not reflect what a
+  real user of `DataCertifyAuditor`/`run_audit.py` experiences.**
+  `calibration/_analysis_common.py`'s `assign_decision()` — used by every
+  Group-B paper analysis report, including `three_way_matrix_report.txt`
+  where 19/490 is disclosed — implements only Stage 1 (hard override) +
+  Stage 2 (theta_admit/theta_reject) threshold logic. It does not apply
+  the two safety gates (`min_evidence_coverage`, `min_sample_sufficiency`)
+  that `DataCertifyAuditor` has applied by default in production since
+  their introduction. A full re-audit of all 998 corpus + adversarial-
+  holdout datasets using the actual `DataCertifyAuditor.audit()` call
+  (not a threshold replica) found these two existing gates ALONE already
+  cut false-admit from 19/490 (3.88%) to 4/490 (0.82%), at the cost of
+  known_good's ADMIT rate falling from 98/508 (19.29%) to 35/508 (6.89%).
+  known_good false-reject stayed 0/508 throughout. This gap between
+  "what the paper's analysis pipeline measures" and "what the shipped
+  code does" was previously undisclosed and is a distinct issue from the
+  3.9% figure itself.
+- The 4 residual false-admits after the existing gates
+  (`corrupt_real_miyazaki_2024-2025_magnitude_gr_violation_med` n=46,
+  `corrupt_real_tohoku_202511_inject_missingness_low` n=67,
+  `corrupt_real_ridgecrest_california_2019_coordinate_jitter_low` n=108,
+  `corrupt_real_azerbaijan_general_magnitude_gr_violation_med` n=310) all
+  have evidence_coverage >= 0.70 and sample_sufficiency = 1.0 already —
+  not a coverage/small-sample problem, but mild corruptions
+  (magnitude-Gutenberg-Richter violation, low missingness, low coordinate
+  jitter) that a well-powered test battery still doesn't flag strongly
+  enough. This is a materially different, harder failure mode than "not
+  enough evidence," and is why the new gate below only closes 1 of the 4.
+
+### Added
+
+- **`MIN_N_RECORDS_FOR_ADMIT=50` / `MIN_APPLICABLE_SUBTESTS_FOR_ADMIT=8`**
+  (`data_certify/_constants.py`, wired through `DataCertifyAuditor.__init__`
+  in `decision.py` and exposed as `--min-n-records-for-admit` /
+  `--min-applicable-subtests-for-admit` in `run_audit.py`): two new,
+  disclosed, additive-only ADMIT-eligibility floors, following the exact
+  pattern of the existing `min_evidence_coverage`/`min_sample_sufficiency`
+  gates (cap ADMIT down to CONDITIONAL only; never touch REJECT or the
+  Stage-1 hard override). Unlike the two existing gates, which are
+  WEIGHT-FRACTION metrics coupled to whatever `AXIS_WEIGHTS`/`WITHIN_*` are
+  currently live, these two are raw, weight-independent COUNTS (total
+  record count; number of distinct non-hard-gate sub-tests applicable and
+  computable this audit), chosen to stay meaningful across future
+  recalibration passes. See `_constants.py`'s inline comment for the full
+  empirical derivation (grid search over candidate thresholds) and
+  disclosed limitations.
+- **`CertifyResult.n_applicable_subtests`**: new field (also printed in
+  `str(result)` and `run_audit.py`'s summary) reporting the raw count (out
+  of a possible 20) of non-hard-gate sub-tests that were applicable and
+  produced a computable score, independent of their nominal calibrated
+  weight.
+
+### Result (verified against live code, full 998-dataset corpus + holdout)
+
+| | gate-free (paper's current disclosed number) | + existing gates (0.5/0.5) | + new ADMIT-eligibility floors (this change) |
+|---|---|---|---|
+| known_bad -> ADMIT (false-admit) | 19/490 = 3.88%, 95% CI [2.50%, 5.98%] | 4/490 = 0.82% | **3/490 = 0.61%, 95% CI [0.21%, 1.78%]** |
+| known_good -> ADMIT | 98/508 = 19.29% | 35/508 = 6.89% | **32/508 = 6.30%** |
+| known_good -> REJECT (false-reject) | 0/508 | 0/508 | 0/508 |
+| held_out_adversarial (n=30) -> ADMIT | 0/30 | 0/30 | 0/30 |
+
+The new floors close 1 of the 4 remaining false-admits (the n=46 case);
+the other 3 (n=67, n=108, n=310) clear both floors comfortably and remain
+a genuine, disclosed residual. Reproduction: `DataCertifyAuditor()`'s
+defaults now include both new gates; re-running the full corpus is a
+one-line re-invocation of the existing scoring path, no separate script
+needed.
+
+### Paper-readiness framing (answers to the six questions above)
+
+1. **Under what use case is a ~0.6% false-admit risk acceptable?** ADMIT is
+   the compensatory, no-remaining-caveat top tier of a three-tier decision
+   (ADMIT/CONDITIONAL/REJECT), not a binary go/no-go gate — CONDITIONAL
+   already means "route to human review before use," which is the correct
+   response to ~93.7% of known_good catalogs under current thresholds.
+   Read narrowly, "~0.6% of known-bad catalogs slip past the strictest
+   tier" is acceptable specifically in workflows where ADMIT triggers
+   *reduced*, not *zero*, downstream scrutiny (e.g., skip a redundant
+   manual QC pass, not skip disaster-response decision review entirely),
+   and where a human or secondary system remains in the loop for
+   consequential actions. It is not acceptable as the sole gate before an
+   irreversible, high-stakes automated action with no human in the loop —
+   see point 5.
+2. **Confidence interval**: Wilson score interval (matches this project's
+   existing convention in `_analysis_common.py`'s `wilson_ci`), computed
+   against the live-code result: 3/490, 95% CI **[0.21%, 1.78%]**. (For
+   reference, the previously-disclosed gate-free 19/490 figure's CI was
+   [2.50%, 5.98%].)
+3. **Predictive value under shifting prevalence**: using this corpus's
+   measured operating point (P(ADMIT | good) = 32/508 = 6.30%,
+   P(ADMIT | bad) = 3/490 = 0.61%) and Bayes' rule across assumed
+   prevalence of bad catalogs in the *incoming, unvetted* population (not
+   this balanced 49/51 calibration corpus):
+
+   | prevalence(bad) | PPV(ADMIT implies actually good) | 1 − NPV(non-ADMIT implies actually good) |
+   |---|---|---|
+   | 5% | 99.49% | 5.29% |
+   | 10% | 98.93% | 10.54% |
+   | 30% | 96.00% | 31.25% |
+   | 49.1% (this corpus's actual balance) | 91.43% | 50.57% |
+   | 70% | 81.51% | 71.22% |
+   | 90% | 53.34% | 90.52% |
+   | 95% | 35.13% | 95.27% |
+
+   PPV degrades sharply once the incoming population is itself mostly bad
+   (crowd-sourced/unvetted ingestion): at 90% prevalence of bad catalogs,
+   only ~53% of ADMITs are actually trustworthy — worse than a coin flip
+   in the relevant sense. Practical implication: ADMIT's ~91-99% precision
+   only holds for input populations no worse than roughly balanced to
+   mildly-bad; any deployment ingesting from a substantially adversarial
+   or unvetted source population must not treat ADMIT as reliable at face
+   value without re-estimating local prevalence first. Note the low
+   sensitivity (only 6.30% of genuinely good catalogs reach ADMIT) is the
+   flip side of this same conservatism — the system is tuned to make
+   ADMIT rare and precise, not to maximize how much good data reaches it.
+4. **Why theta_admit=0.75**: per `calibration/threshold_report.md`'s
+   sixth-pass finding, the maximum T(D) among all 460 known_bad datasets
+   under the (at-the-time) corrected production formula was 0.6276 — a
+   margin of ~0.12 below theta_admit=0.75, the widest, most defensible
+   margin available given that known_good/known_bad T(D) distributions
+   are otherwise heavily interleaved (0.17-0.63) with no theta_reject-side
+   clean separation at all (documented in the same report). Since then,
+   further calibration passes (documented in this file's history) shifted
+   the corpus and weights enough that some known_bad datasets now do
+   exceed 0.75 (hence 19/490, later 4/490, later 3/490 false-admits) —
+   theta_admit=0.75 was never re-derived against the current corpus/weight
+   combination and should be treated as historically-motivated rather than
+   currently re-validated; a fresh margin analysis against the present
+   `score_matrix.csv` is the natural next calibration task.
+5. **When must the system be prohibited from ever issuing ADMIT?**
+   Already partially enforced today: the Stage-1 hard override (P1-P3
+   physical-bounds violations, A6 externally-contradicted) forces REJECT
+   unconditionally, bypassing T(D) entirely — this is the one true
+   "never ADMIT" mechanism in the system. Beyond that hard floor, this
+   change adds two soft prohibitions (cap to CONDITIONAL, not force
+   REJECT): fewer than 50 records, or fewer than 8 of 20 applicable
+   sub-tests computable. Per point 3, a further, currently-unimplemented
+   condition belongs on this list: **when the operator cannot bound the
+   incoming population's prevalence of bad catalogs to well under ~50%**,
+   ADMIT's predictive value cannot be assumed and should not be exposed to
+   downstream automation without a human check.
+6. **Should small catalogs be capped to CONDITIONAL?** Yes — this is
+   exactly what `MIN_N_RECORDS_FOR_ADMIT=50` now does, per the user's
+   proposed rule. It closes 1 of the current 4 residual false-admits (the
+   n=46 case) at the cost of 3 known_good catalogs' ADMIT rate (35/508 ->
+   32/508). The `MIN_APPLICABLE_SUBTESTS_FOR_ADMIT=8` companion floor is
+   currently redundant on this corpus (a grid search found it has zero
+   marginal effect at any tested value once the record-count floor is
+   fixed) but is retained as a forward-looking robustness measure against
+   future weight recalibrations that could concentrate weight on very few
+   sub-tests. The 3 remaining false-admits (n=67, 108, 310) are NOT a
+   sample-size problem — they clear n=50 comfortably — and capping them
+   would require a much larger floor (n=350 to reach 0/490, at the cost of
+   known_good ADMIT falling to 14/508 = 2.8%); this trade-off is disclosed
+   but not acted on here, left as a deliberate choice pending
+   maintainer/reviewer input on where the paper wants to sit on this
+   curve.
+
 ## [0.1.2] — 2026-07-21 (calibration-tooling publish + reproducibility fix)
 
 Corrects the same class of problem `v0.1.1` itself was cut to fix: by the

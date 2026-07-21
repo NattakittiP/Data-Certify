@@ -1,39 +1,41 @@
 ====================================================================================================
 Group B5: Selective-classification framing & decision-utility analysis
-(Selective-classification analysis, Group B)
+(Group B post-hoc verification analysis)
 ====================================================================================================
 
 Corpus: n=998 ({'known_good': 508, 'fabricated': 287, 'corrupted_real': 173, 'held_out_adversarial': 30})
 
 Framing: CONDITIONAL = abstention/defer-to-human-review (El-Yaniv & Wiener 2010 selective classification). ADMIT/REJECT = confident autonomous decisions. Coverage = fraction NOT deferred. Selective risk = error rate WITHIN the confident (non-deferred) subset only.
 
---- Current production operating point (blended_current weights, thresholds as-is) ---
-Coverage: 0.1343 (134/998)
-Selective risk (errors within covered subset): 0.1418 (19/134) [95% CI: 0.0927-0.2109]
-  of which false_admit=19, false_reject=0
-CONDITIONAL (abstained) count: 864 (0.8657 of corpus)
+GATE-AWARENESS (2026-07-21): 'decision' throughout this report is now the REAL, fully-gated production decision (Stage 1+2 thresholds + min_evidence_coverage/min_sample_sufficiency safety gates + min_n_records_for_admit/min_applicable_subtests_for_admit ADMIT-eligibility floors) -- NOT the Stage-1+2-threshold-only logic this report used before this date (which reported false_admit=19 in the operating point below; the real, gated figure is 3). See CHANGELOG.md's 2026-07-21 entries.
+
+--- Current production operating point (blended_current weights, thresholds as-is, GATED) ---
+Coverage: 0.0621 (62/998)
+Selective risk (errors within covered subset): 0.0484 (3/62) [95% CI: 0.0166-0.1329]
+  of which false_admit=3, false_reject=0
+CONDITIONAL (abstained) count: 936 (0.9379 of corpus)
 
 --- Operating point by group ---
                group   n  coverage  n_covered  selective_risk  n_errors_covered  n_conditional
-          known_good 508  0.173228         88        0.000000                 0            420
-      corrupted_real 173  0.265896         46        0.413043                19            127
+          known_good 508  0.062992         32             0.0                 0            476
+      corrupted_real 173  0.173410         30             0.1                 3            143
           fabricated 287  0.000000          0             NaN                 0            287
 held_out_adversarial  30  0.000000          0             NaN                 0             30
 
 --- Risk-coverage curve (binary ADMIT/REJECT-at-midpoint ranking, NOT the production 3-way decision -- see build_risk_coverage_curve()'s docstring) ---
-AURC (area under risk-coverage curve, trapezoidal, lower=better): 0.182003
+AURC (area under risk-coverage curve, trapezoidal, lower=better): 0.174448
 Risk at selected coverage levels:
-  coverage~=1.00 (actual 1.0000, n=998): selective_risk=0.2866
-  coverage~=0.95 (actual 0.9529, n=951): selective_risk=0.2818
-  coverage~=0.90 (actual 0.9048, n=903): selective_risk=0.2724
-  coverage~=0.80 (actual 0.8096, n=808): selective_risk=0.2512
-  coverage~=0.70 (actual 0.6914, n=690): selective_risk=0.2130
-  coverage~=0.60 (actual 0.5962, n=595): selective_risk=0.1882
-  coverage~=0.50 (actual 0.5010, n=500): selective_risk=0.1900
-  coverage~=0.40 (actual 0.4058, n=405): selective_risk=0.1506
-  coverage~=0.30 (actual 0.3116, n=311): selective_risk=0.1286
-  coverage~=0.20 (actual 0.1924, n=192): selective_risk=0.1562
-  coverage~=0.10 (actual 0.0972, n=97): selective_risk=0.1237
+  coverage~=1.00 (actual 1.0000, n=998): selective_risk=0.3046
+  coverage~=0.95 (actual 0.9529, n=951): selective_risk=0.2923
+  coverage~=0.90 (actual 0.9048, n=903): selective_risk=0.2780
+  coverage~=0.80 (actual 0.8096, n=808): selective_risk=0.2438
+  coverage~=0.70 (actual 0.6914, n=690): selective_risk=0.2275
+  coverage~=0.60 (actual 0.5962, n=595): selective_risk=0.1899
+  coverage~=0.50 (actual 0.5010, n=500): selective_risk=0.1560
+  coverage~=0.40 (actual 0.4058, n=405): selective_risk=0.1160
+  coverage~=0.30 (actual 0.3116, n=311): selective_risk=0.1350
+  coverage~=0.20 (actual 0.1924, n=192): selective_risk=0.1302
+  coverage~=0.10 (actual 0.0972, n=97): selective_risk=0.1134
 Reading guide: this curve answers 'if we were willing to defer MORE (or less) of the corpus to manual review than the current CONDITIONAL zone does, how would the error rate on the remaining autonomous decisions change?' A curve that drops steeply as coverage decreases from 100% indicates the least-confident instances really are disproportionately the erroneous ones (T(D) confidence is doing real work); a flat curve would mean T(D)'s distance from the midpoint carries little information about correctness.
 
 ----------------------------------------------------------------------------------------------------
@@ -43,36 +45,36 @@ Cost model: total_cost = C_FA * n_false_admit + C_FR * n_false_reject + C_review
 
 --- Scenario: C_FA=1, C_FR=1, C_review=0 (naive equal-cost, no review friction) ---
                      policy  n_false_admit  n_false_reject  n_conditional  cost_per_dataset
-full_two_stage (production)             19               0            864          0.019038
-          weighted_sum_only             22               0            887          0.022044
+full_two_stage (production)              3               0            936          0.003006
+          weighted_sum_only              3               0            962          0.003006
          hard_override_only            464               0              0          0.464930
   -> lowest cost_per_dataset under this scenario: full_two_stage (production)
 
 --- Scenario: C_FA=5, C_FR=1, C_review=0.1 ---
                      policy  n_false_admit  n_false_reject  n_conditional  cost_per_dataset
-full_two_stage (production)             19               0            864          0.181764
-          weighted_sum_only             22               0            887          0.199098
+full_two_stage (production)              3               0            936          0.108818
+          weighted_sum_only              3               0            962          0.111423
          hard_override_only            464               0              0          2.324649
   -> lowest cost_per_dataset under this scenario: full_two_stage (production)
 
 --- Scenario: C_FA=10, C_FR=1, C_review=0.2 ---
                      policy  n_false_admit  n_false_reject  n_conditional  cost_per_dataset
-full_two_stage (production)             19               0            864          0.363527
-          weighted_sum_only             22               0            887          0.398196
+full_two_stage (production)              3               0            936          0.217635
+          weighted_sum_only              3               0            962          0.222846
          hard_override_only            464               0              0          4.649299
   -> lowest cost_per_dataset under this scenario: full_two_stage (production)
 
 --- Scenario: C_FA=20, C_FR=1, C_review=0.3 ---
                      policy  n_false_admit  n_false_reject  n_conditional  cost_per_dataset
-full_two_stage (production)             19               0            864          0.640481
-          weighted_sum_only             22               0            887          0.707515
+full_two_stage (production)              3               0            936          0.341483
+          weighted_sum_only              3               0            962          0.349299
          hard_override_only            464               0              0          9.298597
   -> lowest cost_per_dataset under this scenario: full_two_stage (production)
 
 --- Scenario: C_FA=50, C_FR=1, C_review=0.5 ---
                      policy  n_false_admit  n_false_reject  n_conditional  cost_per_dataset
-full_two_stage (production)             19               0            864          1.384770
-          weighted_sum_only             22               0            887          1.546593
+full_two_stage (production)              3               0            936          0.619238
+          weighted_sum_only              3               0            962          0.632265
          hard_override_only            464               0              0         23.246493
   -> lowest cost_per_dataset under this scenario: full_two_stage (production)
 

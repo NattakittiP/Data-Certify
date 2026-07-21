@@ -1,6 +1,6 @@
 ====================================================================================================
 Group B4: Monte Carlo decision-stability analysis
-(Decision-stability analysis, Group B)
+(Group B post-hoc verification analysis)
 ====================================================================================================
 
 Corpus: n=998 ({'known_good': 508, 'fabricated': 287, 'corrupted_real': 173, 'held_out_adversarial': 30})
@@ -8,46 +8,47 @@ Monte Carlo draws: 2000 (seed=20260712, independent of bootstrap_stability_repor
 Weight perturbation: uniform within each weight's bootstrap 95% CI (n_boot=2000 source), renormalized per draw.
 Threshold perturbation: THETA_ADMIT=0.75+/-0.03, THETA_REJECT=0.2+/-0.03 (disclosed arbitrary probe, not an estimated uncertainty -- see module docstring).
 Hard-override (Stage 1, P1-P3/A6) is NOT perturbed -- out of scope for this analysis.
+GATE-AWARENESS SCOPE NOTE (2026-07-21): decisions throughout this report use Stage-1+2 THRESHOLD LOGIC ONLY, not the min_evidence_coverage/min_sample_sufficiency/min_n_records_for_admit/min_applicable_subtests_for_admit safety gates real production also applies -- a deliberate scope limit (gating a fixed-weight-basis metric against per-draw PERTURBED weight vectors has no coherent interpretation here), not an oversight. See module docstring and CHANGELOG.md's 2026-07-21 entries.
 
 --- Overall stability ---
-Mean per-dataset stability rate (fraction of draws matching baseline decision): 0.9883
-Datasets with 100% stability (never flip): 0.9279 (926/998) [95% CI: 0.9101-0.9423]
-Datasets with >=95% stability: 0.9489 (947/998) [95% CI: 0.9334-0.9609]
+Mean per-dataset stability rate (fraction of draws matching baseline decision): 0.9836
+Datasets with 100% stability (never flip): 0.8998 (898/998) [95% CI: 0.8796-0.9169]
+Datasets with >=95% stability: 0.9369 (935/998) [95% CI: 0.9200-0.9504]
 Datasets with <50% stability (flip more often than not): 0.0000 (0/998) [95% CI: 0.0000-0.0038]
 
 --- Stability by group ---
                group  mean_stability  min_stability   n
-      corrupted_real        0.987353          0.588 173
-          fabricated        0.996610          0.837 287
-held_out_adversarial        1.000000          1.000  30
-          known_good        0.983232          0.545 508
+      corrupted_real        0.989595         0.5370 173
+          fabricated        0.999868         0.9855 287
+held_out_adversarial        1.000000         1.0000  30
+          known_good        0.971364         0.5155 508
 
 --- Stability by baseline decision ---
 baseline_decision  mean_stability  min_stability   n
-            ADMIT        0.949621         0.5450 107
-      CONDITIONAL        0.993050         0.5555 864
-           REJECT        0.989500         0.7165  27
+            ADMIT        0.932962         0.5370 117
+      CONDITIONAL        0.990313         0.5155 854
+           REJECT        0.990056         0.7315  27
 Note: ADMIT shows LOWER mean stability than CONDITIONAL here, which is the opposite of the naive guess that the wide CONDITIONAL band (theta_reject=0.20 to theta_admit=0.75, 0.55 wide) would be least stable simply for sitting 'in the middle.' The correct read is distance-to-nearest-threshold, not band width: CONDITIONAL is wide enough that most of its members sit comfortably away from either boundary, while ADMIT (n=107, a much smaller class) disproportionately clusters just above theta_admit=0.75 (see the least-stable table below -- most entries have baseline_T_D in 0.73-0.76). This is a real finding worth stating explicitly in the paper rather than assuming the naive band-width intuition: decision stability tracks proximity to a threshold, and it happens that a meaningful fraction of this corpus's known_good catalogs score just above the ADMIT line.
 
 --- 20 least-stable datasets (excluding hard-override-fired rows, which are always 100% stable by construction) ---
-                                                 dataset_id          group  baseline_T_D baseline_decision  stability_rate
-                                 real_tanzania_rift_general     known_good      0.751724             ADMIT          0.5450
-                          real_tanzania_rift_general_recent     known_good      0.752561             ADMIT          0.5530
-                                  real_kermanshah_iran_2017     known_good      0.745650       CONDITIONAL          0.5555
-                                  real_turkmenistan_general     known_good      0.753236             ADMIT          0.5615
-                                 real_panama_general_recent     known_good      0.753331             ADMIT          0.5670
-                                     real_greenland_general     known_good      0.744756       CONDITIONAL          0.5775
-corrupt_real_russia_sakhalin_general_inject_duplicates_high corrupted_real      0.743948       CONDITIONAL          0.5880
-                                      real_drc_rift_general     known_good      0.755362             ADMIT          0.5980
-          corrupt_real_tohoku_202511_inject_missingness_low corrupted_real      0.741480       CONDITIONAL          0.6215
-                           real_usa_cascadia_general_recent     known_good      0.757727             ADMIT          0.6410
-                                real_slovenia_general_early     known_good      0.757692             ADMIT          0.6445
-                                    real_azerbaijan_general     known_good      0.740803       CONDITIONAL          0.6480
-                                   real_southafrica_general     known_good      0.761471             ADMIT          0.6825
-                                 real_iceland_general_early     known_good      0.737804       CONDITIONAL          0.6835
-                            real_ridgecrest_california_2019     known_good      0.760911             ADMIT          0.6950
-                                 real_anchorage_alaska_2018     known_good      0.761279             ADMIT          0.7005
-        corrupt_real_lebanon_general_inject_duplicates_high corrupted_real      0.184505            REJECT          0.7165
-                                 real_france_general_early2     known_good      0.763320             ADMIT          0.7225
-                         real_portugal_azores_general_early     known_good      0.734843       CONDITIONAL          0.7370
-                         real_russia_caucasus_general_early     known_good      0.733262       CONDITIONAL          0.7585
+                                                dataset_id          group  baseline_T_D baseline_decision  stability_rate
+                                   real_kazakhstan_general     known_good      0.748450       CONDITIONAL          0.5155
+corrupt_real_miyazaki_2024-2025_magnitude_gr_violation_med corrupted_real      0.751796             ADMIT          0.5370
+                               real_china_xinjiang_general     known_good      0.751937             ADMIT          0.5415
+                                          real_japan_2023-     known_good      0.747464       CONDITIONAL          0.5445
+                         real_tanzania_rift_general_recent     known_good      0.752046             ADMIT          0.5480
+                                     real_drc_rift_general     known_good      0.753161             ADMIT          0.5580
+                                    real_greenland_general     known_good      0.744450       CONDITIONAL          0.5835
+                                        real_yemen_general     known_good      0.744040       CONDITIONAL          0.5900
+                                    real_australia_general     known_good      0.743830       CONDITIONAL          0.5955
+                             real_kazakhstan_general_early     known_good      0.743325       CONDITIONAL          0.5975
+                        real_marianaislands_general_recent     known_good      0.755761             ADMIT          0.5980
+                          real_usa_cascadia_general_early3     known_good      0.743117       CONDITIONAL          0.6060
+                   real_china_tibet_plateau_general_recent     known_good      0.756588             ADMIT          0.6185
+                          real_usa_cascadia_general_recent     known_good      0.757086             ADMIT          0.6275
+                                  real_southafrica_general     known_good      0.758536             ADMIT          0.6315
+                               real_slovenia_general_early     known_good      0.758372             ADMIT          0.6540
+                        real_papuanewguinea_general_recent     known_good      0.758903             ADMIT          0.6585
+                                  real_202604_tohoku_japan     known_good      0.739028       CONDITIONAL          0.6655
+                         real_usa_oklahoma_induced_general     known_good      0.739636       CONDITIONAL          0.6675
+                                 real_turkmenistan_general     known_good      0.760830             ADMIT          0.6825

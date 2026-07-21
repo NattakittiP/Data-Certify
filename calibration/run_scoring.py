@@ -48,7 +48,13 @@ from data_certify.axis_authenticity import score_authenticity
 from data_certify.axis_plausibility import score_plausibility
 from data_certify.axis_completeness import score_completeness
 from data_certify.axis_instrumentation import score_instrumentation
-from data_certify.decision import CertifyDecision
+from data_certify.decision import (
+    CertifyDecision,
+    _assign_effective_weights,
+    _compute_evidence_coverage,
+    _compute_n_applicable_subtests,
+    _compute_sample_sufficiency,
+)
 from data_certify.hard_override import check_hard_override
 from data_certify._constants import (
     WITHIN_A, WITHIN_P, WITHIN_C, WITHIN_I, AXIS_WEIGHTS, THETA_ADMIT, THETA_REJECT,
@@ -127,9 +133,35 @@ def score_one(dataset_id: str) -> dict:
     # itself still cheaply recomputes P1-P3 masks internally (vectorised
     # numpy, not the P8 grid search) -- only the four expensive
     # score_<axis>() calls are avoided.
-    try:
-        axis_results = {"A": a_result, "P": p_result, "C": c_result, "I": i_result}
+    # GATE-AWARENESS FIX (2026-07-21, in response to a paper-readiness review
+    # finding that the disclosed 19/490 (3.9%) false-admit rate reflected
+    # only Stage-1 (hard override) + Stage-2 (theta_admit/theta_reject)
+    # threshold logic, NOT the two safety gates (min_evidence_coverage,
+    # min_sample_sufficiency) and two ADMIT-eligibility floors
+    # (min_n_records_for_admit, min_applicable_subtests_for_admit) that
+    # DataCertifyAuditor.audit() has actually applied by default in
+    # production -- see CHANGELOG.md's 2026-07-21 "ADMIT-eligibility gate +
+    # gate-aware re-audit" entry for the full story): compute the same
+    # diagnostics DataCertifyAuditor.audit() computes (`_assign_effective_
+    # weights`, `_compute_evidence_coverage`, `_compute_sample_sufficiency`,
+    # `_compute_n_applicable_subtests`) directly from the axis_results
+    # already scored above, so score_matrix.csv carries everything
+    # `calibration/_analysis_common.py`'s `assign_decision_gated()` needs to
+    # reproduce the REAL, gated production decision rather than only the
+    # ungated threshold rule. This does NOT re-run score_authenticity/
+    # score_plausibility/score_completeness/score_instrumentation (the
+    # 2026-07-06 performance fix below is untouched) -- these four
+    # functions are pure post-processing of axis_results already in hand.
+    axis_results = {"A": a_result, "P": p_result, "C": c_result, "I": i_result}
+    _assign_effective_weights(axis_results, ds.n)
+    evidence_coverage, _ = _compute_evidence_coverage(axis_results)
+    sample_sufficiency, _ = _compute_sample_sufficiency(axis_results)
+    n_applicable_subtests = _compute_n_applicable_subtests(axis_results)
+    row["evidence_coverage"] = evidence_coverage
+    row["sample_sufficiency"] = sample_sufficiency
+    row["n_applicable_subtests"] = n_applicable_subtests
 
+    try:
         a6_sub = a_result.sub_results.get("A6")
         a6_matched_fraction = None
         a6_n_stratum = None

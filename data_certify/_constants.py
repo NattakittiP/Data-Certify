@@ -1031,3 +1031,95 @@ MIN_RELIABLE_N = {
     "A4": 50,
     "A5": 2,
 }
+
+# =============================================================================
+# MIN_N_RECORDS_FOR_ADMIT / MIN_APPLICABLE_SUBTESTS_FOR_ADMIT: hard
+# ADMIT-eligibility floors (2026-07-21, response to a paper-readiness
+# review of the ninth-pass 19/490 (3.9%) false-admit finding above)
+# =============================================================================
+# Distinct from evidence_coverage/sample_sufficiency (both WEIGHT-fraction
+# metrics, and therefore coupled to whatever AXIS_WEIGHTS/WITHIN_* happen to
+# be live -- a future recalibration pass could silently change which
+# datasets those two gates catch). These two are raw, weight-independent
+# COUNTS: total record count, and the number of distinct non-hard-gate
+# sub-tests (out of a max of 20: A1-A5, P4-P9, C1-C4, I1-I5, with A6
+# substituting into the A1-A5 slot when it applies) that were applicable
+# and produced a computable score for THIS specific audit.
+#
+# EMPIRICAL BASIS (calibration_gates_rescore_merged.csv, a full re-audit of
+# the 968-dataset corpus + 30-dataset adversarial holdout via the REAL
+# DataCertifyAuditor.audit() -- i.e. INCLUDING the evidence_coverage/
+# sample_sufficiency gates at their 0.5/0.5 defaults, which
+# calibration/_analysis_common.py's assign_decision() had never applied;
+# see CHANGELOG.md's 2026-07-21 "gate-aware re-audit" entry for the full
+# reproduction): those two existing gates ALONE already cut the disclosed
+# 19/490 (3.9%) false-admit rate to 4/490 (0.82%), at the cost of
+# known_good's ADMIT rate falling from 98/508 (19.3%) to 35/508 (6.9%).
+# The 4 residual false-admits (corrupt_real_miyazaki_2024-2025_magnitude_
+# gr_violation_med n=46, corrupt_real_tohoku_202511_inject_missingness_low
+# n=67, corrupt_real_ridgecrest_california_2019_coordinate_jitter_low
+# n=108, corrupt_real_azerbaijan_general_magnitude_gr_violation_med n=310)
+# ALL have evidence_coverage>=0.70 and sample_sufficiency=1.0 already --
+# they are not a coverage or small-sample problem, they are mild
+# corruptions (magnitude_gr_violation_med, inject_missingness_low,
+# coordinate_jitter_low) that a well-powered battery still does not flag
+# strongly enough, a genuinely different and harder failure mode than the
+# one these two new floors target. A grid search over
+# (MIN_N_RECORDS_FOR_ADMIT, MIN_APPLICABLE_SUBTESTS_FOR_ADMIT) found the
+# applicable-subtest-count floor to have ZERO marginal bite on this corpus
+# at any tested value (0/5/8/10/12) once the record-count floor is fixed --
+# every dataset that survives the existing two gates already has enough
+# applicable tests, on this corpus, that a count floor is currently
+# redundant with them. It is kept anyway, at a value chosen independently
+# of this corpus (a plain majority, 8 of a possible 20), as a
+# forward-looking robustness measure: evidence_coverage's num applicable
+# tests can pass this even under a FUTURE weight recalibration that
+# concentrates weight on very few high-weight sub-tests -- the same "22
+# false-admits from a corpus-composition-sensitive weight shift" pattern
+# already disclosed for AXIS_WEIGHTS itself.
+#
+# MIN_N_RECORDS_FOR_ADMIT=50 is a deliberately moderate choice, not the
+# corpus-optimal one: raising it further keeps buying down the residual
+# false-admit rate (n=100 -> 2/490 0.41%; n=200 -> 1/490 0.20%; n=350 ->
+# 0/490 0.00%) but at a steepening cost to known_good's ADMIT rate (35/508
+# 6.9% at n=50 -> 29/508 5.7% at n=100 -> 20/508 3.9% at n=200 -> 14/508
+# 2.8% at n=350) -- see the full grid in
+# calibration_gates_rescore_merged.csv's companion sensitivity table
+# (Docs/02_Calibration_and_Validation, "ADMIT-eligibility floor" section).
+# n=50 was chosen to align with A4's own pre-existing MIN_RELIABLE_N
+# floor (the strictest of the five A1-A5 floors already in production
+# use) rather than to specifically target these 4 residual cases, which a
+# floor this size only catches one of (the smallest, n=46). Disclosed
+# explicitly as a provisional prior of the same epistemic status as
+# theta_admit/theta_reject/min_evidence_coverage/min_sample_sufficiency
+# when each was first introduced -- NOT yet independently re-optimized
+# against a held-out split, and a genuine, disclosed residual false-admit
+# rate of ~0.6% (3/490) remains even at these defaults, because the
+# count-floor never binds on this corpus and the record-count floor alone
+# cannot distinguish "well-powered but mild corruption" from
+# "well-powered and genuine" (see the 3 residual cases below).
+#
+# LIVE-CODE VERIFICATION (2026-07-21, post-implementation): the analysis
+# above was done by simulating the gate in pandas against a pre-existing
+# score dump. The actual DataCertifyAuditor.audit() code path (this file's
+# defaults + decision.py's two new gate blocks) was then re-run against
+# the full 998-dataset corpus+holdout from scratch (one dataset at a time,
+# real records.csv -> real audit() call, no shortcuts) to confirm the
+# simulation matched the real implementation exactly. It did: false-admit
+# = 3/490 (0.6122%), Wilson 95% CI [0.21%, 1.78%] (down from the
+# gate-free 19/490 (3.88%) CI [2.50%, 5.98%], and from the
+# existing-gates-only 4/490 (0.82%)); known_good ADMIT rate = 32/508
+# (6.30%, down from the gate-free 98/508 (19.29%) and the
+# existing-gates-only 35/508 (6.89%)); known_good false-reject remains
+# 0/508 throughout, unchanged by any of these gates (they only ever cap
+# ADMIT down to CONDITIONAL, never touch REJECT). All 30 held-out
+# adversarial (fabricated_level10) datasets remain CONDITIONAL (0 ADMIT),
+# unaffected. Of the 4 residual false-admits identified in the grid
+# search, exactly one (corrupt_real_miyazaki_2024-2025_magnitude_gr_
+# violation_med, n=46) is caught by MIN_N_RECORDS_FOR_ADMIT=50; the other
+# 3 (n=67, n=108, n=310) clear both new floors and remain genuine, disclosed
+# residual false-admits -- see CHANGELOG.md's 2026-07-21 "ADMIT-eligibility
+# gate" entry for the full reproduction and the six-question paper-readiness
+# analysis this was done in response to.
+MIN_N_RECORDS_FOR_ADMIT: int = 50
+MIN_APPLICABLE_SUBTESTS_FOR_ADMIT: int = 8

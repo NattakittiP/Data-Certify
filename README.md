@@ -52,14 +52,30 @@ tooling not included in this repository" below), 22 known-bad datasets score
 `T(D) >= theta_admit` before any Stage-1 hard-override check, of which 3 are
 independently caught by the hard-override gate regardless of `T(D)` (depth-
 implausible corruptions, where P2 fires unconditionally), leaving 19 genuine
-two-stage-decision false admits. Every one of these 22 is a corrupted
-derivative of a real catalog; none of the corpus's synthetic-fabrication
-datasets score anywhere near `theta_admit`. This is a distinct failure mode
-from the held-out-fabrication result above, best described as a finite-sample
-weakness of individual sub-tests against corrupted-real-data edge cases,
-rather than a fabrication-detection gap. Full detail, including the exact
-provenance of this finding, is in `data_certify/_constants.py`'s calibration
-commentary and `CHANGELOG.md`.
+two-stage-decision false admits, or 3.9% of the 490 known-bad datasets. Every
+one of these 22 is a corrupted derivative of a real catalog; none of the
+corpus's synthetic-fabrication datasets score anywhere near `theta_admit`.
+This is a distinct failure mode from the held-out-fabrication result above,
+best described as a finite-sample weakness of individual sub-tests against
+corrupted-real-data edge cases, rather than a fabrication-detection gap.
+
+That 19/490 (3.9%) figure describes the two-stage threshold logic in
+isolation, not what a real user of `DataCertifyAuditor`/`run_audit.py`
+actually experiences: production also applies two further safety gates
+(`min_evidence_coverage`, `min_sample_sufficiency`), which the paper's
+own analysis pipeline had never applied when computing 19/490. Re-running
+the full corpus through the real, gated `DataCertifyAuditor.audit()` call
+puts the true false-admit rate at 4/490 (0.82%) from the two existing
+gates alone, or 3/490 (0.61%, Wilson 95% CI [0.21%, 1.78%]) once the
+two additional ADMIT-eligibility floors added in response to a
+paper-readiness review (`MIN_N_RECORDS_FOR_ADMIT`,
+`MIN_APPLICABLE_SUBTESTS_FOR_ADMIT`) are included, at the cost of
+known_good's ADMIT rate falling from 98/508 (19.3%) under threshold logic
+alone to 32/508 (6.3%) under the fully gated production path; known_good
+false-rejects remain 0/508 throughout. Full detail, including the exact
+provenance of this finding, the residual false-admit cases, and a
+predictive-value analysis under shifting prevalence, is in
+`data_certify/_constants.py`'s calibration commentary and `CHANGELOG.md`.
 
 `AXIS_WEIGHTS`, `WITHIN_A`, `theta_admit`, and `theta_reject` are calibrated
 by blending an Analytic Hierarchy Process (AHP) expert-elicited prior with an

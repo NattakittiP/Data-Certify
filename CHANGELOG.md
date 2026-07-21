@@ -2,14 +2,22 @@
 
 All notable changes to DATA-CERTIFY are documented in this file.
 
-## [Unreleased] — 2026-07-21 (calibration analysis-pipeline gate-parity fix, follow-up)
+## [0.1.3] — 2026-07-21 (ADMIT-eligibility gates + Group-B analysis-pipeline gate-parity fix)
 
-Follow-up to the "ADMIT-eligibility gate + gate-aware re-audit" entry
-immediately below: that entry diagnosed the root cause (the paper's
-analysis pipeline never applied the two pre-existing safety gates, nor
-the two new ADMIT-eligibility floors) and fixed the ONE report most
-directly responsible for the disclosed 19/490 headline number
-(`calibration/analysis_three_way_matrix.py`). This entry finishes the job
+This release bundles two same-day, directly-related changes into one
+tagged version: the root-cause diagnosis and new ADMIT-eligibility gates
+(originally below, now the "Root cause and gate design" section further
+down this entry), and the follow-up fix making the rest of the Group-B
+analysis pipeline gate-aware (immediately below). Both are part of the
+same fix and are released together rather than as separate versions.
+
+### Part 1 — calibration analysis-pipeline gate-parity fix, follow-up
+
+Follow-up to Part 2 below: that part diagnosed the root cause (the
+paper's analysis pipeline never applied the two pre-existing safety
+gates, nor the two new ADMIT-eligibility floors) and fixed the ONE report
+most directly responsible for the disclosed 19/490 headline number
+(`calibration/analysis_three_way_matrix.py`). This part finishes the job
 across the REST of the Group-B analysis pipeline, so no script in
 `calibration/` can silently reproduce the stale, gate-free 19/490 (3.9%)
 figure going forward.
@@ -121,7 +129,7 @@ a repo-wide consistency sweep confirming CHANGELOG.md/README.md/
 reports, which surfaced the two stale reports (`ablation_report.txt`,
 `selective_classification_report.txt`) fixed above.
 
-## [Unreleased] — 2026-07-21 (ADMIT-eligibility gate + gate-aware re-audit)
+### Part 2 — Root cause and gate design: ADMIT-eligibility gate + gate-aware re-audit
 
 Prompted by a paper-readiness review of the disclosed 19/490 (3.9%)
 false-admit finding: is 3.9% acceptable, under what use case, what is its

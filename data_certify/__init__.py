@@ -61,7 +61,7 @@ from ._constants import (
     WITHIN_A, WITHIN_C, WITHIN_I, WITHIN_P,
 )
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __all__ = [
     # Core protocol
     "DataCertifyAuditor",

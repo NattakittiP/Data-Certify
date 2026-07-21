@@ -296,7 +296,7 @@ calibration/            Corpus-building, calibration, and analysis tooling
 tests/                  Automated test suite
 run_audit.py            CLI entry point for auditing a dataset
 prepare_dataset.py      CLI helper to convert a raw CSV into the schema
-                          DATA-CERTIFY expects
+DATA-CERTIFY expects
 ```
 
 This repository ships the core library, two small real-catalog demo

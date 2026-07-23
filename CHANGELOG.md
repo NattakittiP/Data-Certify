@@ -2,6 +2,107 @@
 
 All notable changes to DATA-CERTIFY are documented in this file.
 
+## [0.1.4] — 2026-07-24 (Default reference-source change + decision-logic single-sourcing)
+
+### Changed (BREAKING for anyone relying on the old CLI default)
+
+- **`run_audit.py --reference-source` default changed from `usgs` to
+  `multi`.** Motivation: single-source A6 (`usgs`, `emsc`, or `isc` alone)
+  can only ever reach the "corroborated" or "unverifiable" states —
+  `A6_CONTRADICTED_MIN_SOURCES=2` (`data_certify/_constants.py`) means the
+  "externally contradicted" Stage-1 hard-reject path is structurally
+  unreachable with fewer than two independently-queried sources, so the
+  old default shipped a strict subset of A6's disclosed capability. `multi`
+  (USGS+EMSC+ISC, `--min-corroborating-sources=2`) is now the default so a
+  fresh install gets the full capability out of the box. Trade-off: three
+  live network dependencies instead of one, i.e. more latency and more
+  exposure to any one source being degraded/rate-limited — see the new
+  `--max-reference-wait` flag immediately below, which exists specifically
+  to bound this. Pass `--reference-source usgs` to restore the old,
+  lower-latency, single-source default. `_build_reference()`'s and
+  `--reference-source`'s own help text, and README.md's "A6: three-state
+  external cross-validation" section, were updated to match. The
+  `.github/workflows/tests.yml` CI smoke test is unaffected (it already
+  runs with `--offline`, which bypasses `--reference-source` entirely).
+
+### Added
+
+- **`run_audit.py --max-reference-wait`** (default: `180.0` seconds): an
+  OVERALL wall-clock budget for the entire A6 external-reference step
+  (all sources, all paginated requests combined), distinct from the
+  pre-existing `--timeout` (a PER-REQUEST cap). Motivation: A6's
+  pagination can issue up to `_PAGINATION_MAX_TOTAL_REQUESTS=500` requests
+  per source, and `multi`/`weighted-multi` now query three sources by
+  default — a per-request timeout alone does not bound the TOTAL time a
+  single `.audit()` call can take, and a real prior investigation
+  (`calibration/run_a6_scoring.py`'s `SCORE_ONE_TIMEOUT_SEC` comment)
+  documented live cases of 5+ hours under a known EMSC/ISC pagination
+  pathology before any such budget existed anywhere in this codebase.
+  Implemented via `_audit_with_wallclock_budget()`, reusing the exact
+  `threading.Thread(daemon=True)` + `queue.Queue` pattern already
+  battle-tested (and already documented as fixing two real bugs) in
+  `calibration/run_a6_scoring.py`'s `score_one_with_timeout()`, rather than
+  `concurrent.futures.ThreadPoolExecutor` (which that function's own
+  docstring shows does not actually bound wall-clock time when used as a
+  context manager, and whose worker threads are not daemon threads by
+  default). On timeout, `audit_dataset()` prints a warning and
+  automatically falls back to an OFFLINE re-audit (A6 not applicable, A1-A5
+  intrinsic scoring only) so the command still completes rather than
+  hanging indefinitely — the same graceful-degradation philosophy already
+  documented for the plain "source unreachable" case. Default `180.0`
+  (3 minutes) chosen relative to the largest legitimate case observed to
+  date (~90s, the `chile` corpus dataset against ISC — see `--timeout`'s
+  own help text), leaving comfortable margin while still bounding
+  pathological cases to minutes rather than hours. Set to `0` or negative
+  to disable (unbounded, pre-2026-07-24 behavior). Ignored with
+  `--reference-csv` or `--offline`.
+
+### Fixed (code-duplication / drift-risk hardening, not a behavior change)
+
+- **Single-sourced the Stage-2 decision logic.** Before this release,
+  `data_certify/decision.py`'s `DataCertifyAuditor.audit()` and
+  `calibration/_analysis_common.py`'s `assign_decision_gated()` (used by
+  every Group-B post-hoc analysis report) each contained their OWN
+  hand-written implementation of the Stage-2 threshold rule and the four
+  ADMIT-eligibility gates — exactly the class of duplication that allowed
+  the 2026-07-21 gate-awareness bug (the analysis pipeline silently
+  applying a different decision rule than production) to happen in the
+  first place. Extracted two new pure functions in `decision.py`:
+  `assign_stage2_decision(trust_score, theta_admit, theta_reject)` (the
+  three-way threshold rule) and `apply_admit_eligibility_gates(...)` (the
+  four gates, in the same order production applies them, returning an
+  `AdmitGateOutcome` with per-gate fired flags so callers can still build
+  their own caveat text). `DataCertifyAuditor.audit()` now calls both
+  directly. `calibration/_analysis_common.py`'s `assign_decision_gated()`
+  now calls `apply_admit_eligibility_gates()` once per already-ADMIT row
+  (negligible cost — a few tens of rows on the full 968-dataset corpus,
+  and this function is not called inside `analysis_decision_stability.py`'s
+  2000-draw Monte Carlo loop, which deliberately stays on the plain,
+  gate-free `assign_decision()`). `assign_decision()` itself is
+  deliberately KEPT as an independent vectorized implementation for that
+  hot-loop's sake, but is now guarded by a new
+  `_unit_test_assign_decision_matches_stage2()` self-check (runs
+  automatically on import, same fail-loud-on-import philosophy as this
+  file's existing self-checks) that verifies it against
+  `assign_stage2_decision()` on an exhaustive grid of boundary/edge-case
+  values. `calibration/run_scoring.py`'s `decision_ahp_only` diagnostic
+  column now also calls `assign_stage2_decision()` instead of a hand-copied
+  `>=`/`elif` chain. Verified byte-for-byte behavior-preserving: full test
+  suite passes unchanged, and a fresh `assign_decision_gated()` run against
+  the real 968-dataset corpus reproduces the exact previously-disclosed
+  numbers (32/508 known_good ADMIT gated, 6.30%; 3/460 known_bad ADMIT
+  gated) to the row.
+- **New regression test**: `tests/test_decision_score_matrix_consistency.py`
+  runs `DataCertifyAuditor.audit()` (production) and
+  `calibration/run_scoring.py`'s `score_one()` fed into
+  `calibration/_analysis_common.py`'s `composite_score()` +
+  `assign_decision_gated()` (the calibration reconstruction path every
+  Group-B report relies on) independently on the same bundled datasets
+  (`nz`, `chile`, `fabricated_level1_1`, `fabricated_naive_1`) and asserts
+  they reach the same decision — the automated guard the 2026-07-21
+  gate-awareness bug never had. Wired into the existing `pytest tests/`
+  CI job (`.github/workflows/tests.yml`); no separate CI step needed.
+
 ## [0.1.3] — 2026-07-21 (ADMIT-eligibility gates + Group-B analysis-pipeline gate-parity fix)
 
 This release bundles two same-day, directly-related changes into one

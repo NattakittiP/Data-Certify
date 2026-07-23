@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 setup(
     name             = "data_certify",
-    version          = "0.1.3",
+    version          = "0.1.4",
     description      = (
         "DATA-CERTIFY: A Dataset Trustworthiness Audit Framework for "
         "Disaster Seismic Data. Theoretical-framework companion implementation."

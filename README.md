@@ -239,15 +239,24 @@ confirmation either way, for example a regional catalog with coverage gaps,
 which falls back to the intrinsic A1 to A5 sub-tests rather than penalizing
 the dataset for a coverage gap that is not its fault.
 
-The CLI default, `--reference-source usgs`, can only ever reach corroborated
-or unverifiable: a single source's non-match is deliberately treated as
-unverifiable rather than contradicted, because one disagreeing source is not
-strong enough evidence to hard-reject on its own. The externally-contradicted
-hard-reject path only becomes reachable with `--reference-source multi` or
-`weighted-multi`, and with at least two of the configured external sources
-actually reachable at runtime. Running with the default single-source mode
-is a real, intentional tradeoff; it does not provide the same fabrication
-protection as multi-source mode.
+Single-source mode (`--reference-source usgs`, `emsc`, or `isc` alone) can
+only ever reach corroborated or unverifiable: a single source's non-match is
+deliberately treated as unverifiable rather than contradicted, because one
+disagreeing source is not strong enough evidence to hard-reject on its own.
+The externally-contradicted hard-reject path only becomes reachable with
+`--reference-source multi` or `weighted-multi`, and with at least two of the
+configured external sources actually reachable at runtime.
+
+The CLI default is `--reference-source multi`, so a fresh install gets the
+full disclosed A6 hard-reject capability out of the box rather than a strict
+subset of it. The tradeoff is three live network dependencies (USGS+EMSC+ISC)
+instead of one, which means more latency and more exposure to any one source
+being degraded or rate-limited at audit time; `--max-reference-wait` (default
+180s) bounds the total time this can add to a single audit, automatically
+falling back to an offline, A6-not-applicable re-audit if the budget is
+exceeded rather than hanging.
+Pass `--reference-source usgs` for a lower-latency,
+single-source default if this tradeoff is not wanted.
 
 Since A6 depends on a live, constantly-updated external catalog, auditing
 the exact same dataset months apart can legitimately produce a different A6
@@ -367,9 +376,11 @@ python run_audit.py --dataset my_catalog --save-json
 ```
 
 By default, without `--offline`, a `--dataset` run also attempts a live A6
-cross-check against USGS ComCat. If there is no network access, or the query
-fails or times out, this is handled gracefully: A(D) automatically falls
-back to intrinsic-only (A1 to A5) scoring rather than erroring out.
+cross-check against USGS+EMSC+ISC (`--reference-source multi`). If there is
+no network access, or a query fails, times
+out per-request, or the overall lookup exceeds `--max-reference-wait`, this
+is handled gracefully: A(D) automatically falls back to intrinsic-only (A1
+to A5) scoring rather than erroring out or hanging indefinitely.
 
 Key CLI flags for `run_audit.py`:
 
@@ -378,7 +389,10 @@ Key CLI flags for `run_audit.py`:
 | `--dataset NAME` | Audit the dataset at `datasets/NAME/records.csv`, selecting what gets audited, whether bundled or your own prepared data |
 | `--reference-csv PATH` | Overrides the A6 external reference catalog with a local CSV instead of querying USGS/EMSC/ISC live; used together with `--dataset`, not a substitute for it |
 | `--offline` | Skip all external network calls |
-| `--reference-source {usgs,emsc,isc,multi,weighted-multi}` | Which external catalog(s) to cross-validate A6 against |
+| `--reference-source {usgs,emsc,isc,multi,weighted-multi}` | Which external catalog(s) to cross-validate A6 against (default: `multi`, i.e. USGS+EMSC+ISC) |
+| `--min-corroborating-sources` | With `multi`, how many reachable sources must agree (default `2`) |
+| `--timeout` | Per-request timeout in seconds for each live A6 HTTP request |
+| `--max-reference-wait` | Overall wall-clock budget in seconds for the whole A6 lookup across all sources/requests combined (default `180`); falls back to an offline re-audit if exceeded |
 | `--fault-db` / `--fault-db-source` / `--gem-fault-db-path` | Enable or point to a fault database for rupture-plausibility checks |
 | `--theta-admit`, `--theta-reject` | Override the calibrated composite-score thresholds |
 | `--min-evidence-coverage` | Evidence-coverage safety gate threshold, default `0.5`; `0` disables it |

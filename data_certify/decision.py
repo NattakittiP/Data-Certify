@@ -345,6 +345,126 @@ def _compute_n_applicable_subtests(axis_results: Dict[str, AxisResult]) -> int:
     return n_appl
 
 
+def assign_stage2_decision(
+    trust_score: Optional[float], theta_admit: float, theta_reject: float,
+) -> "CertifyDecision":
+    """
+    Pure Stage-2 threshold rule (Stage 1 hard override is handled entirely
+    by hard_override.py/check_hard_override -- this function is never
+    consulted when a hard override has fired):
+
+        ADMIT       if trust_score >= theta_admit
+        CONDITIONAL if theta_reject <= trust_score < theta_admit
+        REJECT      if trust_score <  theta_reject, OR trust_score is
+                    None/NaN (no applicable axis produced a usable score)
+
+    Extracted 2026-07-23 as the SINGLE authoritative implementation of the
+    Stage-2 threshold rule, used both by `DataCertifyAuditor.audit()`
+    (production, per-dataset) and by `calibration/_analysis_common.py`'s
+    `assign_decision_gated()` (batch reconstruction from score_matrix.csv
+    columns, used by every Group-B post-hoc analysis report). Before this
+    refactor, these were two independently hand-written implementations --
+    exactly the class of duplication that let the 2026-07-21 gate-awareness
+    bug happen (the analysis pipeline's own decision logic silently drifted
+    out of sync with what production actually does). Extracting this as a
+    plain function of three scalars (no CertifyDataset/AxisResult
+    dependency) makes it trivially callable from both a live per-dataset
+    audit and a CSV-column-driven batch reconstruction. See CHANGELOG.md's
+    2026-07-23 entry.
+    """
+    if trust_score is None or (isinstance(trust_score, float) and math.isnan(trust_score)):
+        return CertifyDecision.REJECT
+    if trust_score >= theta_admit:
+        return CertifyDecision.ADMIT
+    if trust_score >= theta_reject:
+        return CertifyDecision.CONDITIONAL
+    return CertifyDecision.REJECT
+
+
+@dataclass
+class AdmitGateOutcome:
+    """Result of `apply_admit_eligibility_gates()`: the (possibly
+    downgraded) decision, plus which of the four gates -- if any -- fired.
+    The four booleans let a caller (e.g. `DataCertifyAuditor.audit()`)
+    reconstruct its own human-readable caveat text without this shared
+    function needing to know anything about caveat wording."""
+    decision: "CertifyDecision"
+    evidence_coverage_capped: bool = False
+    sample_sufficiency_capped: bool = False
+    n_records_capped: bool = False
+    n_applicable_subtests_capped: bool = False
+
+
+def apply_admit_eligibility_gates(
+    decision: "CertifyDecision",
+    *,
+    evidence_coverage: Optional[float],
+    sample_sufficiency: Optional[float],
+    n_records: Optional[int],
+    n_applicable_subtests: Optional[int],
+    min_evidence_coverage: float,
+    min_sample_sufficiency: float,
+    min_n_records_for_admit: int,
+    min_applicable_subtests_for_admit: int,
+) -> AdmitGateOutcome:
+    """
+    Pure, single-sourced implementation of the four additive ADMIT-
+    eligibility safety gates (evidence_coverage, sample_sufficiency,
+    min_n_records_for_admit, min_applicable_subtests_for_admit -- see
+    `DataCertifyAuditor.__init__`'s own docstring for each gate's full
+    rationale). Applied in the EXACT SAME ORDER `DataCertifyAuditor.audit()`
+    applies them: evidence_coverage -> sample_sufficiency -> n_records ->
+    n_applicable_subtests. Each gate only ever caps an already-ADMIT
+    decision down to CONDITIONAL; never upgrades a decision, never touches
+    an already-CONDITIONAL/REJECT decision, and never overrides a Stage-1
+    hard override (the caller must have already handled Stage 1 before
+    calling this -- `decision` here must already reflect that).
+
+    Any of `evidence_coverage`/`sample_sufficiency`/`n_records`/
+    `n_applicable_subtests` may be None (mirrors evidence_coverage/
+    sample_sufficiency being None when no covered sub-test carries a
+    defined weight, or a missing/NaN value in a score_matrix.csv row) -- a
+    None value means that particular gate simply does not fire, exactly
+    matching the `.notna()` guards `_analysis_common.assign_decision_gated()`
+    used before this refactor.
+
+    Extracted 2026-07-23 alongside `assign_stage2_decision()` -- see that
+    function's docstring for the shared motivation. Used by both
+    `DataCertifyAuditor.audit()` (production) and
+    `calibration/_analysis_common.py`'s `assign_decision_gated()` (the
+    batch reconstruction every Group-B report relies on), so a future
+    change to gate logic or gate ORDER only ever needs to happen in ONE
+    place.
+    """
+    out = AdmitGateOutcome(decision=decision)
+
+    if (out.decision == CertifyDecision.ADMIT
+            and evidence_coverage is not None
+            and evidence_coverage < min_evidence_coverage):
+        out.decision = CertifyDecision.CONDITIONAL
+        out.evidence_coverage_capped = True
+
+    if (out.decision == CertifyDecision.ADMIT
+            and sample_sufficiency is not None
+            and sample_sufficiency < min_sample_sufficiency):
+        out.decision = CertifyDecision.CONDITIONAL
+        out.sample_sufficiency_capped = True
+
+    if (out.decision == CertifyDecision.ADMIT
+            and n_records is not None
+            and n_records < min_n_records_for_admit):
+        out.decision = CertifyDecision.CONDITIONAL
+        out.n_records_capped = True
+
+    if (out.decision == CertifyDecision.ADMIT
+            and n_applicable_subtests is not None
+            and n_applicable_subtests < min_applicable_subtests_for_admit):
+        out.decision = CertifyDecision.CONDITIONAL
+        out.n_applicable_subtests_capped = True
+
+    return out
+
+
 class CertifyDecision(str, Enum):
     """
     ADMIT       -- T(D) >= theta_admit and no hard override fired. Certified
@@ -757,36 +877,41 @@ class DataCertifyAuditor:
                     f"weights renormalised over the applicable axes."
                 )
 
+        # Stage-2 threshold rule -- `assign_stage2_decision()` is the single
+        # shared implementation (also used by calibration/_analysis_common.py's
+        # assign_decision_gated()); see that function's docstring.
+        decision = assign_stage2_decision(trust_score, self.theta_admit, self.theta_reject)
         if math.isnan(trust_score):
-            decision = CertifyDecision.REJECT
             caveats.append("No axis produced a usable score -- defaulting to REJECT "
                             "(insufficient data to certify).")
-        elif trust_score >= self.theta_admit:
-            decision = CertifyDecision.ADMIT
-        elif trust_score >= self.theta_reject:
-            decision = CertifyDecision.CONDITIONAL
+        elif decision == CertifyDecision.CONDITIONAL:
             caveats.append(
                 f"T(D)={trust_score:.4f} falls in the indifference zone "
                 f"[{self.theta_reject}, {self.theta_admit}) -- usable only with the "
                 f"specific per-axis caveats listed above (Deep-Dive 01 Section 2.2)."
             )
-        else:
-            decision = CertifyDecision.REJECT
 
-        # -- Additive evidence-coverage safety gate (review point 3.5) ----
-        # Only ever CAPS an ADMIT down to CONDITIONAL -- never touches an
-        # already-CONDITIONAL or REJECT decision, and never runs at all if
-        # Stage 1 already fired (handled by the early return above). See
-        # `_compute_evidence_coverage`'s docstring and this class's
-        # `min_evidence_coverage` docstring for the full rationale: T(D)
-        # can clear theta_admit while resting mostly on renormalised-away
-        # missing evidence rather than actual applicable tests, and that is
-        # not the same strength of claim as an ADMIT backed by a full
-        # battery -- this makes that distinction visible in the decision
-        # itself, not just in a buried caveat.
-        if (decision == CertifyDecision.ADMIT
-                and evidence_coverage is not None
-                and evidence_coverage < self.min_evidence_coverage):
+        # -- Additive ADMIT-eligibility safety gates (review point 3.5 +
+        # 2026-07-21 external review: min_evidence_coverage, min_sample_
+        # sufficiency, min_n_records_for_admit, min_applicable_subtests_for_
+        # admit) -- `apply_admit_eligibility_gates()` is the single shared,
+        # order-preserving implementation; see that function's and this
+        # class's own `__init__` docstring for the full rationale of each
+        # gate. Only ever caps an ADMIT down to CONDITIONAL -- never runs at
+        # all if Stage 1 already fired (handled by the early return above).
+        gate_outcome = apply_admit_eligibility_gates(
+            decision,
+            evidence_coverage=evidence_coverage,
+            sample_sufficiency=sample_sufficiency,
+            n_records=dataset.n,
+            n_applicable_subtests=n_applicable_subtests,
+            min_evidence_coverage=self.min_evidence_coverage,
+            min_sample_sufficiency=self.min_sample_sufficiency,
+            min_n_records_for_admit=self.min_n_records_for_admit,
+            min_applicable_subtests_for_admit=self.min_applicable_subtests_for_admit,
+        )
+        decision = gate_outcome.decision
+        if gate_outcome.evidence_coverage_capped:
             top_missing = ", ".join(
                 f"{name} ({weight:.1%} nominal weight)" for name, weight in missing_evidence[:3]
             )
@@ -797,20 +922,7 @@ class DataCertifyAuditor:
                 f"(min_evidence_coverage={self.min_evidence_coverage:.1%}) -- capped down to "
                 f"CONDITIONAL rather than ADMIT. Largest missing contributions: {top_missing}."
             )
-            decision = CertifyDecision.CONDITIONAL
-
-        # -- Additive sample-sufficiency safety gate (2026-07-21, external
-        # review) -- structurally identical to the evidence-coverage gate
-        # above (only ever caps ADMIT down to CONDITIONAL; independent of
-        # it and applied in addition, not instead): T(D) can clear
-        # theta_admit and have full evidence_coverage, yet still rest on
-        # sub-tests whose own sample size was too thin to trust (e.g. a
-        # single fitted Omori-Utsu cluster) -- see
-        # `_compute_sample_sufficiency`'s docstring and this class's
-        # `min_sample_sufficiency` docstring for the full rationale.
-        if (decision == CertifyDecision.ADMIT
-                and sample_sufficiency is not None
-                and sample_sufficiency < self.min_sample_sufficiency):
+        if gate_outcome.sample_sufficiency_capped:
             top_insufficient = ", ".join(
                 f"{name} (n_used={n_used}, needs>={min_required}, "
                 f"{weight:.1%} nominal weight)"
@@ -824,22 +936,7 @@ class DataCertifyAuditor:
                 f"{self.min_sample_sufficiency:.1%}) -- capped down to CONDITIONAL rather than "
                 f"ADMIT. Thinnest-sampled contributions: {top_insufficient}."
             )
-            decision = CertifyDecision.CONDITIONAL
-
-        # -- Additive ADMIT-eligibility floors (2026-07-21, response to a
-        # paper-readiness review of the 19/490 (3.9%) false-admit finding)
-        # -- structurally identical to the two gates above (only ever caps
-        # ADMIT down to CONDITIONAL; independent of, and applied in
-        # addition to, both): unlike evidence_coverage/sample_sufficiency
-        # (weight-FRACTION metrics coupled to AXIS_WEIGHTS/WITHIN_*), these
-        # are raw, weight-independent COUNTS -- see
-        # MIN_N_RECORDS_FOR_ADMIT/MIN_APPLICABLE_SUBTESTS_FOR_ADMIT's own
-        # comment in _constants.py for the full empirical basis and the
-        # documented residual this does NOT close (a genuinely different,
-        # ~0.8% false-admit rate from mild corruptions defeating an
-        # already well-powered, fully-covered battery, not a small-sample
-        # problem this floor is designed to catch).
-        if decision == CertifyDecision.ADMIT and dataset.n < self.min_n_records_for_admit:
+        if gate_outcome.n_records_capped:
             caveats.append(
                 f"ADMIT-eligibility record-count floor: T(D)={trust_score:.4f} cleared "
                 f"theta_admit={self.theta_admit}, but this audit rests on only "
@@ -849,9 +946,7 @@ class DataCertifyAuditor:
                 f"near-vacuously even when genuinely corrupted; see "
                 f"MIN_N_RECORDS_FOR_ADMIT's disclosure in data_certify/_constants.py."
             )
-            decision = CertifyDecision.CONDITIONAL
-        if (decision == CertifyDecision.ADMIT
-                and n_applicable_subtests < self.min_applicable_subtests_for_admit):
+        if gate_outcome.n_applicable_subtests_capped:
             caveats.append(
                 f"ADMIT-eligibility sub-test-count floor: T(D)={trust_score:.4f} cleared "
                 f"theta_admit={self.theta_admit}, but only {n_applicable_subtests} of a "
@@ -861,7 +956,6 @@ class DataCertifyAuditor:
                 f"rather than ADMIT, independent of how much nominal weight those few "
                 f"tests happen to carry."
             )
-            decision = CertifyDecision.CONDITIONAL
 
         return CertifyResult(
             decision=decision,

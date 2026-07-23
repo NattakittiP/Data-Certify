@@ -21,19 +21,32 @@ Usage:
 
 A6 (external cross-validation) default, as of this version: unless
 --reference-csv or --offline is given, the auditor now attempts A6 against
-the REAL, live USGS ComCat API by default (data_certify.USGSComCatReference)
-and gracefully falls back to intrinsic-only A1-A5 scoring if unreachable --
-see data_certify/reference_data.py's module docstring for why this
-default changed (A6 is the only signal in the whole framework that can
-catch a physically-plausible-but-fabricated catalog).
+REAL, live external catalogs by default and gracefully falls back to
+intrinsic-only A1-A5 scoring if unreachable -- see data_certify/
+reference_data.py's module docstring for why this default changed (A6 is
+the only signal in the whole framework that can catch a
+physically-plausible-but-fabricated catalog).
 
---reference-source {usgs,emsc,isc,multi,weighted-multi} selects WHICH
-external catalog(s) A6 checks against (default: usgs, unchanged). "multi"
-combines USGS + EMSC + ISC via MultiSourceExternalCatalogReference and only
-counts a record as externally corroborated once at least
---min-corroborating-sources (default 2) of the reachable sources
-independently agree -- this directly defends against the scenario where a
-single source (e.g. USGS ComCat) is itself spoofed or compromised.
+--reference-source DEFAULT CHANGED 2026-07-24: now "multi" (was "usgs").
+Single-source mode can only ever reach A6's "corroborated" or
+"unverifiable" states -- the "externally contradicted" Stage-1 hard-reject
+path requires >=2 independent sources to agree a record does NOT match
+(A6_CONTRADICTED_MIN_SOURCES=2, data_certify/_constants.py), which a
+single configured source can structurally never satisfy. Defaulting to
+"multi" (USGS+EMSC+ISC, --min-corroborating-sources=2) means a fresh
+install gets the framework's full disclosed fabrication-detection
+capability out of the box, not just a subset of it -- see CHANGELOG.md's
+2026-07-24 entry for the full rationale, and README.md's "A6: three-state
+external cross-validation" section for what this trades off (three live
+network dependencies instead of one; see --max-reference-wait below for
+how the added latency/reliability risk is bounded). Pass
+--reference-source usgs to restore the pre-2026-07-24 single-source
+default. "multi" combines USGS + EMSC + ISC via
+MultiSourceExternalCatalogReference and only counts a record as externally
+corroborated once at least --min-corroborating-sources (default 2) of the
+reachable sources independently agree -- this directly defends against the
+scenario where a single source (e.g. USGS ComCat) is itself spoofed or
+compromised.
 "weighted-multi" takes a different, complementary approach: USGS, EMSC,
 and ISC each query and match INDEPENDENTLY (their own matched_fraction
 over a shared reference-complete stratum), and the per-source results are
@@ -72,7 +85,9 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import queue
 import sys
+import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -119,6 +134,59 @@ def _json_safe(obj: Any) -> Any:
     if isinstance(obj, (list, tuple)):
         return [_json_safe(v) for v in obj]
     return obj
+
+
+def _audit_with_wallclock_budget(auditor: "DataCertifyAuditor", dataset, max_wait: float):
+    """
+    Wraps `auditor.audit(dataset)` in an OVERALL wall-clock deadline for the
+    whole call (added 2026-07-24, alongside the CLI default --reference-
+    source changing to "multi" -- see --max-reference-wait's own help text
+    and CHANGELOG.md's 2026-07-24 entry).
+
+    This is DISTINCT from --timeout (per_request timeout_sec, threaded
+    through USGSComCatReference/EMSCReference/ISCReference themselves):
+    that bounds a single HTTP request, but A6's pagination can issue up to
+    `_PAGINATION_MAX_TOTAL_REQUESTS=500` requests per source (data_certify/
+    reference_data.py), and --reference-source multi/weighted-multi queries
+    THREE sources -- so a per-request timeout alone does not bound the
+    TOTAL wall-clock time a single `.audit()` call can take. This function
+    adds that missing outer bound.
+
+    Uses the SAME daemon-thread + queue.Queue pattern already
+    battle-tested in calibration/run_a6_scoring.py's
+    score_one_with_timeout() -- deliberately NOT concurrent.futures.
+    ThreadPoolExecutor, which that function's own docstring documents two
+    real bugs for: (1) using it as a context manager blocks on __exit__
+    (shutdown(wait=True)) regardless of a per-call timeout already having
+    fired, and (2) its worker threads are not daemon threads by default,
+    so an abandoned task keeps the whole interpreter alive at process
+    exit even after the caller has already moved on. A raw
+    threading.Thread(daemon=True) has neither problem: an abandoned
+    thread is silently discarded at interpreter exit, which is exactly
+    the "give up and move on" behaviour this wrapper needs.
+
+    Returns (result_or_None, timed_out: bool). On timed_out=True, the
+    audit thread is abandoned (not killed -- Python cannot forcibly kill a
+    thread), but being a daemon thread, it will not block this process
+    from exiting.
+    """
+    result_q: "queue.Queue" = queue.Queue(maxsize=1)
+
+    def _runner() -> None:
+        try:
+            result_q.put(("ok", auditor.audit(dataset)))
+        except Exception as exc:  # surface the real error, not silence it
+            result_q.put(("error", exc))
+
+    t = threading.Thread(target=_runner, daemon=True)
+    t.start()
+    t.join(timeout=max_wait)
+    if t.is_alive():
+        return None, True
+    status, payload = result_q.get_nowait()
+    if status == "error":
+        raise payload
+    return payload, False
 
 
 def list_datasets() -> List[Path]:
@@ -196,7 +264,7 @@ def print_audit_summary(result) -> None:
 
 def _build_reference(
     reference_csv: Optional[str], offline: bool,
-    reference_source: str = "usgs", min_corroborating_sources: int = 2,
+    reference_source: str = "multi", min_corroborating_sources: int = 2,
     default_mc_ref_weight_discount: float = 0.5,
     timeout_sec: Optional[float] = None,
 ):
@@ -204,7 +272,8 @@ def _build_reference(
     Choose the A6 external-reference implementation, in priority order:
       1. --reference-csv PATH   -> LocalCSVCatalogReference(PATH) (explicit, always wins)
       2. --offline              -> NullExternalCatalog() (explicit fully-offline/air-gapped mode)
-      3. --reference-source     -> usgs (default) / emsc / isc / multi / weighted-multi (see below)
+      3. --reference-source     -> multi (default since 2026-07-24, was usgs) / usgs / emsc / isc /
+                                    weighted-multi (see below)
 
     timeout_sec (added 2026-07-09, motivated by a real finding: ISC's
     production default timeout of 15s was demonstrated live to be too
@@ -218,12 +287,15 @@ def _build_reference(
     fully backward compatible with every prior call site.
 
     --reference-source options:
-      usgs  (default) -> USGSComCatReference() -- unchanged from prior versions.
+      usgs             -> USGSComCatReference() -- single-source, unchanged from prior
+                          versions; the pre-2026-07-24 default. Lower latency, but can
+                          never reach A6's "externally contradicted" hard-reject state
+                          (needs >=2 independent sources).
       emsc             -> EMSCReference() -- EMSC SeismicPortal, an organizationally
                           independent source from USGS.
       isc              -> ISCReference() -- ISC, a third independent source (live-verified
                           2026-07-08/09 -- see its docstring in data_certify/reference_data.py).
-      multi            -> MultiSourceExternalCatalogReference([USGS, EMSC, ISC],
+      multi (default)  -> MultiSourceExternalCatalogReference([USGS, EMSC, ISC],
                           min_corroborating_sources=--min-corroborating-sources) --
                           requires independent agreement from N of the 3 sources before
                           treating a record as externally corroborated, closing the
@@ -320,12 +392,13 @@ def audit_dataset(
     uncertainty: bool = False,
     n_boot: int = 100,
     subsample_fraction: float = 0.8,
-    reference_source: str = "usgs",
+    reference_source: str = "multi",
     min_corroborating_sources: int = 2,
     default_mc_ref_weight_discount: float = 0.5,
     fault_db_source: Optional[str] = None,
     gem_fault_db_path: Optional[str] = None,
     timeout_sec: Optional[float] = None,
+    max_reference_wait: Optional[float] = 180.0,
     min_evidence_coverage: float = 0.5,
     min_sample_sufficiency: float = 0.5,
     min_n_records_for_admit: int = MIN_N_RECORDS_FOR_ADMIT,
@@ -362,7 +435,39 @@ def audit_dataset(
         min_n_records_for_admit=min_n_records_for_admit,
         min_applicable_subtests_for_admit=min_applicable_subtests_for_admit,
     )
-    result = auditor.audit(dataset)
+
+    # Overall wall-clock budget for the A6 external-reference step (see
+    # --max-reference-wait's help text and _audit_with_wallclock_budget's
+    # docstring) -- only relevant when a live network call can actually
+    # happen (not --reference-csv, not --offline, not a non-positive
+    # max_reference_wait, which means "disabled -- unbounded, pre-2026-07-24
+    # behaviour").
+    live_network = (not reference_csv) and (not offline)
+    if live_network and max_reference_wait is not None and max_reference_wait > 0:
+        result, timed_out = _audit_with_wallclock_budget(auditor, dataset, max_reference_wait)
+        if timed_out:
+            print(f"\n{YELLOW}  WARNING: A6 external-reference lookup did not complete within "
+                  f"{max_reference_wait:.0f}s (--max-reference-wait) -- this is almost always a "
+                  f"degraded/rate-limited source or a known pagination pathology (see "
+                  f"data_certify/reference_data.py's EMSC/ISC docstrings and "
+                  f"calibration/run_a6_scoring.py's SCORE_ONE_TIMEOUT_SEC comment for documented "
+                  f"live examples), not a genuine A6 result for this dataset. Falling back to an "
+                  f"OFFLINE re-audit (A6 not applicable, A1-A5 intrinsic scoring only) so this "
+                  f"audit still completes rather than hanging indefinitely -- increase "
+                  f"--max-reference-wait to wait longer instead, if you have reason to believe "
+                  f"the source(s) would eventually respond.{NC}")
+            offline_auditor = DataCertifyAuditor(
+                theta_admit=theta_admit, theta_reject=theta_reject,
+                reference=NullExternalCatalog(), fault_db=fault_db,
+                min_evidence_coverage=min_evidence_coverage,
+                min_sample_sufficiency=min_sample_sufficiency,
+                min_n_records_for_admit=min_n_records_for_admit,
+                min_applicable_subtests_for_admit=min_applicable_subtests_for_admit,
+            )
+            result = offline_auditor.audit(dataset)
+            reference_label += " -- TIMED OUT after {:.0f}s, fell back to OFFLINE".format(max_reference_wait)
+    else:
+        result = auditor.audit(dataset)
 
     print()
     print(str(result))
@@ -493,11 +598,19 @@ def main() -> None:
                               "replicate (default: 0.8). See estimate_uncertainty's docstring "
                               "for why without-replacement subsampling, not the textbook "
                               "with-replacement bootstrap, is used.")
-    parser.add_argument("--reference-source", type=str, default="usgs",
+    parser.add_argument("--reference-source", type=str, default="multi",
                          choices=["usgs", "emsc", "isc", "multi", "weighted-multi"],
-                         help="Which external catalog(s) A6 checks against (default: usgs, "
-                              "unchanged from prior versions). 'multi' combines USGS+EMSC+ISC "
-                              "and requires --min-corroborating-sources of them to agree before "
+                         help="Which external catalog(s) A6 checks against. DEFAULT CHANGED "
+                              "2026-07-24: now 'multi' (was 'usgs') -- single-source mode can "
+                              "only ever reach A6's 'corroborated'/'unverifiable' states, never "
+                              "'externally contradicted' (which needs "
+                              "A6_CONTRADICTED_MIN_SOURCES=2 independent sources), so the "
+                              "default now gets the framework's full disclosed A6 hard-reject "
+                              "capability out of the box -- see CHANGELOG.md's 2026-07-24 entry "
+                              "and README.md's 'A6: three-state external cross-validation' "
+                              "section. Pass --reference-source usgs for the old, single-source, "
+                              "lower-latency default. 'multi' combines USGS+EMSC+ISC and "
+                              "requires --min-corroborating-sources of them to agree before "
                               "treating a record as externally corroborated -- hardens A6 "
                               "against a single source being spoofed/compromised. "
                               "'weighted-multi' instead queries USGS+EMSC+ISC INDEPENDENTLY and "
@@ -516,14 +629,40 @@ def main() -> None:
                               "(default: 0.5 -- see WeightedMultiSourceExternalCatalogReference's "
                               "docstring). Must be in (0, 1].")
     parser.add_argument("--timeout", type=float, default=None,
-                         help="Per-request timeout in seconds, overriding every live source's "
-                              "(USGS/EMSC/ISC) own default (USGS/EMSC=10s, ISC=15s). Added "
-                              "2026-07-09 after live testing showed the ISC default was too "
-                              "short for large calibration-scale queries (e.g. the 'chile' "
-                              "corpus dataset needed ~90s to get a genuine, non-fallback "
-                              "mc_ref) -- see calibration/debug_diagnostics/debug_chile_isc_emsc_gap.py. "
+                         help="PER-REQUEST timeout in seconds, overriding every live source's "
+                              "(USGS/EMSC/ISC) own default (USGS/EMSC=10s, ISC=15s) for EACH "
+                              "individual HTTP request A6 issues. Added 2026-07-09 after live "
+                              "testing showed the ISC default was too short for large "
+                              "calibration-scale queries (e.g. the 'chile' corpus dataset "
+                              "needed ~90s to get a genuine, non-fallback mc_ref) -- see "
+                              "calibration/debug_diagnostics/debug_chile_isc_emsc_gap.py. "
+                              "Distinct from --max-reference-wait below, which bounds the "
+                              "TOTAL time across every request (pagination can issue many). "
                               "Ignored with --reference-csv or --offline. Default: None "
                               "(each source's own production default, unchanged behavior).")
+    parser.add_argument("--max-reference-wait", type=float, default=180.0,
+                         help="OVERALL wall-clock budget, in seconds, for the ENTIRE A6 "
+                              "external-reference step (added 2026-07-24, alongside "
+                              "--reference-source's default changing to 'multi' -- see "
+                              "CHANGELOG.md). Distinct from --timeout above (a PER-REQUEST "
+                              "cap): A6's pagination can issue up to 500 requests per source "
+                              "(data_certify/reference_data.py's "
+                              "_PAGINATION_MAX_TOTAL_REQUESTS), and 'multi'/'weighted-multi' "
+                              "query THREE sources, so a per-request timeout alone does not "
+                              "bound the total time a single audit can take -- documented live "
+                              "cases have taken 5+ hours under a known EMSC/ISC pagination "
+                              "pathology before this budget existed (see "
+                              "calibration/run_a6_scoring.py's SCORE_ONE_TIMEOUT_SEC comment). "
+                              "If the A6 lookup has not completed within this budget, the audit "
+                              "automatically falls back to an OFFLINE re-run (A6 not applicable, "
+                              "A1-A5 intrinsic scoring only) so the command still completes "
+                              "rather than hanging indefinitely. Default: 180s (3 minutes) -- "
+                              "generous relative to the largest legitimate case observed to "
+                              "date (~90s, 'chile' against ISC), while still bounding "
+                              "pathological cases to minutes rather than hours. Set to 0 or "
+                              "negative to disable (unbounded, pre-2026-07-24 behavior). "
+                              "Ignored with --reference-csv or --offline (no network call "
+                              "happens in either case).")
     args = parser.parse_args()
 
     if args.list:
@@ -572,6 +711,7 @@ def main() -> None:
                 fault_db_source=args.fault_db_source,
                 gem_fault_db_path=args.gem_fault_db_path,
                 timeout_sec=args.timeout,
+                max_reference_wait=args.max_reference_wait,
                 min_evidence_coverage=args.min_evidence_coverage,
                 min_sample_sufficiency=args.min_sample_sufficiency,
                 min_n_records_for_admit=args.min_n_records_for_admit,

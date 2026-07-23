@@ -54,6 +54,7 @@ from data_certify.decision import (
     _compute_evidence_coverage,
     _compute_n_applicable_subtests,
     _compute_sample_sufficiency,
+    assign_stage2_decision,
 )
 from data_certify.hard_override import check_hard_override
 from data_certify._constants import (
@@ -185,14 +186,19 @@ def score_one(dataset_id: str) -> dict:
                 w_sum = sum(AXIS_WEIGHTS[k] for k in applicable_axes)
                 trust_score = sum(AXIS_WEIGHTS[k] * v.score for k, v in applicable_axes.items()) / w_sum
 
-            if math.isnan(trust_score):
-                decision = CertifyDecision.REJECT
-            elif trust_score >= THETA_ADMIT:
-                decision = CertifyDecision.ADMIT
-            elif trust_score >= THETA_REJECT:
-                decision = CertifyDecision.CONDITIONAL
-            else:
-                decision = CertifyDecision.REJECT
+            # SINGLE-SOURCED (2026-07-23): the threshold rule below is now
+            # assign_stage2_decision() -- the same pure function
+            # decision.py's DataCertifyAuditor.audit() calls -- instead of
+            # a hand-copied >=/elif chain. This column is deliberately the
+            # UNGATED Stage-2-only decision (no evidence_coverage/
+            # sample_sufficiency/n_records/n_applicable_subtests gates) --
+            # it reflects the pure-AHP-prior threshold rule alone, by
+            # design (see this file's module docstring); the real, fully-
+            # gated production decision is reconstructed downstream by
+            # calibration/_analysis_common.py's assign_decision_gated(),
+            # using the evidence_coverage/sample_sufficiency/
+            # n_applicable_subtests columns written below.
+            decision = assign_stage2_decision(trust_score, THETA_ADMIT, THETA_REJECT)
 
             row["hard_override_fired"] = False
             row["trust_score_ahp_only"] = trust_score

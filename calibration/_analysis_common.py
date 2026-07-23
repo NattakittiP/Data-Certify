@@ -60,6 +60,11 @@ from data_certify._constants import (  # noqa: E402
     MIN_N_RECORDS_FOR_ADMIT,
     MIN_APPLICABLE_SUBTESTS_FOR_ADMIT,
 )
+from data_certify.decision import (  # noqa: E402
+    CertifyDecision,
+    assign_stage2_decision,
+    apply_admit_eligibility_gates,
+)
 
 # Production defaults for the two weight-fraction safety gates
 # (min_evidence_coverage, min_sample_sufficiency) -- these are
@@ -350,12 +355,29 @@ def assign_decision(
     theta_reject: float = THETA_REJECT,
     respect_hard_override: bool = True,
 ) -> pd.Series:
-    """Vectorized version of the production decision rule
-    (decision.py / run_scoring.py's score_one): REJECT if hard override
-    fired (when respect_hard_override=True); else ADMIT/CONDITIONAL/REJECT
-    by T(D) thresholds; REJECT if T(D) is NaN (no applicable axis at all).
-    `respect_hard_override=False` is used by the "weighted-sum only, no
-    hard override" ablation arm.
+    """Vectorized version of the production Stage-2 threshold rule
+    (`data_certify.decision.assign_stage2_decision()`): REJECT if hard
+    override fired (when respect_hard_override=True); else
+    ADMIT/CONDITIONAL/REJECT by T(D) thresholds; REJECT if T(D) is NaN (no
+    applicable axis at all). `respect_hard_override=False` is used by the
+    "weighted-sum only, no hard override" ablation arm.
+
+    Kept as an independent vectorized (numpy/pandas) implementation rather
+    than calling `assign_stage2_decision()` once per row, because
+    `analysis_decision_stability.py`'s 2000-draw Monte Carlo loop calls
+    this function on every draw -- a per-row Python loop there would be a
+    real, avoidable performance cost. To still guarantee this cannot
+    silently drift out of sync with `assign_stage2_decision()` (the single
+    authoritative scalar rule `DataCertifyAuditor.audit()` itself uses),
+    `_unit_test_assign_decision_matches_stage2()` below checks the two
+    against each other on an exhaustive grid of boundary/edge-case values,
+    automatically, on every import -- see that function's docstring.
+    (The four ADMIT-eligibility GATES applied by `assign_decision_gated()`
+    below, unlike this threshold rule, ARE routed through the shared
+    `apply_admit_eligibility_gates()` directly -- that logic is more
+    complex, gate application is not in any hot loop, and it is exactly
+    the logic that drifted out of sync once before, in the 2026-07-21
+    gate-awareness bug.)
     """
     hof = hard_override_fired.fillna(False).astype(bool)
     decision = pd.Series("REJECT", index=t_d.index, dtype=object)
@@ -395,16 +417,36 @@ def assign_decision_gated(
 
     This function reproduces the REAL, fully-gated production decision
     path exactly, so that any report built on it is not vulnerable to the
-    same staleness `assign_decision()` alone was found to have. Every gate
-    is applied in the SAME ORDER decision.py's `DataCertifyAuditor.audit()`
-    applies them (evidence_coverage, then sample_sufficiency, then the
-    record-count floor, then the sub-test-count floor), and, matching
-    decision.py's own additive design exactly, each gate ONLY ever caps an
-    ADMIT down to CONDITIONAL -- a dataset already CONDITIONAL or REJECT
-    under `assign_decision()` is returned completely unchanged, and no gate
-    here can ever override the Stage-1 hard override (that is handled by
-    `assign_decision()` itself, called internally, before any gate below
-    runs).
+    same staleness `assign_decision()` alone was found to have.
+
+    GATE APPLICATION (2026-07-23 refactor): the four gates below are now
+    applied by calling `data_certify.decision.apply_admit_eligibility_gates()`
+    once per (already-ADMIT) row -- the SAME pure function
+    `DataCertifyAuditor.audit()` itself calls -- rather than a hand-rolled,
+    independently-maintained vectorized reimplementation of the four-gate
+    logic. This closes the exact class of bug that caused the 2026-07-21
+    gate-awareness finding in the first place (this file's decision logic
+    silently drifting out of sync with what production actually applies):
+    a future change to gate logic, gate order, or a new gate only ever
+    needs to happen in `decision.py`, and this function picks it up
+    automatically. The per-row loop only runs for rows Stage-2 already
+    marked ADMIT (a small minority of any real corpus), so the cost is
+    negligible next to `composite_score()`'s own vectorized cost -- and
+    this function is not called inside `analysis_decision_stability.py`'s
+    2000-draw Monte Carlo loop (that loop deliberately uses the plain,
+    gate-free `assign_decision()` instead -- see its own "GATE-AWARENESS
+    SCOPE NOTE"), so there is no hot-loop performance concern here.
+
+    Every gate is applied in the SAME ORDER decision.py's
+    `DataCertifyAuditor.audit()` applies them (evidence_coverage, then
+    sample_sufficiency, then the record-count floor, then the
+    sub-test-count floor) because `apply_admit_eligibility_gates()` IS that
+    same order, by construction. Matching decision.py's own additive design
+    exactly, each gate ONLY ever caps an ADMIT down to CONDITIONAL -- a
+    dataset already CONDITIONAL or REJECT under `assign_decision()` is
+    returned completely unchanged, and no gate here can ever override the
+    Stage-1 hard override (that is handled by `assign_decision()` itself,
+    called internally, before any gate below runs).
 
     `respect_hard_override=False` (2026-07-21 addition, mirrors
     `assign_decision()`'s own parameter) supports the "weighted_sum_only"
@@ -444,25 +486,33 @@ def assign_decision_gated(
     decision = assign_decision(
         t_d, df["hard_override_fired"], theta_admit=theta_admit, theta_reject=theta_reject,
         respect_hard_override=respect_hard_override,
-    ).copy()
+    )
 
-    ec = df["evidence_coverage"]
-    is_admit = decision == "ADMIT"
-    decision[is_admit & ec.notna() & (ec < min_evidence_coverage)] = "CONDITIONAL"
+    ec_col = df["evidence_coverage"]
+    ss_col = df["sample_sufficiency"]
+    nrec_col = df["n_records"]
+    nappl_col = df["n_applicable_subtests"]
 
-    ss = df["sample_sufficiency"]
-    is_admit = decision == "ADMIT"
-    decision[is_admit & ss.notna() & (ss < min_sample_sufficiency)] = "CONDITIONAL"
+    out = list(decision.values)
+    for i, idx in enumerate(df.index):
+        if out[i] != "ADMIT":
+            continue  # gates only ever act on an already-ADMIT row
+        ec, ss = ec_col.loc[idx], ss_col.loc[idx]
+        nrec, nappl = nrec_col.loc[idx], nappl_col.loc[idx]
+        outcome = apply_admit_eligibility_gates(
+            CertifyDecision.ADMIT,
+            evidence_coverage=None if pd.isna(ec) else float(ec),
+            sample_sufficiency=None if pd.isna(ss) else float(ss),
+            n_records=None if pd.isna(nrec) else float(nrec),
+            n_applicable_subtests=None if pd.isna(nappl) else float(nappl),
+            min_evidence_coverage=min_evidence_coverage,
+            min_sample_sufficiency=min_sample_sufficiency,
+            min_n_records_for_admit=min_n_records_for_admit,
+            min_applicable_subtests_for_admit=min_applicable_subtests_for_admit,
+        )
+        out[i] = outcome.decision.value
 
-    n_rec = df["n_records"]
-    is_admit = decision == "ADMIT"
-    decision[is_admit & n_rec.notna() & (n_rec < min_n_records_for_admit)] = "CONDITIONAL"
-
-    n_appl = df["n_applicable_subtests"]
-    is_admit = decision == "ADMIT"
-    decision[is_admit & n_appl.notna() & (n_appl < min_applicable_subtests_for_admit)] = "CONDITIONAL"
-
-    return decision
+    return pd.Series(out, index=df.index, dtype=object)
 
 
 def wilson_ci(k: int, n: int, z: float = 1.96) -> Tuple[float, float]:
@@ -495,6 +545,44 @@ def fmt_rate_ci(k: int, n: int) -> str:
     p = k / n
     lo, hi = wilson_ci(k, n)
     return f"{p:.4f} ({k}/{n}) [95% CI: {lo:.4f}-{hi:.4f}]"
+
+
+def _unit_test_assign_decision_matches_stage2() -> None:
+    """Guards `assign_decision()`'s vectorized threshold rule against
+    `data_certify.decision.assign_stage2_decision()` -- the single
+    authoritative SCALAR implementation also used by
+    `DataCertifyAuditor.audit()` -- on an exhaustive grid of boundary and
+    edge-case trust_score values (comfortably above ADMIT, exactly at
+    theta_admit, just below it, mid-range, exactly at theta_reject, just
+    below it, negative, and NaN). `assign_decision()` is deliberately KEPT
+    vectorized rather than routed through `assign_stage2_decision()` per
+    row (see that function's own docstring for why -- the
+    2000-draw Monte Carlo loop in analysis_decision_stability.py calls it
+    every draw), so this test is what actually guarantees the two
+    cannot silently drift apart. Runs automatically on import; raises
+    immediately on any mismatch."""
+    theta_admit, theta_reject = 0.75, 0.20
+    probe_values = [
+        1.0, 0.9, 0.751, 0.75, 0.749, 0.5, 0.201, 0.20, 0.199, 0.0, -0.1,
+        float("nan"),
+    ]
+    t_d = pd.Series(probe_values)
+    hof = pd.Series([False] * len(probe_values))
+    vectorized = assign_decision(t_d, hof, theta_admit=theta_admit, theta_reject=theta_reject)
+    for i, v in enumerate(probe_values):
+        scalar = assign_stage2_decision(
+            None if math.isnan(v) else v, theta_admit, theta_reject,
+        ).value
+        if vectorized.iloc[i] != scalar:
+            raise AssertionError(
+                f"assign_decision() vectorized output ({vectorized.iloc[i]!r}) does not "
+                f"match assign_stage2_decision()'s scalar rule ({scalar!r}) for "
+                f"trust_score={v!r} (theta_admit={theta_admit}, theta_reject={theta_reject}). "
+                f"assign_decision()'s vectorized threshold logic has drifted out of sync "
+                f"with the single authoritative scalar rule in data_certify/decision.py -- "
+                f"fix assign_decision() to match assign_stage2_decision() before trusting "
+                f"any report built on it."
+            )
 
 
 def _unit_test_gate_defaults_match_production() -> None:
@@ -631,6 +719,7 @@ def _self_check() -> None:
           trusting anything downstream.
     """
     _unit_test_composite_score()
+    _unit_test_assign_decision_matches_stage2()
     _unit_test_gate_defaults_match_production()
 
     if not SCORE_MATRIX_PATH.exists():
